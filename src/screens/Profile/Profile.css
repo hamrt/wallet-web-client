@@ -1,0 +1,53 @@
+.jumbotron {
+  border-radius: 0;
+}
+.tourButton {
+  appearance: none;
+  background: none;
+  box-sizing: border-box;
+  display: inline-block;
+  font: normal normal 400 1rem/1.25rem Arial, sans-serif;
+  font-weight: 600;
+  margin: 0;
+  background-color: #fff;
+  border: 2px solid #004494;
+  color: #fff;
+  padding: calc(0.75rem - 2px) calc(1rem - 2px);
+  text-decoration: none;
+  border-radius: 50%;
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen and (max-width: 320px) {
+  .did {
+    font-size: 10px;
+  }
+}
+@media only screen and (min-width: 321px) and (max-width: 767px) {
+  .did {
+    font-size: 10px;
+  }
+}
+
+/* Tablets, iPads */
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .did {
+    font-size: 12px;
+  }
+  .profile {
+    margin-left: 5%;
+  }
+}
+
+/* Desktops and laptops ----------- */
+@media only screen and (min-width: 1025px) {
+  .did {
+    font-size: 12px;
+  }
+  .profile {
+    margin-left: 5%;
+  }
+}

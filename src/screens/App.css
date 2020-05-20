@@ -1,0 +1,78 @@
+.App {
+  text-align: center;
+  height: 100vh;
+  max-width: 100%;
+}
+.container {
+  max-width: 100vw;
+}
+.col {
+  padding: 0;
+}
+.btn-primary,
+.btn-primary:active,
+.btn-primary:visited,
+.btn-primary:focus {
+  background-color: #004494 !important;
+  border-color: initial !important;
+  color: #fff;
+  box-shadow: none;
+  border: none;
+}
+.btn-info,
+.btn-info:active,
+.btn-info:visited,
+.btn-info:focus {
+  background-color: #ffd617 !important;
+  border-color: initial !important;
+  color: #000;
+  box-shadow: none;
+  border: none;
+}
+.btn-success,
+.btn-success:active,
+.btn-success:visited,
+.btn-success:focus {
+  background-color: #467a39 !important;
+  border-color: initial !important;
+  color: #fff;
+  box-shadow: none;
+  border: none;
+}
+.btn-danger,
+.btn-danger:active,
+.btn-danger:visited,
+.btn-danger:focus {
+  background-color: #da2131 !important;
+  border-color: initial !important;
+  color: #fff;
+  box-shadow: none;
+  border: none;
+}
+.btn-warning,
+.btn-warning:active,
+.btn-warning:visited,
+.btn-warning:focus {
+  background-color: #f29527 !important;
+  border-color: initial !important;
+  color: #fff;
+  box-shadow: none;
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #ffd617 !important;
+}
+.btn-secondary,
+.btn-secondary:active,
+.btn-secondary:visited,
+.btn-secondary:focus,
+.btn-secondary:hover {
+  background-color: #bbb !important;
+  border-color: initial !important;
+  color: #fff;
+  box-shadow: none;
+  border: none;
+}
+.btn-secondary:hover {
+  background-color: #909090 !important;
+}

@@ -1,0 +1,126 @@
+.panelTitle {
+  background: #fffe;
+  padding: 0.75rem 1.25rem;
+  color: #444;
+  font-size: 1.125rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelTitle {
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+  }
+}
+
+.panelMainContent {
+  flex-grow: 1;
+  z-index: 1;
+}
+
+.panelBody {
+  display: flex;
+  background: #fff;
+  padding: 1rem 1.25rem;
+  color: #444;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelBody {
+    flex-direction: row;
+    padding: 2rem 2rem;
+  }
+}
+
+.panelImageContainer {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.1;
+  top: 100%;
+  right: 0%;
+  margin-top: -6.5rem;
+  margin-right: -3.5rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelImageContainer {
+    position: static;
+    padding-right: 1rem;
+    opacity: 1;
+    margin: 0;
+  }
+}
+
+.panelImage {
+  width: 10rem;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelImage {
+    width: auto;
+  }
+}
+
+.panelButtonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelButtonContainer {
+    width: 220px;
+    justify-content: center;
+  }
+}
+
+.panelBodyTitle {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.panelBodyText {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.panelLink {
+  margin: 0;
+  text-decoration: underline;
+  background-color: #ffd617;
+  box-sizing: border-box;
+  color: #000;
+  display: inline-block;
+  font: normal normal 400 1rem/1.25rem Arial, sans-serif;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+@media only screen and (min-width: 768px) {
+  .panelLink {
+    width: 100%;
+    max-width: 10rem;
+  }
+}
+
+.panelLink:focus,
+.panelLink:hover {
+  color: #000;
+}
+
+.panelLink:focus {
+  outline: 3px solid #000;
+  outline-offset: -3px;
+}
+
+.panelLink:active,
+.panelLink:hover {
+  border: 2px solid #000;
+  padding: calc(0.75rem - 2px) calc(1rem - 2px);
+}

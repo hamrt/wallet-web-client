@@ -1,0 +1,28 @@
+.ModalHeader {
+  color: white;
+  text-align: center;
+  align-items: center;
+}
+.ModalTitleCredential {
+  flex-grow: 1;
+}
+.ModalBodyPresentation {
+  text-align: center;
+  align-content: center;
+}
+.BackButton {
+  height: 2em;
+  width: 2em;
+  cursor: pointer;
+  padding: 3px;
+  z-index: 15;
+  float: left;
+}
+.spinner {
+  float: center;
+  align-self: center;
+}
+.bodyDisplayCredential {
+  background-repeat: no-repeat;
+  background-size: contain;
+}

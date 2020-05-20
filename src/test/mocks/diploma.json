@@ -1,0 +1,260 @@
+{
+  "@context": "['https://www.w3.org/2018/credentials/v1','https://essiteuropa.eu/schema/diploma/v11']",
+  "id": "did:ebsi:e76fb4b4900/credentials/1872",
+  "type": "['VerifiableCredential','EuropassCredential']",
+  "issuer": {
+    "id": "did:ebsi:e76fb4b4900",
+    "organization": {
+      "id": "urn:agent:000",
+      "legalIdentifier": "LID89GRE",
+      "vatIdentifier": "VAT12Y11I",
+      "taxIdentifier": "TAX1249J",
+      "identifier": "agentIdentifier1",
+      "preferredName": "Katholieke Universiteit Leuven",
+      "alternativeName": "KU Leuven",
+      "homePage": "https://www.keuleuven.be",
+      "escoOrganizationType": "Educational Institution",
+      "siteLocation": "Leuven",
+      "hasAccreditation": {
+        "targetFramework": "Europass Accreditation Database",
+        "targetResource": "https://accreditation.europass.eu/12341455"
+      }
+    }
+  },
+  "issuanceDate": "2019-06-22T14:11:44Z",
+  "title": [
+    {
+      "lang": "en_GB",
+      "contentType": "text/plain",
+      "text": "Degree in Computer Science"
+    }
+  ],
+  "description": [
+    {
+      "lang": "en_GB",
+      "contentType": "text/plain",
+      "text": "Attests that Eva has completed a 3 year course in Computer Science up to EQF Level 6."
+    }
+  ],
+  "credentialSubject": {
+    "id": "did:ebsi-eth:00000002",
+    "achievements": [
+      {
+        "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/ach1",
+        "identifier": "achIdentifier1",
+        "title": "Qualification Award in Computer Science",
+        "description": "A detailed description of the award in computer science",
+        "issuedDate": "2010-01-01T19:73:24Z",
+        "partReferences": null,
+        "hasPart": [
+          {
+            "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/ach2",
+            "identifier": "achIdentifier2",
+            "title": "Credit in Introductory Computer Science",
+            "description": "A credit in Introductory Computer Science",
+            "issuedDate": "2010-01-01T19:73:24Z",
+            "partReferences": null,
+            "hasPart": null,
+            "derivedReferences": null,
+            "influencedReferences": null,
+            "wasInfluencedBy": null,
+            "wasDerivedFrom": {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/amn2",
+              "identifier": "amnIdentifier2",
+              "title": "Unit examination",
+              "description": null,
+              "partReferences": null,
+              "derivedReferences": null,
+              "hasPart": null,
+              "wasDerivedFrom": null,
+              "assessedBy": null,
+              "additionalNote": "",
+              "grade": {
+                "numericScore": "85%"
+              },
+              "issuedDate": "2010-01-01T19:73:24Z",
+              "specifiedby": null
+            },
+            "entitlement": null,
+            "learningSpecification": {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/lss2",
+              "identifier": "LssIdenitifer2",
+              "title": "Specification for Credit in Computer Science",
+              "definition": "Description of the Curriculum of the Credit",
+              "volumeOfLearning": "100 hours",
+              "learningOutcomes": null,
+              "iscedFcode": "0481 Computer Science",
+              "educationSubject": {
+                "targetNotation": "034627",
+                "targetName": "Communication Science"
+              },
+              "ectsCreditPoints": 4
+            }
+          },
+          {
+            "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/ach3",
+            "identifier": "achIdentifier3",
+            "title": "Credit in Javascript",
+            "description": "A credit in Introductory Javascript coding",
+            "issuedDate": "2010-01-01T19:73:24Z",
+            "partReferences": null,
+            "hasPart": null,
+            "derivedReferences": null,
+            "influencedReferences": null,
+            "wasInfluencedBy": null,
+            "wasDerivedFrom": {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/amn3",
+              "identifier": "amnIdentifier3",
+              "title": "Unit examination",
+              "description": null,
+              "partReferences": null,
+              "derivedReferences": null,
+              "hasPart": null,
+              "wasDerivedFrom": null,
+              "assessedBy": null,
+              "additionalNote": "",
+              "grade": {
+                "numericScore": "68%"
+              },
+              "issuedDate": "2010-01-01T19:73:24Z",
+              "specifiedby": null
+            },
+            "entitlement": null,
+            "learningSpecification": {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/lss3",
+              "identifier": "LssIdenitifer3",
+              "title": "Specification for Credit in Javascript Programming",
+              "definition": "Description of the Curriculum of the Credit",
+              "volumeOfLearning": "150 hours",
+              "learningOutcomes": [
+                {
+                  "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo6",
+                  "identifier": null,
+                  "title": "ability to program in Javascript",
+                  "description": null,
+                  "learningOutcomeType": "skill",
+                  "reusabilityLevel": null,
+                  "relatedESCOSkill": {
+                    "target": "http://data.europa.eu/esco/skill/3cd569a2-4f88-4c1e-9995-8dce8c5e51a7"
+                  }
+                }
+              ],
+              "iscedFcode": "0619: Information and Communication Technologies (ICTs)",
+              "ectsCreditPoints": 6,
+              "language": {
+                "content": "Dutch",
+                "uri": "http://publications.europa.eu/resource/authority/language/NLD"
+              }
+            }
+          }
+        ],
+        "derivedReferences": null,
+        "influencedReferences": null,
+        "wasInfluencedBy": null,
+        "wasDerivedFrom": {
+          "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/amn3",
+          "identifier": "amnIdentifier1",
+          "title": "Final examination",
+          "description": null,
+          "partReferences": null,
+          "derivedReferences": null,
+          "hasPart": null,
+          "wasDerivedFrom": null,
+          "assessedBy": null,
+          "additionalNote": "",
+          "grade": {
+            "textScore": "Magna cum Laude"
+          },
+          "issuedDate": "2010-01-01T19:73:24Z",
+          "specifiedby": {
+            "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/ass1",
+            "identifier": "AssIdenitifer1",
+            "assesmentType": "written examination",
+            "title": "Final Examination in Computer Science",
+            "description": "Final examination consisting of a 50 page research paper, assessed by a panel of peers.",
+            "gradingscheme": {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/sco1",
+              "identifier": "ScoIdenitifer1",
+              "title": "Degree Grading Scheme",
+              "description": "Scores of 85% plus are awarded a summa cum laude, 70%-80% are awarded a magna cum laude, while 50% to 80% are issued without grade (regular award)"
+            }
+          }
+        },
+        "learningSpecification": {
+          "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/lss1",
+          "identifier": {
+            "IdentifierSchemeAgencyName": "Government of Flanders",
+            "Content": "20090702132843917605"
+          },
+          "title": "Specification for Degree in Computer Science",
+          "definition": null,
+          "volumeOfLearning": "1500 hours",
+          "learningOutcomes": [
+            {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo1",
+              "identifier": null,
+              "title": "ability to apply knowledge of computing and mathematics appropriate to the discipline.",
+              "description": null,
+              "learningOutcomeType": "skill",
+              "reusabilityLevel": null,
+              "relatedESCOSkill": null
+            },
+            {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo2",
+              "identifier": null,
+              "title": "ability to analyze a problem, and identify and define the computing requirements appropriate to its solution",
+              "description": null,
+              "learningOutcomeType": "skill",
+              "reusabilityLevel": null,
+              "relatedESCOSkill": null
+            },
+            {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo3",
+              "identifier": null,
+              "title": "ability to design, implement, and evaluate a computer-based system, process, component, or program to meet desired needs.",
+              "description": null,
+              "learningOutcomeType": "skill",
+              "reusabilityLevel": null,
+              "relatedESCOSkill": null
+            },
+            {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo4",
+              "identifier": null,
+              "title": "understanding of professional, ethical, legal, security and social issues and responsibilities.",
+              "description": null,
+              "learningOutcomeType": "knowledge",
+              "reusabilityLevel": null,
+              "relatedESCOSkill": null
+            },
+            {
+              "id": "1cb8ef7e-0024-46f0-9555-61fb4280d121/loo5",
+              "identifier": null,
+              "title": "bility to function effectively on teams to accomplish a common goal.",
+              "description": null,
+              "learningOutcomeType": "autonomy and responsibility",
+              "reusabilityLevel": null,
+              "relatedESCOSkill": null
+            }
+          ],
+          "iscedFcode": "0619: Information and Communication Technologies (ICTs)",
+          "ectsCreditPoints": 180,
+          "eqfLevel": "7",
+          "nqfLevel": "NQF7",
+          "partialQualification": false,
+          "hasAccreditation": {
+            "targetFramework": "Flemish QA Framework",
+            "targetResource": "https://accreditation.flanders.gov/ASC12311"
+          }
+        }
+      }
+    ]
+  },
+  "expiry": null,
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2019-06-22T14:11:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:ebsi:e76fb4b4900#key-1",
+    "jws": "eyJhbGciOLISUzIlNilsIm12NCI6ZmFsc2UsImNyaXQi0IsiYjY01119..TCYt5XsITJX1CxPCT8yAV-TVklEq_PbCh0MqsLfRoPsnsgw5WEutsOlmq-pCty7WiN5mgRxD-WUc"
+  }
+}

@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        REACT_APP_DEMO: ${REACT_APP_DEMO:?REACT_APP_DEMO is not defined or empty}
+        REACT_APP_WALLET: ${REACT_APP_WALLET:?REACT_APP_WALLET is not defined or empty}
+        REACT_APP_WALLET_API: ${REACT_APP_WALLET_API:?REACT_APP_WALLET_API is not defined or empty}
+        REACT_APP_ID_HUB_API: ${REACT_APP_ID_HUB_API:?REACT_APP_ID_HUB_API is not defined or empty}
+        REACT_APP_DID_REGISTRY_SC_ADDRESS: ${REACT_APP_DID_REGISTRY_SC_ADDRESS:?REACT_APP_ID_HUB_API is not defined or empty}
+        REACT_APP_EBSI_ENV: ${REACT_APP_EBSI_ENV:?REACT_APP_EBSI_ENV is not defined or empty}
+    image: 305472350643.dkr.ecr.eu-central-1.amazonaws.com/intebsi/wallet-web-client
+    ports:
+      - "8080:8080"
+    environment:
+      - DID_REGISTRY_SC_ADDRESS=${REACT_APP_DID_REGISTRY_SC_ADDRESS}
+      - EBSI_ENV=${REACT_APP_EBSI_ENV}

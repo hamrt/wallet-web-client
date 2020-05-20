@@ -1,0 +1,9 @@
+.footer {
+  margin-top: 5%;
+  padding-bottom: 5%;
+}
+
+.dropdown-item a {
+  color: #000;
+  text-decoration: none;
+}

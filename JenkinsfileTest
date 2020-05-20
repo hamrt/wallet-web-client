@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+    environment {
+        EBSI_ENV='integration'
+        DID_REGISTRY_SC_ADDRESS=credentials('DID_REGISTRY_SC_ADDRESS')
+        REACT_APP_DEMO='https://app.intebsi.xyz/demo'
+        REACT_APP_WALLET='https://app.intebsi.xyz/wallet'
+        REACT_APP_WALLET_API='https://api.intebsi.xyz/wallet'
+        REACT_APP_ID_HUB_API='https://api.intebsi.xyz/wallet/idhub'
+        REACT_APP_EULOGIN='https://ecas.ec.europa.eu/cas'
+        PUBLIC_URL='${REACT_APP_WALLET}'
+        REACT_APP_URL='${PUBLIC_URL}'
+    }
+    stages {
+        stage('Clone repo') {
+            steps {
+                cleanWs()
+               checkout([
+                    $class: 'GitSCM',
+                    branches: scm.branches,
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [
+                            $class: 'SubmoduleOption', 
+                            disableSubmodules: false, 
+                            parentCredentials: true, 
+                            recursiveSubmodules: true, 
+                            reference: '', 
+                            trackingSubmodules: true
+                        ]
+                    ], 
+                    userRemoteConfigs: scm.userRemoteConfigs
+                ])
+            }
+        }
+        stage('Install') {
+            steps{
+                dir('ebsi-did-authentication/packages/ebsi-did-auth') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+                sh 'npm install'
+                sh 'npm run build'
+            }
+        }
+        stage('Test') {
+            steps{
+                sh 'npm run test:ci'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('LocalSonar'){
+                    sh "/var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://infra.ebsi.xyz/sonar -Dsonar.projectName=wallet-web-client -Dsonar.projectVersion=1.0 -Dsonar.projectKey=wallet-web-client -Dsonar.sources=. -Dsonar.projectBaseDir=${WORKSPACE}"
+                }
+            }
+        }
+        stage("Quality Gate") {
+            steps {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+    }
+}
