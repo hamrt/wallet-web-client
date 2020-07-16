@@ -1,9 +1,8 @@
 import { TransactionRequest } from "ethers/providers";
 import { ethers } from "ethers";
 import SecureEnclave from "./SecureEnclave";
-import UserWallet from "./UserWallet";
+import UserWallet, { IWalletOptions } from "./UserWallet";
 import * as mocks from "../test/mocks/mocks";
-import { IWalletOptions } from "./IWallet";
 
 describe("secure enclave", () => {
   it("should return a Secure Enclave Instance", () => {

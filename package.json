@@ -1,30 +1,27 @@
 {
   "private": true,
   "scripts": {
-    "start": "PORT=8080 EXTEND_ESLINT=true react-scripts start",
-    "build": "react-scripts build",
     "audit": "audit-ci --moderate",
+    "build": "react-scripts build",
+    "compile:dev": "tsc -w",
+    "start": "PORT=8080 EXTEND_ESLINT=true react-scripts start",
     "test": "env-cmd jest",
     "test:ci": "react-scripts test --watchAll=false --ci --coverage --reporters=default --reporters=jest-sonar",
-    "lint": "eslint --ext .jsx,.js src --fix --ignore-pattern *.test.js",
+    "lint": "eslint --ext .jsx,.js,.ts,.tsx src --fix",
     "lint:prettier": "prettier . --check",
     "lint:css": "stylelint '**/*.css'",
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@cef-ebsi/did-auth": "0.0.1",
+    "@cef-ebsi/did-auth": "0.0.3",
+    "@cef-ebsi/did-jwt": "0.0.4",
     "@ecl/ec-preset-website": "^2.28.0",
     "axios": "^0.19.0",
     "base-64": "^0.1.0",
     "body-scroll-lock": "^2.6.4",
-    "did-jwt": "^4.2.0",
     "elliptic": "^6.5.2",
-    "enzyme": "^3.11.0",
-    "enzyme-adapter-react-16": "^1.15.2",
     "ethers": "^4.0.40",
-    "jest-transform-css": "^2.0.0",
     "moment": "^2.26.0",
-    "prop-types": "^15.7.2",
     "query-string": "^6.8.3",
     "react": "^16.11.0",
     "react-app-polyfill": "^1.0.5",
@@ -32,8 +29,7 @@
     "react-dom": "^16.11.0",
     "react-icons": "^3.8.0",
     "react-json-pretty": "^2.2.0",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.1",
+    "react-router-dom": "^5.2.0",
     "reactour": "^1.16.1",
     "styled-components": "^4.4.1"
   },
@@ -67,16 +63,27 @@
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/plugin-transform-runtime": "^7.7.6",
     "@babel/preset-typescript": "^7.7.7",
+    "@types/base-64": "^0.1.3",
+    "@types/body-scroll-lock": "^2.6.1",
     "@types/elliptic": "^6.4.12",
-    "@types/jest": "^25.2.3",
+    "@types/enzyme": "^3.10.5",
+    "@types/enzyme-adapter-react-16": "^1.0.6",
+    "@types/jest": "^24.9.0",
+    "@types/node": "^14.0.22",
+    "@types/react": "^16.9.43",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/reactour": "^1.17.1",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.19.2",
     "audit-ci": "^3.0.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^24.9.0",
     "babel-plugin-rewrite-require": "^1.14.5",
-    "dotenv": "^8.2.0",
     "env-cmd": "^10.0.1",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.5.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-airbnb-typescript": "^7.2.0",
@@ -92,14 +99,17 @@
     "husky": "^4.2.5",
     "jest": "^24.9.0",
     "jest-sonar": "^0.2.5",
+    "jest-transform-css": "^2.0.0",
     "lint-staged": "^10.1.3",
     "prettier": "^2.0.4",
+    "raf": "^3.4.1",
+    "react-scripts": "^3.4.1",
     "stylelint": "^13.3.1",
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-standard": "^20.0.0",
     "stylelint-prettier": "^1.1.2",
-    "ts-jest": "^24.2.0",
-    "typescript": "^3.8.3"
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.9.6"
   },
   "husky": {
     "hooks": {
@@ -115,6 +125,16 @@
     ],
     "*.{md,mdx,html,json,yml,yaml}": [
       "prettier --write"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/config/env.js",
+      "!src/index.js",
+      "!src/**/*.d.ts",
+      "!**/node_modules/**",
+      "!src/test/mocks/**"
     ]
   }
 }

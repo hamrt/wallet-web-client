@@ -1,6 +1,5 @@
 import { TransactionRequest } from "ethers/providers";
-import { IWalletOptions } from "./IWallet";
-import UserWallet from "./UserWallet";
+import UserWallet, { IWalletOptions } from "./UserWallet";
 
 /**
  * Class to a Secure Enclave

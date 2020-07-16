@@ -1,8 +1,12 @@
 import { ethers } from "ethers";
-import { SimpleSigner, createJWT } from "did-jwt";
+import { SimpleSigner, createJwt } from "@cef-ebsi/did-jwt";
 import { TransactionRequest } from "ethers/providers";
-import { IWalletOptions } from "./IWallet";
 import * as util from "./Util";
+
+export interface IWalletOptions {
+  encryptedKey?: string; // can be validated with ethers' isSecretStorageWallet method
+  password: string;
+}
 
 /**
  * UserWallet handles and stores secp256k1 keys.
@@ -93,7 +97,7 @@ export default class UserWallet {
     const credentialDataObject = JSON.parse(data.toString());
     const wallet = await this.loadWallet(this.encryptedKey, password);
     const signer = SimpleSigner(wallet.privateKey.replace("0x", "")); // Removing 0x from wallet private key as input of SimpleSigner
-    const jwt = await createJWT(credentialDataObject, {
+    const jwt = await createJwt(credentialDataObject, {
       issuer: `${this.getDid()}`,
       alg: "ES256K-R",
       signer,

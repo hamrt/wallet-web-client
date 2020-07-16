@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        EBSI_ENV='integration'
-        DID_REGISTRY_SC_ADDRESS=credentials('DID_REGISTRY_SC_ADDRESS')
+        REACT_APP_EBSI_ENV='integration'
+        REACT_APP_DID_REGISTRY_SC_ADDRESS=credentials('DID_REGISTRY_SC_ADDRESS')
         REACT_APP_DEMO='https://app.intebsi.xyz/demo'
         REACT_APP_WALLET='https://app.intebsi.xyz/wallet'
         REACT_APP_WALLET_API='https://api.intebsi.xyz/wallet'
@@ -14,31 +14,11 @@ pipeline {
     stages {
         stage('Clone repo') {
             steps {
-                cleanWs()
-               checkout([
-                    $class: 'GitSCM',
-                    branches: scm.branches,
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [
-                        [
-                            $class: 'SubmoduleOption', 
-                            disableSubmodules: false, 
-                            parentCredentials: true, 
-                            recursiveSubmodules: true, 
-                            reference: '', 
-                            trackingSubmodules: true
-                        ]
-                    ], 
-                    userRemoteConfigs: scm.userRemoteConfigs
-                ])
+               checkout scm;
             }
         }
         stage('Install') {
             steps{
-                dir('ebsi-did-authentication/packages/ebsi-did-auth') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
                 sh 'npm install'
                 sh 'npm run build'
             }

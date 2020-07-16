@@ -1,7 +1,3 @@
-ARG REACT_APP_DEMO=https://app.intebsi.xyz/demo
-ARG REACT_APP_WALLET=https://app.intebsi.xyz/wallet
-ARG REACT_APP_WALLET_API=https://api.intebsi.xyz/wallet
-ARG REACT_APP_ID_HUB_API=https://api.intebsi.xyz/wallet/idhub
 ARG REACT_APP_EULOGIN=https://ecas.ec.europa.eu/cas
 
 # Stage 0: prepare node alpine image
@@ -17,10 +13,7 @@ WORKDIR /usr/src/app
 COPY ./package*.json /usr/src/app/
 RUN npm ci --quiet --no-progress
 COPY ./ /usr/src/app/
-ARG REACT_APP_DEMO
 ARG REACT_APP_WALLET
-ARG REACT_APP_WALLET_API
-ARG REACT_APP_ID_HUB_API
 ARG REACT_APP_EULOGIN
 ARG REACT_APP_DID_REGISTRY_SC_ADDRESS
 ARG REACT_APP_EBSI_ENV

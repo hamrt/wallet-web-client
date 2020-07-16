@@ -1,9 +1,8 @@
-import { decodeJWT } from "did-jwt";
+import { decodeJwt } from "@cef-ebsi/did-jwt";
 import { TransactionRequest } from "ethers/providers";
 import { ethers } from "ethers";
 import { Transaction } from "ethers/utils";
-import UserWallet from "./UserWallet";
-import { IWalletOptions } from "./IWallet";
+import UserWallet, { IWalletOptions } from "./UserWallet";
 import * as mocks from "../test/mocks/mocks";
 import * as util from "./Util";
 
@@ -91,7 +90,7 @@ describe("when signing a JWT using did-jwt", () => {
     const wallet = await UserWallet.userWalletBuilder({ password });
 
     const jwt = await wallet.signJwt(vc, password);
-    const { payload } = decodeJWT(jwt);
+    const { payload } = decodeJwt(jwt);
 
     expect(payload).toBeDefined();
   });
