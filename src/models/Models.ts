@@ -1,4 +1,4 @@
-import { NOTIFICATION_TYPE } from "../dtos/notifications";
+import { NotificationType } from "../dtos/notifications";
 
 const credential = {
   id: "",
@@ -15,7 +15,7 @@ const notification = {
   receiver: "",
   message: {
     didOwner: "",
-    notificationType: NOTIFICATION_TYPE.NONE,
+    notificationType: NotificationType.NONE,
     name: "",
     data: { base64: "" },
     hash: "",

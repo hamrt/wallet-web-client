@@ -64,7 +64,7 @@ class CredentialItem extends Component<Props, State> {
           <b>{name}</b>
         </p>
         <p style={{ color: colors.EC_YELLOW, wordWrap: "break-word" }}>
-          Issued By: {issuer}{" "}
+          Issued By: {issuer}
         </p>
       </ListGroup.Item>
     );

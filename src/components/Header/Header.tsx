@@ -85,7 +85,7 @@ class Header extends Component {
               <Nav.Item>
                 <Nav.Link
                   style={{ color: colors.EC_BLUE }}
-                  onClick={() => this.doLogOut()}
+                  onClick={this.doLogOut}
                 >
                   Logout
                 </Nav.Link>

@@ -33,7 +33,7 @@ class CredentialModal extends Component<Props, State> {
     };
   }
 
-  async openDetails() {
+  openDetails = async () => {
     const { credential } = this.props;
     const name = await transform.modifyName(
       credential.name,
@@ -44,9 +44,9 @@ class CredentialModal extends Component<Props, State> {
       isFullCredentialDisplayed: true,
       name,
     });
-  }
+  };
 
-  closeDetails() {
+  closeDetails = () => {
     const { isFullCredentialDisplayed } = this.state;
     if (isFullCredentialDisplayed) {
       this.setState({
@@ -54,7 +54,7 @@ class CredentialModal extends Component<Props, State> {
         name: "",
       });
     }
-  }
+  };
 
   render() {
     const { methodToClose, credential, isModalCredentialOpen } = this.props;
@@ -77,7 +77,7 @@ class CredentialModal extends Component<Props, State> {
                 ? { color: colors.WHITE }
                 : { color: colors.EC_YELLOW }
             }
-            onClick={() => this.closeDetails()}
+            onClick={this.closeDetails}
           />
           <Modal.Title
             className="ModalTitleCredential"
@@ -130,7 +130,7 @@ class CredentialModal extends Component<Props, State> {
           }
         >
           {!isFullCredentialDisplayed && (
-            <Button variant="primary" onClick={() => this.openDetails()}>
+            <Button variant="primary" onClick={this.openDetails}>
               Details
             </Button>
           )}

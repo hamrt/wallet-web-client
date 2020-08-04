@@ -36,6 +36,7 @@ type State = {
   notificationForPresentations: INotification;
   isFullCredentialDisplayed: boolean;
   isReadingCreds: boolean;
+  title: string;
 };
 
 class NotificationModal extends Component<Props, State> {
@@ -47,6 +48,7 @@ class NotificationModal extends Component<Props, State> {
       notificationForPresentations: models.notification,
       isFullCredentialDisplayed: false,
       isReadingCreds: true,
+      title: "",
     };
     this.select = this.select.bind(this);
   }
@@ -56,6 +58,8 @@ class NotificationModal extends Component<Props, State> {
     if (prevProps.notification !== notification) {
       await this.getCredentials(notification);
     }
+
+    await this.updateTitle(notification);
   }
 
   getRequiredCredsFormatedType() {
@@ -82,11 +86,15 @@ class NotificationModal extends Component<Props, State> {
     const { status, data } = await idHub.getCredentialsForPresentation(
       notification
     );
+
     if (status === 200 || status === 201) {
       const credentials = (data.items as IAttribute[])
-        .filter((credential) => {
-          return credential.name === "VerifiablePresentation";
-        })
+        .filter(
+          (credential) =>
+            Array.isArray(credential.type) &&
+            credential.type.length > 0 &&
+            credential.type.includes("VerifiableCredential")
+        )
         .map((filteredCred) => (
           <CredentialItemPresentation
             credential={filteredCred}
@@ -106,6 +114,34 @@ class NotificationModal extends Component<Props, State> {
     }
   }
 
+  closeDetails = () => {
+    const { isFullCredentialDisplayed } = this.state;
+    if (isFullCredentialDisplayed) {
+      this.setState({
+        isFullCredentialDisplayed: false,
+      });
+    }
+  };
+
+  openDetails = () => {
+    this.setState({
+      isFullCredentialDisplayed: true,
+    });
+  };
+
+  async updateTitle(notification: INotification) {
+    const { title: currentTitle } = this.state;
+
+    const title = await transform.modifyNotificationTitle(
+      notification.message.name,
+      notification.message.notificationType
+    );
+
+    if (currentTitle !== title) {
+      this.setState({ title });
+    }
+  }
+
   validateCredentialsType() {
     const { notificationForPresentations } = this.state;
     const dataParsed = parseDecodedData(
@@ -121,21 +157,6 @@ class NotificationModal extends Component<Props, State> {
     // check that all types requested are the ones selected
     const equals = areStringArraysEqual(type, selectedCredsTypes);
     return equals;
-  }
-
-  openDetails() {
-    this.setState({
-      isFullCredentialDisplayed: true,
-    });
-  }
-
-  closeDetails() {
-    const { isFullCredentialDisplayed } = this.state;
-    if (isFullCredentialDisplayed) {
-      this.setState({
-        isFullCredentialDisplayed: false,
-      });
-    }
   }
 
   validateSelectedCredentialsNumber() {
@@ -171,12 +192,15 @@ class NotificationModal extends Component<Props, State> {
       isAccepting,
       methodToSign,
     } = this.props;
+
     const {
       credentials,
       isFullCredentialDisplayed,
       isReadingCreds,
       notificationForPresentations,
+      title,
     } = this.state;
+
     return (
       <div>
         <Modal
@@ -204,7 +228,7 @@ class NotificationModal extends Component<Props, State> {
                   ? { color: colors.WHITE }
                   : { color: colors.EC_YELLOW }
               }
-              onClick={() => this.closeDetails()}
+              onClick={this.closeDetails}
             />
             <Modal.Title
               className="ModalTitleCredential"
@@ -214,12 +238,7 @@ class NotificationModal extends Component<Props, State> {
                   : { color: colors.EC_BLUE }
               }
             >
-              {() =>
-                transform.modifyNotificationTitle(
-                  notification.message.name,
-                  notification.message.notificationType
-                )
-              }
+              {title}
             </Modal.Title>
             {isAccepting && (
               <Spinner
@@ -270,11 +289,11 @@ class NotificationModal extends Component<Props, State> {
             }
           >
             {!isFullCredentialDisplayed && (
-              <Button variant="warning" onClick={() => this.openDetails()}>
+              <Button variant="warning" onClick={this.openDetails}>
                 Details
               </Button>
             )}
-            <Button variant="secondary" onClick={() => methodToClose()}>
+            <Button variant="secondary" onClick={methodToClose}>
               Close
             </Button>
             <Button
@@ -330,7 +349,7 @@ class NotificationModal extends Component<Props, State> {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => methodToClose()}>
+            <Button variant="secondary" onClick={methodToClose}>
               Close
             </Button>
             <Button
@@ -372,10 +391,10 @@ class NotificationModal extends Component<Props, State> {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => methodToClose()}>
+            <Button variant="secondary" onClick={methodToClose}>
               Close
             </Button>
-            <Button variant="info" onClick={() => methodToSign()}>
+            <Button variant="info" onClick={methodToSign}>
               Sign It
             </Button>
           </Modal.Footer>
@@ -408,10 +427,10 @@ class NotificationModal extends Component<Props, State> {
           </Modal.Body>
 
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => methodToClose()}>
+            <Button variant="secondary" onClick={methodToClose}>
               Close
             </Button>
-            <Button variant="info" onClick={() => methodToSign()}>
+            <Button variant="info" onClick={methodToSign}>
               Sign It
             </Button>
           </Modal.Footer>

@@ -102,7 +102,7 @@ class Profile extends Component<Props, State> {
     this.handleKeys();
   }
 
-  async onGenerateClick() {
+  onGenerateClick = async () => {
     try {
       this.closeKeysGenerator();
       this.startLoading();
@@ -119,7 +119,7 @@ class Profile extends Component<Props, State> {
       this.stopLoading();
       this.openToast(error.toString());
     }
-  }
+  };
 
   getNotifications = async (): Promise<void> => {
     const jwt = getJWT();
@@ -224,6 +224,44 @@ class Profile extends Component<Props, State> {
     }
   };
 
+  closeKeysGenerator = () => {
+    this.setState({
+      isKeysGeneratorOpen: false,
+    });
+  };
+
+  openModalImport = () => {
+    this.setState({
+      isModalImportOpen: true,
+    });
+  };
+
+  closeModalImport = () => {
+    this.setState({
+      isModalImportOpen: false,
+    });
+  };
+
+  openTour = () => {
+    this.setState({
+      isTourOpen: true,
+    });
+  };
+
+  closeTour = () => {
+    this.setState({
+      isTourOpen: false,
+    });
+  };
+
+  uploadDocument = () => {
+    const { dataInBase64 } = this.state;
+    const keys = strB64dec(dataInBase64);
+    storeKeys(JSON.parse(keys));
+    this.closeModalImport();
+    this.redirectTo("credentials");
+  };
+
   async handleTicket(password: string) {
     const { location } = this.props;
     const ticketFromUrl = queryString.parse(location.search).ticket;
@@ -293,24 +331,6 @@ class Profile extends Component<Props, State> {
     });
   }
 
-  closeKeysGenerator() {
-    this.setState({
-      isKeysGeneratorOpen: false,
-    });
-  }
-
-  openModalImport() {
-    this.setState({
-      isModalImportOpen: true,
-    });
-  }
-
-  closeModalImport() {
-    this.setState({
-      isModalImportOpen: false,
-    });
-  }
-
   startLoading() {
     this.setState({
       isLoadingOpen: true,
@@ -320,18 +340,6 @@ class Profile extends Component<Props, State> {
   stopLoading() {
     this.setState({
       isLoadingOpen: false,
-    });
-  }
-
-  openTour() {
-    this.setState({
-      isTourOpen: true,
-    });
-  }
-
-  closeTour() {
-    this.setState({
-      isTourOpen: false,
     });
   }
 
@@ -355,14 +363,6 @@ class Profile extends Component<Props, State> {
     this.setState({
       isToastOpen: false,
     });
-  }
-
-  uploadDocument() {
-    const { dataInBase64 } = this.state;
-    const keys = strB64dec(dataInBase64);
-    storeKeys(JSON.parse(keys));
-    this.closeModalImport();
-    this.redirectTo("credentials");
   }
 
   redirectTo(whereRedirect: string) {
@@ -405,10 +405,7 @@ class Profile extends Component<Props, State> {
           toastMessage={toastMessage}
         />
 
-        <Modal
-          show={isKeysGeneratorOpen}
-          onHide={() => this.closeKeysGenerator}
-        >
+        <Modal show={isKeysGeneratorOpen} onHide={this.closeKeysGenerator}>
           <Modal.Header
             className="ModalHeader"
             style={{ backgroundColor: colors.EC_BLUE }}
@@ -456,7 +453,7 @@ class Profile extends Component<Props, State> {
           <Modal.Footer>
             <Button
               variant="primary"
-              onClick={() => this.onGenerateClick()}
+              onClick={this.onGenerateClick}
               disabled={
                 passwordForKeyGeneration === "" ||
                 passwordForKeyGeneration !== confirmPassword
@@ -467,7 +464,7 @@ class Profile extends Component<Props, State> {
           </Modal.Footer>
         </Modal>
 
-        <Modal show={isModalImportOpen} onHide={() => this.closeModalImport()}>
+        <Modal show={isModalImportOpen} onHide={this.closeModalImport}>
           <Modal.Header
             className="ModalHeader"
             style={{ backgroundColor: colors.EC_BLUE }}
@@ -486,7 +483,7 @@ class Profile extends Component<Props, State> {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={() => this.uploadDocument()}>
+            <Button variant="primary" onClick={this.uploadDocument}>
               Upload
             </Button>
           </Modal.Footer>
@@ -518,7 +515,7 @@ class Profile extends Component<Props, State> {
                 &ldquo;Restart User Journey&rdquo; will delete your access to
                 your current wallet.
               </div>
-              <Button variant="info" onClick={() => this.openModalImport()}>
+              <Button variant="info" onClick={this.openModalImport}>
                 Import Keys
               </Button>
               <div className="ecl-fact-figures__description"> </div>
@@ -607,7 +604,7 @@ class Profile extends Component<Props, State> {
             </div>
           </div>
           <Button
-            onClick={() => this.openTour()}
+            onClick={this.openTour}
             className="tourButton"
             title="Open guided tour"
           >
@@ -618,9 +615,9 @@ class Profile extends Component<Props, State> {
         <Tour
           steps={tour.stepsProfile}
           isOpen={isTourOpen}
-          onRequestClose={() => this.closeTour()}
-          onAfterOpen={(e) => this.disableBody(e)}
-          onBeforeClose={(e) => this.enableBody(e)}
+          onRequestClose={this.closeTour}
+          onAfterOpen={this.disableBody}
+          onBeforeClose={this.enableBody}
         />
       </div>
     );

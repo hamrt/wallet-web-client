@@ -1,5 +1,6 @@
 import axios from "axios";
 import base64 from "base-64";
+import REQUIRED_VARIABLES from "../config/env";
 import * as issuer from "./issuer";
 import * as userStorage from "./DataStorage";
 
@@ -85,7 +86,12 @@ describe("issuer tests", () => {
     jest.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
-        name: expectedIssuerName,
+        issuerDID: did,
+        entities: [
+          {
+            name: expectedIssuerName,
+          },
+        ],
       },
     } as any);
     const issuerName = await issuer.getIssuerName(did);
@@ -101,12 +107,29 @@ describe("issuer tests", () => {
     jest.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
-        preferredName: expectedIssuerName,
+        issuerDID: did,
+        entities: [
+          {
+            preferredName: expectedIssuerName,
+          },
+        ],
       },
     } as any);
     const issuerName = await issuer.getIssuerName(did);
     expect(issuerName).toMatch(expectedIssuerName);
     jest.restoreAllMocks();
+  });
+
+  // Actually test the TIR API, without mocking
+  it("should return the actual name", async () => {
+    expect.assertions(1);
+    // Get the first Trusted Issuer from the registry
+    const url = `${REQUIRED_VARIABLES.TRUSTED_ISSUERS_REGISTRY_URL}`;
+    const response = await axios.get(url);
+    const firstIssuer = response.data.items[0];
+    // Calling getIssuerName() with the issuer's DID should return its name
+    const issuerName = await issuer.getIssuerName(firstIssuer.did);
+    expect(issuerName).toMatch(firstIssuer.name);
   });
 });
 
@@ -127,7 +150,12 @@ describe("getIssuer tests", () => {
     jest.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
-        preferredName: expectedName,
+        issuerDID: "did:ebsi:0x123",
+        entities: [
+          {
+            preferredName: expectedName,
+          },
+        ],
       },
     } as any);
     const response = await issuer.getIssuer(credential);
@@ -138,8 +166,9 @@ describe("getIssuer tests", () => {
 
   it("should return issuer not from a presentation", async () => {
     expect.assertions(1);
+    const issuerDID = "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF";
     const dataToEncode = {
-      issuer: "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF",
+      issuer: issuerDID,
     };
     const encoded = base64.encode(JSON.stringify(dataToEncode));
     const credential = {
@@ -152,7 +181,12 @@ describe("getIssuer tests", () => {
     jest.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
-        preferredName: expectedName,
+        issuerDID,
+        entities: [
+          {
+            preferredName: expectedName,
+          },
+        ],
       },
     } as any);
     const response = await issuer.getIssuer(credential);

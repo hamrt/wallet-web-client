@@ -86,7 +86,7 @@ class Credentials extends Component<Props, State> {
     this.handleKeys();
   }
 
-  async onContinueClick() {
+  onContinueClick = async () => {
     try {
       const { ticketFromUrl } = this.state;
       this.closeModalAskingPass();
@@ -103,7 +103,7 @@ class Credentials extends Component<Props, State> {
         shouldAskToDecryptKey: true,
       });
     }
-  }
+  };
 
   async getCredentials() {
     this.startLoading();
@@ -112,7 +112,12 @@ class Credentials extends Component<Props, State> {
     if (response.status === 200 || response.status === 201) {
       const outAttrs = response.data.items as IAttribute[];
       const credentials = outAttrs
-        .filter((attr) => attr.name !== "VerifiablePresentation")
+        .filter(
+          (credential) =>
+            Array.isArray(credential.type) &&
+            credential.type.length > 0 &&
+            credential.type.includes("VerifiableCredential")
+        )
         .map((attrTemp) => (
           <CredentialItem
             credential={attrTemp}
@@ -157,12 +162,30 @@ class Credentials extends Component<Props, State> {
     }
   };
 
+  closeModalAskingPass = () => {
+    this.setState({
+      isModalAskingForPass: false,
+    });
+  };
+
+  closeTour = () => {
+    this.setState({
+      isTourOpen: false,
+    });
+  };
+
   disableBody = (target: HTMLDivElement) => {
     disableBodyScroll(target);
   };
 
   enableBody = (target: HTMLDivElement) => {
     enableBodyScroll(target);
+  };
+
+  openTour = () => {
+    this.setState({
+      isTourOpen: true,
+    });
   };
 
   async displayCredential(hash: string) {
@@ -175,40 +198,6 @@ class Credentials extends Component<Props, State> {
         this.redirectTo("");
       }
       this.openToast(`Error getting the credential. ${response.data}`);
-    }
-  }
-
-  handleKeys() {
-    const { location } = this.props;
-    const ticketFromUrl = queryString.parse(location.search).ticket;
-    if (!ticketFromUrl || typeof ticketFromUrl !== "string") {
-      this.redirectIfUserIsNotLogged();
-      return;
-    }
-
-    this.manageAccess(ticketFromUrl);
-  }
-
-  manageAccess(ticketFromUrl: string) {
-    if (keysNotExist()) {
-      this.redirectTo(`profile?ticket=${ticketFromUrl}`);
-    }
-    this.setState({ ticketFromUrl });
-    this.openModalAskingPass();
-  }
-
-  redirectTo(whereRedirect: string) {
-    const { history } = this.props;
-    history.push(`/${whereRedirect}`);
-  }
-
-  redirectIfUserIsNotLogged() {
-    if (connectionNotEstablished()) {
-      this.redirectTo("");
-    } else if (isTokenExpired(getJWT() || "")) {
-      window.location.assign(loginLink());
-    } else {
-      this.getCredentials();
     }
   }
 
@@ -237,12 +226,38 @@ class Credentials extends Component<Props, State> {
     }
   }
 
-  openToast(message: string) {
+  handleKeys() {
+    const { location } = this.props;
+    const ticketFromUrl = queryString.parse(location.search).ticket;
+    if (!ticketFromUrl || typeof ticketFromUrl !== "string") {
+      this.redirectIfUserIsNotLogged();
+      return;
+    }
+
+    this.manageAccess(ticketFromUrl);
+  }
+
+  manageAccess(ticketFromUrl: string) {
+    if (keysNotExist()) {
+      this.redirectTo(`profile?ticket=${ticketFromUrl}`);
+    }
+    this.setState({ ticketFromUrl });
+    this.openModalAskingPass();
+  }
+
+  openCredentialModal(credential: IAttribute) {
+    const credentialDecoded = credential;
+    credentialDecoded.dataDecoded = strB64dec(credential.data.base64);
     this.setState({
-      isToastOpen: true,
-      toastMessage: message,
-      isLoadingOpen: false,
-      toastColor: colors.EC_RED,
+      isModalCredentialOpen: true,
+      credential: credentialDecoded,
+    });
+  }
+
+  openModalAskingPass() {
+    this.setState({
+      isModalAskingForPass: true,
+      shouldAskToDecryptKey: true,
     });
   }
 
@@ -255,10 +270,40 @@ class Credentials extends Component<Props, State> {
     });
   }
 
+  openToast(message: string) {
+    this.setState({
+      isToastOpen: true,
+      toastMessage: message,
+      isLoadingOpen: false,
+      toastColor: colors.EC_RED,
+    });
+  }
+
+  closeCredentialModal() {
+    this.setState({
+      isModalCredentialOpen: false,
+    });
+  }
+
   closeToast() {
     this.setState({
       isToastOpen: false,
     });
+  }
+
+  redirectIfUserIsNotLogged() {
+    if (connectionNotEstablished()) {
+      this.redirectTo("");
+    } else if (isTokenExpired(getJWT() || "")) {
+      window.location.assign(loginLink());
+    } else {
+      this.getCredentials();
+    }
+  }
+
+  redirectTo(whereRedirect: string) {
+    const { history } = this.props;
+    history.push(`/${whereRedirect}`);
   }
 
   startLoading() {
@@ -270,46 +315,6 @@ class Credentials extends Component<Props, State> {
   stopLoading() {
     this.setState({
       isLoadingOpen: false,
-    });
-  }
-
-  openModalAskingPass() {
-    this.setState({
-      isModalAskingForPass: true,
-      shouldAskToDecryptKey: true,
-    });
-  }
-
-  closeModalAskingPass() {
-    this.setState({
-      isModalAskingForPass: false,
-    });
-  }
-
-  openCredentialModal(credential: IAttribute) {
-    const credentialDecoded = credential;
-    credentialDecoded.dataDecoded = strB64dec(credential.data.base64);
-    this.setState({
-      isModalCredentialOpen: true,
-      credential: credentialDecoded,
-    });
-  }
-
-  closeCredentialModal() {
-    this.setState({
-      isModalCredentialOpen: false,
-    });
-  }
-
-  openTour() {
-    this.setState({
-      isTourOpen: true,
-    });
-  }
-
-  closeTour() {
-    this.setState({
-      isTourOpen: false,
     });
   }
 
@@ -346,10 +351,7 @@ class Credentials extends Component<Props, State> {
           isLoadingOpen={isLoadingOpen}
         />
         <div className="table-container">
-          <Modal
-            show={isModalAskingForPass}
-            onHide={() => this.closeModalAskingPass()}
-          >
+          <Modal show={isModalAskingForPass} onHide={this.closeModalAskingPass}>
             <Modal.Header
               className="ModalHeader"
               style={{ backgroundColor: colors.EC_BLUE }}
@@ -366,7 +368,7 @@ class Credentials extends Component<Props, State> {
               />
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="primary" onClick={() => this.onContinueClick()}>
+              <Button variant="primary" onClick={this.onContinueClick}>
                 Continue
               </Button>
             </Modal.Footer>
@@ -391,7 +393,7 @@ class Credentials extends Component<Props, State> {
             {credentials}
           </ListGroup>
           <Button
-            onClick={() => this.openTour()}
+            onClick={this.openTour}
             className="tourButton"
             title="Open guided tour"
           >
@@ -402,9 +404,9 @@ class Credentials extends Component<Props, State> {
         <Tour
           steps={tour.stepsCredentials}
           isOpen={isTourOpen}
-          onRequestClose={() => this.closeTour()}
-          onAfterOpen={(e) => this.disableBody(e)}
-          onBeforeClose={(e) => this.enableBody(e)}
+          onRequestClose={this.closeTour}
+          onAfterOpen={this.disableBody}
+          onBeforeClose={this.enableBody}
         />
       </div>
     );

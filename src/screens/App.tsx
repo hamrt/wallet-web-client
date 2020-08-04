@@ -13,7 +13,9 @@ import TermsConditions from "./TermsConditions/TermsConditions";
 import REQUIRED_VARIABLES from "../config/env";
 
 const publicUrl = REQUIRED_VARIABLES.REACT_APP_WALLET;
-const basename = publicUrl ? new URL(publicUrl).pathname : "";
+const basename = publicUrl.startsWith("http")
+  ? new URL(publicUrl).pathname
+  : publicUrl;
 
 function App() {
   return (

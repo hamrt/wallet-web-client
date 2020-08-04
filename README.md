@@ -18,8 +18,8 @@ It has been developed using Create-React-App.
 
 ### Requirements
 
-- React
-- Jest for testing
+- Node.js >= 12
+- Yarn >= 1.22.0
 
 ### Instructions
 
@@ -33,7 +33,7 @@ cd wallet-web-client
 Install the required libraries and packages dependencies
 
 ```sh
-npm install
+yarn install
 ```
 
 ## Running
@@ -66,7 +66,7 @@ If you need to stop the containers:
 docker-compose down
 ```
 
-Note that some of the required variables (ARGs and ENVs) are explicitly set in `docker-compose.yml`, however you have to set both REACT_APP_DID_REGISTRY_SC_ADDRESS and REACT_APP_EBSI_ENV.
+Note that some of the required variables (ARGs and ENVs) are explicitly set in `docker-compose.yml`, however you have to set REACT_APP_EBSI_ENV.
 
 You can find the list of customizable ARGs and ENVs in `Dockerfile`.
 
@@ -75,15 +75,14 @@ You can find the list of customizable ARGs and ENVs in `Dockerfile`.
 Run the app from the base directory:
 
 Firstly, create a copy of `.env.example` and name it `.env` in this directory; change the variables if needed.
-Also make sure you set the proper: and set the proper REACT_APP_DID_REGISTRY_SC_ADDRESS and REACT_APP_EBSI_ENV
+Also make sure you set the proper REACT_APP_EBSI_ENV.
 
 ```sh
+yarn install
 
-npm install
+yarn build
 
-npm run build
-
-npm run start
+yarn start
 ```
 
 This command starts the web app at '<http://localhost:8080/wallet/>' where you can play with the EBSI Wallet.
@@ -93,48 +92,48 @@ This command starts the web app at '<http://localhost:8080/wallet/>' where you c
 Run the tests
 
 ```sh
-npm run test
+yarn test
 ```
 
-### Lint
+### ESLint
 
 ```sh
-npm run lint
+yarn lint
 ```
 
 ### stylelint
 
 ```sh
-npm run lint:css
+yarn lint:css
 ```
 
-or with npx:
+or with yarn:
 
 ```sh
-npx stylelint "**/*.css"
+yarn stylelint "**/*.css"
 ```
 
 ### Prettier
 
 ```sh
-npm run lint:prettier
+yarn lint:prettier
 ```
 
-or with npx:
+or with yarn:
 
 ```sh
-npx prettier . --check
+yarn prettier . --check
 ```
 
 ### Auditing the dependencies
 
 ```sh
-npm run audit
+yarn run audit
 ```
 
 ## Licensing
 
-Copyright (c) 2019 European Commission  
+Copyright (c) 2019 European Commission
 Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European Commission - subsequent versions of the EUPL (the "Licence");
 You may not use this work except in compliance with the Licence.
 You may obtain a copy of the Licence at:

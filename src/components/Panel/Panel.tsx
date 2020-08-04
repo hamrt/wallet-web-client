@@ -23,17 +23,15 @@ export const PanelBody = ({ icon, title, linkLabel, children }: BodyProps) => (
       <img src={icon} alt="" role="presentation" className="panelImage" />
     </div>
     <div className="panelMainContent">
-      <h3 className="panelBodyTitle">{title}</h3>
+      {title && <h3 className="panelBodyTitle">{title}</h3>}
       <p className="panelBodyText">{children}</p>
     </div>
-    <div
-      className="panelButtonContainer"
-      role="button"
-      tabIndex={0}
-      onClick={() => loginLink()}
-      onKeyDown={() => loginLink()}
-    >
-      <a className="panelLink" role="button" href={loginLink()}>
+    <div className="panelButtonContainer">
+      <a
+        className="panelLink ecl-button ecl-button--call"
+        role="button"
+        href={loginLink()}
+      >
         {linkLabel}
       </a>
     </div>

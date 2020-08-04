@@ -7,7 +7,7 @@ import {
 } from "@cef-ebsi/did-auth";
 import { parseJwt } from "../../utils/JWTHandler";
 import { Panel, PanelTitle } from "../../components/Panel/Panel";
-import * as config from "../../config/config";
+import REQUIRED_VARIABLES from "../../config/env";
 import colors from "../../config/colors";
 import SecureEnclave from "../../secureEnclave/SecureEnclave";
 import step1SVG from "../../assets/images/step1.svg";
@@ -57,21 +57,20 @@ class DidAuth extends Component<Props, State> {
     }
   }
 
-  async onAuthorizeClick() {
+  onAuthorizeClick = async () => {
     try {
       const { didAuthRequestJwt, passwordForKeyGeneration } = this.state;
       this.closeModalAskingPass();
       const requestPayload = await EbsiDidAuth.verifyDidAuthRequest(
         didAuthRequestJwt,
-        config.besu.didRegistry,
-        config.besu.provider
+        REQUIRED_VARIABLES.DID_API_IDENTIFIERS
       );
       await this.decryptKeys(passwordForKeyGeneration);
       this.createResponse(requestPayload);
     } catch (error) {
       this.closeModalAskingPass();
     }
-  }
+  };
 
   redirectToRP = (urlToRedirect: string, jwtResponse: string) => {
     window.location.href = `${urlToRedirect}?response=${jwtResponse}`;
@@ -94,8 +93,37 @@ class DidAuth extends Component<Props, State> {
     });
   };
 
-  async authorize() {
+  authorize = async () => {
     this.openModalAskingPass();
+  };
+
+  closeModalAskingPass = () => {
+    this.setState({
+      isModalAskingForPass: false,
+    });
+  };
+
+  async createResponse(requestPayload: DidAuthRequestPayload) {
+    const { serviceUrl } = this.state;
+    const se = SecureEnclave.Instance;
+    const did = getDID();
+
+    if (!did) throw new Error("No DID found on Local Storage.");
+
+    const privateKey = se.getPrivateKey(did);
+
+    const didAuthResponseCall: DidAuthResponseCall = {
+      hexPrivatekey: privateKey, // private key managed by the user. Should be passed in hexadecimal format
+      did, // User DID
+      nonce: requestPayload.nonce, // same nonce received as a Request Payload after verifying it
+      redirectUri: serviceUrl, // parsed URI from the DID Auth Request payload
+    };
+
+    const didAuthResponseJwt = await EbsiDidAuth.createDidAuthResponse(
+      didAuthResponseCall
+    );
+
+    this.redirectToRP(serviceUrl, didAuthResponseJwt);
   }
 
   async didAuth(urlParameters: URLSearchParams) {
@@ -117,33 +145,9 @@ class DidAuth extends Component<Props, State> {
     });
   }
 
-  async createResponse(requestPayload: DidAuthRequestPayload) {
-    const { serviceUrl } = this.state;
-    const se = SecureEnclave.Instance;
-    const did = getDID();
-    if (!did) throw new Error("No DID found on Local Storage.");
-    const privateKey = se.getPrivateKey(did);
-    const didAuthResponseCall: DidAuthResponseCall = {
-      hexPrivatekey: privateKey, // private key managed by the user. Should be passed in hexadecimal format
-      did, // User DID
-      nonce: requestPayload.nonce, // same nonce received as a Request Payload after verifying it
-      redirectUri: serviceUrl, // parsed URI from the DID Auth Request payload
-    };
-    const didAuthResponseJwt = await EbsiDidAuth.createDidAuthResponse(
-      didAuthResponseCall
-    );
-    this.redirectToRP(serviceUrl, didAuthResponseJwt);
-  }
-
   openModalAskingPass() {
     this.setState({
       isModalAskingForPass: true,
-    });
-  }
-
-  closeModalAskingPass() {
-    this.setState({
-      isModalAskingForPass: false,
     });
   }
 
@@ -199,17 +203,14 @@ class DidAuth extends Component<Props, State> {
                 className="panelLink"
                 type="button"
                 tabIndex={0}
-                onClick={() => this.authorize()}
+                onClick={this.authorize}
               >
                 Authorize
               </button>
             </div>
           </Panel>
         </main>
-        <Modal
-          show={isModalAskingForPass}
-          onHide={() => this.closeModalAskingPass()}
-        >
+        <Modal show={isModalAskingForPass} onHide={this.closeModalAskingPass}>
           <Modal.Header
             className="ModalHeader"
             style={{ backgroundColor: colors.EC_BLUE }}
@@ -227,7 +228,7 @@ class DidAuth extends Component<Props, State> {
             />
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={() => this.onAuthorizeClick()}>
+            <Button variant="primary" onClick={this.onAuthorizeClick}>
               Authorize
             </Button>
           </Modal.Footer>

@@ -31,11 +31,20 @@ const getIssuerName = async (issuerDid: string): Promise<string> => {
 
   // or get issuerName from Trusted Issuers Registry API
   try {
-    const url = `${REQUIRED_VARIABLES.trustedIssuersRegistryUrl}/${issuerDid}`;
+    const url = `${REQUIRED_VARIABLES.TRUSTED_ISSUERS_REGISTRY_URL}/${issuerDid}`;
     const response = await axios.get(url);
-    if (!response || response.status !== 200 || !response.data)
+    if (
+      !response ||
+      response.status !== 200 ||
+      !response.data ||
+      !response.data.entities ||
+      !response.data.entities[0]
+    )
       return issuerDid;
-    const issuerInfo: IssuerInfo = response.data;
+
+    // Extract info from first entity
+    const [issuerInfo]: [IssuerInfo] = response.data.entities;
+
     if (!issuerInfo.name && !issuerInfo.preferredName) return issuerDid;
     return issuerInfo.name || issuerInfo.preferredName;
   } catch (error) {
@@ -52,7 +61,7 @@ const getIssuer = async (credential: any): Promise<string> => {
       const dataInBase64 = credential.data.base64;
       const data = strB64dec(dataInBase64);
       const dataInJSON = JSON.parse(data);
-      issuer = getIssuerName(dataInJSON.issuer);
+      issuer = await getIssuerName(dataInJSON.issuer);
     }
     return issuer;
   } catch (error) {

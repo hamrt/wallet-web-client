@@ -7,7 +7,7 @@ import { messages, notifications } from "../dtos";
 const API_URL = REQUIRED_VARIABLES.REACT_APP_WALLET_API;
 const VERSION = "v1";
 
-const establishBond = async (token: string): Promise<messages.apiResponse> => {
+const establishBond = async (token: string): Promise<messages.ApiResponse> => {
   const body = {
     grantType: config.grantType,
     assertion: token,
@@ -30,7 +30,7 @@ const establishBond = async (token: string): Promise<messages.apiResponse> => {
 
 const getNotifications = async (
   token: string
-): Promise<messages.apiResponse> => {
+): Promise<messages.ApiResponse> => {
   const authorization = {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ const getNotifications = async (
 const acceptNotification = async (
   idNotification: string,
   notificationsOptions: notifications.NotificationsOptions
-): Promise<messages.apiResponse> => {
+): Promise<messages.ApiResponse> => {
   const authorization = {
     headers: {
       Authorization: `Bearer ${getJWT()}`,

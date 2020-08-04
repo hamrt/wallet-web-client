@@ -65,7 +65,7 @@ describe("string transformation", () => {
           jest.spyOn(axios, "get").mockResolvedValue({
             status: 200,
             data: {
-              preferredName: expectedName,
+              entities: [{ preferredName: expectedName }],
             },
           });
         }

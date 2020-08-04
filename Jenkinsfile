@@ -1,8 +1,8 @@
-
 pipeline {
     agent any
     environment {
-        VERSION=sh(script: 'sudo runuser -l ebsi1-robot -c "AWS_REPO=intebsi/wallet-web-client bash /opt/ebsi_containers_int/auto-deploy/minor_version.sh"', returnStdout: true).trim()
+        CONTAINER_NAME= "`grep -A1 services docker-compose-ci.yml | tail -1 | sed -e s'/ //'g -e s'/://'g`"
+        TAG = "`grep image docker-compose-ci.yml | cut -d':' -f3`"
     }
     stages {
         stage('Clone repo') {
@@ -10,33 +10,30 @@ pipeline {
                checkout scm;
             }
         }
-        stage('Unit Test') {
-            steps{
-                sh "npm install"
-                sh "npm run test"
-            }
-        }
-        stage('SonarQube Analysis') {
-            steps {
-                sh "/var/lib/jenkins/tools/hudson.plugins.sonar.SonarRunnerInstallation/sonar-scanner/bin/sonar-scanner -Dsonar.host.url=https://infra.ebsi.xyz/sonar -Dsonar.projectName=2-wallet-ui -Dsonar.projectVersion=1.0 -Dsonar.projectKey=2-wallet-ui -Dsonar.sources=. -Dsonar.projectBaseDir=/var/lib/jenkins/workspace/Autodeploy_intebsi-2-wallet-ui"
-            }
-        }
         stage('Build image') {
             steps {
-                sh "sudo VERSION=${VERSION}_${GIT_COMMIT} AWS_REPO=intebsi/wallet-web-client bash /opt/ebsi_containers_int/auto-deploy/build.sh"
+                sh "if [[ -f .env.integration ]]; then { cp .env.integration .env; }; fi"
+                sh "/usr/local/bin/docker-compose -f docker-compose-ci.yml build"
             }
         }
         stage('Push to ECR') {
             steps {
-                 sh "sudo `sudo su - ebsi1-robot -c 'aws ecr get-login --no-include-email --region eu-central-1'`"
-                 sh "sudo docker push 305472350643.dkr.ecr.eu-central-1.amazonaws.com/intebsi/wallet-web-client"
+                 sh '`/usr/local/bin/aws ecr get-login --no-include-email --region eu-central-1`'
+                 sh "/usr/local/bin/docker-compose -f docker-compose-ci.yml push"
              }
         }
-        stage("Deploy on first machine") {
+        stage('Modify YAML & Commit') {
+            steps {
+                 sh "sudo su - ebsi1-robot -c 'cd /etc/puppetlabs/code/environments/integration ; git pull'"
+                 sh "sudo -u ebsi1-robot /usr/local/bin/ebsi_add_update_service_version_tag.rb integration int/lux/app.yaml ${CONTAINER_NAME} ${TAG}"
+                 sh "sudo su - ebsi1-robot -c 'cd /etc/puppetlabs/code/environments/integration ; git add .; git commit -am auto; git push'"
+             }
+        }
+        stage("Deploy on Integration") {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ebsi1-robot', keyFileVariable: 'PK')]) {
-                       sh "ssh -i $PK ebsi1-operator@app01-0-ebsi-int-lux.intebsi.xyz -o StrictHostKeyChecking=no -o 'UserKnownHostsFile /dev/null' -p 48722 'aws ecr get-login --no-include-email --region eu-central-1 | bash && cd /opt/ebsi/wallet-web-client && docker-compose pull && docker-compose up -d'"
-                       sh "ssh -i $PK ebsi1-operator@app02-0-ebsi-int-lux.intebsi.xyz -o StrictHostKeyChecking=no -o 'UserKnownHostsFile /dev/null' -p 48722 'aws ecr get-login --no-include-email --region eu-central-1 | bash && cd /opt/ebsi/wallet-web-client && docker-compose pull && docker-compose up -d'"
+                       sh "ssh -i $PK ebsi1-operator@mco01-0-ebsi-dev-lux.ebsi.xyz -o StrictHostKeyChecking=no -o 'UserKnownHostsFile /dev/null' -p 48722 '/usr/local/bin/puppet_run_containers_only.sh int app lux'"
+                       sh "ssh -i $PK ebsi1-operator@mco01-0-ebsi-dev-lux.ebsi.xyz -o StrictHostKeyChecking=no -o 'UserKnownHostsFile /dev/null' -p 48722 /usr/local/bin/verify_container_version.sh int app lux ${CONTAINER_NAME} ${TAG}"
                     }
                 }
         }

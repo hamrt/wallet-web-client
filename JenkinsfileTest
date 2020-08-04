@@ -2,7 +2,6 @@ pipeline {
     agent any
     environment {
         REACT_APP_EBSI_ENV='integration'
-        REACT_APP_DID_REGISTRY_SC_ADDRESS=credentials('DID_REGISTRY_SC_ADDRESS')
         REACT_APP_DEMO='https://app.intebsi.xyz/demo'
         REACT_APP_WALLET='https://app.intebsi.xyz/wallet'
         REACT_APP_WALLET_API='https://api.intebsi.xyz/wallet'
@@ -19,13 +18,12 @@ pipeline {
         }
         stage('Install') {
             steps{
-                sh 'npm install'
-                sh 'npm run build'
+                sh 'yarn install --frozen-lockfile'
             }
         }
         stage('Test') {
             steps{
-                sh 'npm run test:ci'
+                sh 'yarn run test:ci'
             }
         }
         stage('SonarQube Analysis') {

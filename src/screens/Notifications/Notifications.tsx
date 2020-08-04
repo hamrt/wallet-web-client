@@ -180,6 +180,24 @@ class Notifications extends Component<Props, State> {
     return body;
   };
 
+  closeModalAskingForPass = () => {
+    this.setState({
+      isModalAskingForPass: false,
+    });
+  };
+
+  openTour = () => {
+    this.setState({
+      isTourOpen: true,
+    });
+  };
+
+  closeTour = () => {
+    this.setState({
+      isTourOpen: false,
+    });
+  };
+
   async acceptNotification(notification: INotification) {
     try {
       const type = notification.message.notificationType;
@@ -312,24 +330,6 @@ class Notifications extends Component<Props, State> {
     });
   }
 
-  closeModalAskingForPass() {
-    this.setState({
-      isModalAskingForPass: false,
-    });
-  }
-
-  openTour() {
-    this.setState({
-      isTourOpen: true,
-    });
-  }
-
-  closeTour() {
-    this.setState({
-      isTourOpen: false,
-    });
-  }
-
   render() {
     const {
       notifications,
@@ -363,7 +363,7 @@ class Notifications extends Component<Props, State> {
         <div className="table-container">
           <Modal
             show={isModalAskingForPass}
-            onHide={() => this.closeModalAskingForPass()}
+            onHide={this.closeModalAskingForPass}
           >
             <Modal.Header
               className="ModalHeader"
@@ -386,7 +386,7 @@ class Notifications extends Component<Props, State> {
             <Modal.Footer>
               <Button
                 variant="secondary"
-                onClick={() => this.closeModalAskingForPass()}
+                onClick={this.closeModalAskingForPass}
               >
                 Cancel
               </Button>
@@ -421,7 +421,7 @@ class Notifications extends Component<Props, State> {
             {notifications}
           </ListGroup>
           <Button
-            onClick={() => this.openTour()}
+            onClick={this.openTour}
             className="tourButton"
             title="Open guided tour"
           >
@@ -433,9 +433,9 @@ class Notifications extends Component<Props, State> {
         <Tour
           steps={tour.stepsNotifications}
           isOpen={isTourOpen}
-          onRequestClose={() => this.closeTour()}
-          onAfterOpen={(e) => this.disableBody(e)}
-          onBeforeClose={(e) => this.enableBody(e)}
+          onRequestClose={this.closeTour}
+          onAfterOpen={this.disableBody}
+          onBeforeClose={this.enableBody}
         />
       </div>
     );

@@ -46,7 +46,11 @@ describe("did auth", () => {
     jest.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
-        preferredName: values.sampleIssuer,
+        entities: [
+          {
+            preferredName: values.sampleIssuer,
+          },
+        ],
       },
     });
     const urlParameters = new URLSearchParams(mocks.didAuth);

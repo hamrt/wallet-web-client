@@ -9,10 +9,10 @@ type Props = {
 };
 
 class TermsConditions extends Component<Props> {
-  onBackClick() {
+  onBackClick = () => {
     const { history } = this.props;
     history.goBack();
-  }
+  };
 
   render() {
     return (
@@ -635,7 +635,7 @@ class TermsConditions extends Component<Props> {
               type="button"
               className="ecl-button ecl-button--primary"
               style={{ marginLeft: 20 }}
-              onClick={() => this.onBackClick()}
+              onClick={this.onBackClick}
             >
               Back
             </button>

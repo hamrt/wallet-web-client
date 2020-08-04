@@ -54,7 +54,7 @@ const notificationType = (
   if (type < 0) {
     return " - ";
   }
-  let typeName = config.NOTIFICATION_TYPE[type];
+  let typeName = config.NotificationType[type];
   if (type === 2) {
     typeName = requestPresentationSpecialCases(
       type,

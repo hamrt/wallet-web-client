@@ -1,4 +1,4 @@
-export enum NOTIFICATION_TYPE {
+export enum NotificationType {
   STORE_CREDENTIAL,
   STORE_VERIFIABLEID,
   REQUEST_PRESENTATION,
@@ -17,7 +17,7 @@ export interface INotification {
   receiver: string;
   message: {
     didOwner: string;
-    notificationType: NOTIFICATION_TYPE;
+    notificationType: NotificationType;
     name: string;
     data: INotiData;
     hash: string;

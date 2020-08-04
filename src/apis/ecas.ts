@@ -25,11 +25,6 @@ const options = {
  */
 class Ecas {
   constructor() {
-    if (!options || typeof options !== "object") {
-      throw new Error(
-        "CAS Authentication was not given a valid configuration object."
-      );
-    }
     if (options.cas_url === undefined) {
       throw new Error("CAS Authentication requires a cas_url parameter.");
     }

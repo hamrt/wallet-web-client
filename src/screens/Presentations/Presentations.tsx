@@ -101,6 +101,18 @@ class Presentations extends Component<Props, State> {
     enableBodyScroll(target);
   };
 
+  openTour = () => {
+    this.setState({
+      isTourOpen: true,
+    });
+  };
+
+  closeTour = () => {
+    this.setState({
+      isTourOpen: false,
+    });
+  };
+
   async displayCredential(hash: string) {
     const response = await idHub.getCredential(hash);
     if (response.status === 200 || response.status === 201) {
@@ -158,18 +170,6 @@ class Presentations extends Component<Props, State> {
     });
   }
 
-  openTour() {
-    this.setState({
-      isTourOpen: true,
-    });
-  }
-
-  closeTour() {
-    this.setState({
-      isTourOpen: false,
-    });
-  }
-
   render() {
     const {
       credentials,
@@ -218,7 +218,7 @@ class Presentations extends Component<Props, State> {
             {credentials}
           </ListGroup>
           <Button
-            onClick={() => this.openTour()}
+            onClick={this.openTour}
             className="tourButton"
             title="Open guided tour"
           >
@@ -229,9 +229,9 @@ class Presentations extends Component<Props, State> {
         <Tour
           steps={tour.stepsPresentations}
           isOpen={isTourOpen}
-          onRequestClose={() => this.closeTour()}
-          onAfterOpen={(e) => this.disableBody(e)}
-          onBeforeClose={(e) => this.enableBody(e)}
+          onRequestClose={this.closeTour}
+          onAfterOpen={this.disableBody}
+          onBeforeClose={this.enableBody}
         />
       </div>
     );

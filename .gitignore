@@ -1,6 +1,10 @@
 build
 coverage
 node_modules
-.env
-npm-debug.log*
-sonar-report.xml
+
+# Ignore all .env files
+.env*
+# Except
+!.env.development
+!.env.example
+!.env.integration

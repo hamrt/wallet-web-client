@@ -31,7 +31,7 @@ class Terms extends Component<Props, State> {
     this.handleAccess();
   }
 
-  onSubmitClick() {
+  onSubmitClick = () => {
     const { areTermsAccepted } = this.state;
     if (areTermsAccepted) {
       storeTerms(true);
@@ -39,23 +39,23 @@ class Terms extends Component<Props, State> {
     } else {
       storeTerms(false);
     }
-  }
+  };
 
-  onChange() {
+  onChange = () => {
     const { areTermsAccepted } = this.state;
     const termsAndConditionsChanged = !areTermsAccepted;
     this.setState({
       areTermsAccepted: termsAndConditionsChanged,
     });
-  }
+  };
 
-  onCancelClick() {
+  onCancelClick = () => {
     storeTerms(false);
     this.setState({
       areTermsAccepted: false,
     });
     window.location.reload();
-  }
+  };
 
   handleAccess() {
     const { location, history } = this.props;
@@ -104,7 +104,7 @@ class Terms extends Component<Props, State> {
                 <input
                   type="checkbox"
                   defaultChecked={areTermsAccepted || false}
-                  onChange={() => this.onChange()}
+                  onChange={this.onChange}
                   className="ecl-checkbox__input"
                   id="checkbox-default"
                   name="checkbox-default"
@@ -131,7 +131,7 @@ class Terms extends Component<Props, State> {
                   type="button"
                   className="ecl-button ecl-button--secondary"
                   style={{ margin: 10 }}
-                  onClick={() => this.onCancelClick()}
+                  onClick={this.onCancelClick}
                 >
                   Cancel
                 </button>
@@ -139,7 +139,7 @@ class Terms extends Component<Props, State> {
                   type="button"
                   className="ecl-button ecl-button--primary"
                   style={{ margin: 10 }}
-                  onClick={() => this.onSubmitClick()}
+                  onClick={this.onSubmitClick}
                 >
                   Submit
                 </button>
