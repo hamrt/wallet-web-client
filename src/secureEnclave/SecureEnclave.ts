@@ -1,4 +1,4 @@
-import { TransactionRequest } from "ethers/providers";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
 import UserWallet, { IWalletOptions } from "./UserWallet";
 
 /**

@@ -3,7 +3,7 @@ import "./Notifications.css";
 import { Button, ListGroup, Modal, Form } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
-import { TransactionRequest } from "ethers/providers";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import colors from "../../config/colors";

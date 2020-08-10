@@ -1,5 +1,5 @@
 import EC from "elliptic";
-import { generateKeys, getDid } from "./Util";
+import { generateKeys, getDid, prefixWith0x } from "./Util";
 import * as mocks from "../test/mocks/mocks";
 
 describe("util test suite", () => {
@@ -29,5 +29,15 @@ describe("util test suite", () => {
     expect.assertions(1);
     const did = getDid(mocks.wallet.ethAddress);
     expect(did).toBe(`did:ebsi:${mocks.wallet.ethAddress}`);
+  });
+
+  it("should prefix the keys with 0x if they don't start with 0x", () => {
+    expect.assertions(1);
+    expect(prefixWith0x("fakekey")).toStrictEqual("0xfakekey");
+  });
+
+  it("should not prefix the keys with 0x if they already start with 0x", () => {
+    expect.assertions(1);
+    expect(prefixWith0x("0xfakekey")).toStrictEqual("0xfakekey");
   });
 });

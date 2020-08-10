@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
 import { SimpleSigner, createJwt } from "@cef-ebsi/did-jwt";
-import { TransactionRequest } from "ethers/providers";
 import * as util from "./Util";
 
 export interface IWalletOptions {
@@ -45,7 +45,9 @@ export default class UserWallet {
 
   private async initWithPass(password: string): Promise<void> {
     const kp = util.generateKeys();
-    const wallet: ethers.Wallet = new ethers.Wallet(kp.privateKey);
+    const wallet: ethers.Wallet = new ethers.Wallet(
+      util.prefixWith0x(kp.privateKey)
+    );
     this.ethAddress = wallet.address;
     this.publicKeyHex = new ethers.utils.SigningKey(
       wallet.privateKey
@@ -115,7 +117,7 @@ export default class UserWallet {
     password: string
   ): Promise<string> {
     const wallet = await this.loadWallet(this.encryptedKey, password);
-    const walletSigned = await wallet.sign(txJSON);
+    const walletSigned = await wallet.signTransaction(txJSON);
     return walletSigned;
   }
 

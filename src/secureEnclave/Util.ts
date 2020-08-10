@@ -15,4 +15,8 @@ function getDid(ethAddress: string): string {
   return `did:ebsi:${ethAddress}`;
 }
 
-export { generateKeys, getDid };
+function prefixWith0x(key: string): string {
+  return key.startsWith("0x") ? key : `0x${key}`;
+}
+
+export { generateKeys, getDid, prefixWith0x };

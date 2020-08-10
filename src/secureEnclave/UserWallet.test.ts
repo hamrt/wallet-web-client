@@ -1,7 +1,6 @@
 import { decodeJwt } from "@cef-ebsi/did-jwt";
-import { TransactionRequest } from "ethers/providers";
-import { ethers } from "ethers";
-import { Transaction } from "ethers/utils";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { ethers, Transaction } from "ethers";
 import UserWallet, { IWalletOptions } from "./UserWallet";
 import * as mocks from "../test/mocks/mocks";
 import * as util from "./Util";

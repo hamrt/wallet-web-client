@@ -1,4 +1,4 @@
-import { TransactionRequest } from "ethers/providers";
+import { TransactionRequest } from "@ethersproject/abstract-provider";
 import { ethers } from "ethers";
 import SecureEnclave from "./SecureEnclave";
 import UserWallet, { IWalletOptions } from "./UserWallet";
