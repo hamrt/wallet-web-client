@@ -3,7 +3,7 @@ import "./Notifications.css";
 import { Button, ListGroup, Modal, Form } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
-import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { providers } from "ethers";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import colors from "../../config/colors";
@@ -151,7 +151,7 @@ class Notifications extends Component<Props, State> {
   ): Promise<NotificationsOptions> => {
     let body: NotificationsOptions = {};
     let signData: string;
-    let txJSON: TransactionRequest;
+    let txJSON: providers.TransactionRequest;
     const dataDecoded = strB64dec(notificationToSign.message.data.base64);
     const type = notificationToSign.message.notificationType;
     const did = getDID();
@@ -370,7 +370,7 @@ class Notifications extends Component<Props, State> {
               style={{ backgroundColor: colors.EC_BLUE }}
               closeButton
             >
-              <Modal.Title className="ModalTitle">Sign It</Modal.Title>
+              <Modal.Title>Sign It</Modal.Title>
             </Modal.Header>
             <Modal.Body className="ModalBody">
               <h4>

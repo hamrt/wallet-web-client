@@ -1,5 +1,4 @@
-import { ethers } from "ethers";
-import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { ethers, providers } from "ethers";
 import { SimpleSigner, createJwt } from "@cef-ebsi/did-jwt";
 import * as util from "./Util";
 
@@ -113,7 +112,7 @@ export default class UserWallet {
    * @param password
    */
   public async signTx(
-    txJSON: TransactionRequest,
+    txJSON: providers.TransactionRequest,
     password: string
   ): Promise<string> {
     const wallet = await this.loadWallet(this.encryptedKey, password);

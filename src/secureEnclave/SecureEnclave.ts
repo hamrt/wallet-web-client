@@ -1,4 +1,4 @@
-import { TransactionRequest } from "@ethersproject/abstract-provider";
+import { providers } from "ethers";
 import UserWallet, { IWalletOptions } from "./UserWallet";
 
 /**
@@ -93,7 +93,7 @@ export default class SecureEnclave {
 
   public async signTx(
     did: string,
-    txJSON: TransactionRequest,
+    txJSON: providers.TransactionRequest,
     password: string = ""
   ): Promise<string> {
     const wallet = this.wallets.get(did);

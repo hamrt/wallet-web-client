@@ -78,78 +78,67 @@ class Terms extends Component<Props, State> {
     const { areTermsAccepted } = this.state;
 
     return (
-      <div>
+      <div className="flex-col">
         <Jumbotron
           className="jumbotron"
           style={{ backgroundColor: colors.EC_BLUE }}
         >
           <Container style={{ color: colors.WHITE }}>
             <h1>Welcome to your EBSI wallet</h1>
-            <p> </p>
           </Container>
         </Jumbotron>
-
-        <div className="terms">
-          <div>
-            <div>
-              <div className="ecl-fact-figures__value">
-                Terms and Conditions
-              </div>
-              <p className="ecl-fact-figures__description">
-                Find more information by{" "}
-                <Link to="/termsAndConditions"> clicking here </Link>
-              </p>
-
-              <div className="ecl-fact-figures_checkbox">
-                <input
-                  type="checkbox"
-                  defaultChecked={areTermsAccepted || false}
-                  onChange={this.onChange}
-                  className="ecl-checkbox__input"
-                  id="checkbox-default"
-                  name="checkbox-default"
-                />
-                <label
-                  htmlFor="checkbox-default"
-                  className="ecl-form-label ecl-checkbox__label"
+        <div className="terms ecl-u-flex-grow-1">
+          <div className="ecl-fact-figures__value">Terms and Conditions</div>
+          <p className="ecl-fact-figures__description">
+            Find more information by{" "}
+            <Link to="/termsAndConditions" className="ecl-link">
+              clicking here
+            </Link>
+            .
+          </p>
+          <div className="ecl-fact-figures_checkbox">
+            <input
+              type="checkbox"
+              defaultChecked={areTermsAccepted || false}
+              onChange={this.onChange}
+              className="ecl-checkbox__input"
+              id="checkbox-default"
+              name="checkbox-default"
+            />
+            <label
+              htmlFor="checkbox-default"
+              className="ecl-form-label ecl-checkbox__label"
+            >
+              <span className="ecl-checkbox__box">
+                <svg
+                  focusable="false"
+                  aria-hidden="true"
+                  className="ecl-checkbox__icon ecl-icon ecl-icon--s"
                 >
-                  <span className="ecl-checkbox__box">
-                    <svg
-                      focusable="false"
-                      aria-hidden="true"
-                      className="ecl-checkbox__icon ecl-icon ecl-icon--s"
-                    >
-                      <use xlinkHref={`${icons}#ui--check`} />
-                    </svg>
-                  </span>
-                  I agree to the Terms and Conditions
-                </label>
-              </div>
-
-              <div className="button-container">
-                <button
-                  type="button"
-                  className="ecl-button ecl-button--secondary"
-                  style={{ margin: 10 }}
-                  onClick={this.onCancelClick}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="ecl-button ecl-button--primary"
-                  style={{ margin: 10 }}
-                  onClick={this.onSubmitClick}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
+                  <use xlinkHref={`${icons}#ui--check`} />
+                </svg>
+              </span>
+              I agree to the Terms and Conditions
+            </label>
+          </div>
+          <div className="button-container">
+            <button
+              type="button"
+              className="ecl-button ecl-button--secondary"
+              onClick={this.onCancelClick}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="ecl-button ecl-button--primary ecl-u-ml-l"
+              onClick={this.onSubmitClick}
+            >
+              Submit
+            </button>
           </div>
         </div>
-        <div className="footerTerms">
-          <Footer />
-        </div>
+        <Footer />
       </div>
     );
   }

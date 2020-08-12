@@ -1,5 +1,4 @@
-import { TransactionRequest } from "@ethersproject/abstract-provider";
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import SecureEnclave from "./SecureEnclave";
 import UserWallet, { IWalletOptions } from "./UserWallet";
 import * as mocks from "../test/mocks/mocks";
@@ -253,7 +252,7 @@ describe("secure enclave", () => {
       expect(did).toBe(mocks.mockedGetDID.did);
       expect(mockedWalletBuilder).toHaveBeenCalledTimes(1);
       const data = `0x${Buffer.from("Sending test messages!").toString("hex")}`;
-      const txJSON: TransactionRequest = {
+      const txJSON: providers.TransactionRequest = {
         gasPrice: ethers.utils.hexlify(0),
         gasLimit: ethers.utils.hexlify(221000),
         to: "0x0000000000000000000000000000000000000000",

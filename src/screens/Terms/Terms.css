@@ -1,6 +1,3 @@
-.agree {
-  align-items: center;
-}
 .terms {
   text-align: center;
   align-items: center;
@@ -9,12 +6,11 @@
 .jumbotron {
   border-radius: 0;
 }
-.footerTerms {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
+.flex-col {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-
 .button-container {
   margin-top: 2%;
 }

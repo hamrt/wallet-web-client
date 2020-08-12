@@ -411,7 +411,7 @@ class Profile extends Component<Props, State> {
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">Generate Keys</Modal.Title>
+            <Modal.Title>Generate Keys</Modal.Title>
           </Modal.Header>
           <Modal.Body className="ModalBody">
             <h4> Please type a password for the key generation. </h4>
@@ -470,7 +470,7 @@ class Profile extends Component<Props, State> {
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">Import Keys</Modal.Title>
+            <Modal.Title>Import Keys</Modal.Title>
           </Modal.Header>
           <Modal.Body className="ModalBody">
             <Form.Group controlId="formFile" style={{ marginBottom: 15 }}>

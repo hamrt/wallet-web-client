@@ -357,7 +357,7 @@ class Credentials extends Component<Props, State> {
               style={{ backgroundColor: colors.EC_BLUE }}
               closeButton
             >
-              <Modal.Title className="ModalTitle">Password</Modal.Title>
+              <Modal.Title>Password</Modal.Title>
             </Modal.Header>
             <Modal.Body className="ModalBody">
               <h4> Please type a password for the key decryption. </h4>

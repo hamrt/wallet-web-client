@@ -317,7 +317,7 @@ class NotificationModal extends Component<Props, State> {
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">
+            <Modal.Title>
               {!isReadingCreds && this.getRequiredCredsFormatedType()}
             </Modal.Title>
             {(isAccepting || isReadingCreds) && (
@@ -377,7 +377,7 @@ class NotificationModal extends Component<Props, State> {
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">
+            <Modal.Title>
               {transform.notificationType(
                 notification.message.notificationType,
                 notification.message.name,
@@ -412,7 +412,7 @@ class NotificationModal extends Component<Props, State> {
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">
+            <Modal.Title>
               {transform.notificationType(
                 notification.message.notificationType,
                 notification.message.name,

@@ -1,240 +1,219 @@
-import React, { Component } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import {
-  EbsiDidAuth,
-  DidAuthResponseCall,
-  DidAuthRequestPayload,
-} from "@cef-ebsi/did-auth";
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Modal } from "react-bootstrap";
+import classNames from "classnames";
+import { EbsiDidAuth, DidAuthRequestPayload } from "@cef-ebsi/did-auth";
+import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
 import { parseJwt } from "../../utils/JWTHandler";
 import { Panel, PanelTitle } from "../../components/Panel/Panel";
 import REQUIRED_VARIABLES from "../../config/env";
 import colors from "../../config/colors";
-import SecureEnclave from "../../secureEnclave/SecureEnclave";
 import step1SVG from "../../assets/images/step1.svg";
-import "./DidAuth.css";
-import { getDID, getKeys } from "../../utils/DataStorage";
+import styles from "./DidAuth.module.css";
 import * as issuer from "../../utils/issuer";
-import { IWalletOptions } from "../../secureEnclave/UserWallet";
+import { createResponse, decryptKeys } from "./DidAuth.utils";
 
 type Props = {
   location: any;
 };
 
-type State = {
-  serviceUrl: string;
-  serviceDID: string;
-  serviceName: string;
-  didAuthRequestJwt: string;
-  passwordForKeyGeneration: string;
-  isModalAskingForPass: boolean;
-};
+function DidAuth(props: Props) {
+  const [serviceUrl, setServiceUrl] = useState("");
+  const [serviceDID, setServiceDID] = useState("");
+  const [serviceName, setServiceName] = useState("");
+  const [didAuthRequestJwt, setDidAuthRequestJwt] = useState("");
+  const [isModalAskingForPass, setIsModalAskingForPass] = useState(false);
+  const [verifyingDidAuth, setVerifyingDidAuth] = useState(false);
+  const [authenticationError, setAuthenticationError] = useState("");
+  const { register, handleSubmit, errors } = useForm();
 
-class DidAuth extends Component<Props, State> {
-  passwordForKeyGeneration: React.RefObject<HTMLInputElement>;
-
-  constructor(props: Readonly<Props>) {
-    super(props);
-
-    this.passwordForKeyGeneration = React.createRef();
-
-    this.state = {
-      serviceUrl: "",
-      serviceDID: "",
-      serviceName: "",
-      didAuthRequestJwt: "",
-      passwordForKeyGeneration: "",
-      isModalAskingForPass: false,
-    };
-  }
-
-  async componentDidMount() {
-    const { location } = this.props;
-    const urlParameters = new URLSearchParams(location.search);
+  const onSubmit = async (data: any) => {
     try {
-      await this.didAuth(urlParameters);
-    } catch (error) {
-      // do nothing
-    }
-  }
+      setVerifyingDidAuth(true);
 
-  onAuthorizeClick = async () => {
-    try {
-      const { didAuthRequestJwt, passwordForKeyGeneration } = this.state;
-      this.closeModalAskingPass();
-      const requestPayload = await EbsiDidAuth.verifyDidAuthRequest(
+      const requestPayload: DidAuthRequestPayload = await EbsiDidAuth.verifyDidAuthRequest(
         didAuthRequestJwt,
         REQUIRED_VARIABLES.DID_API_IDENTIFIERS
       );
-      await this.decryptKeys(passwordForKeyGeneration);
-      this.createResponse(requestPayload);
+
+      await decryptKeys(data.didAuthPassword);
+      createResponse(requestPayload.nonce, serviceUrl);
     } catch (error) {
-      this.closeModalAskingPass();
+      setVerifyingDidAuth(false);
+      setAuthenticationError(error.message);
     }
   };
 
-  redirectToRP = (urlToRedirect: string, jwtResponse: string) => {
-    window.location.href = `${urlToRedirect}?response=${jwtResponse}`;
+  const openModalAskingPass = () => {
+    setIsModalAskingForPass(true);
+    setAuthenticationError("");
   };
 
-  decryptKeys = async (password: string) => {
-    const se = SecureEnclave.Instance;
-    const encryptedKey = getKeys();
-    if (!encryptedKey) throw new Error("No keys found.");
-    const options: IWalletOptions = {
-      encryptedKey,
-      password,
-    };
-    await se.restoreWallet(options);
+  const closeModalAskingPass = () => {
+    setIsModalAskingForPass(false);
   };
 
-  handleChangePass = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      passwordForKeyGeneration: e.target.value,
-    });
-  };
-
-  authorize = async () => {
-    this.openModalAskingPass();
-  };
-
-  closeModalAskingPass = () => {
-    this.setState({
-      isModalAskingForPass: false,
-    });
-  };
-
-  async createResponse(requestPayload: DidAuthRequestPayload) {
-    const { serviceUrl } = this.state;
-    const se = SecureEnclave.Instance;
-    const did = getDID();
-
-    if (!did) throw new Error("No DID found on Local Storage.");
-
-    const privateKey = se.getPrivateKey(did);
-
-    const didAuthResponseCall: DidAuthResponseCall = {
-      hexPrivatekey: privateKey, // private key managed by the user. Should be passed in hexadecimal format
-      did, // User DID
-      nonce: requestPayload.nonce, // same nonce received as a Request Payload after verifying it
-      redirectUri: serviceUrl, // parsed URI from the DID Auth Request payload
-    };
-
-    const didAuthResponseJwt = await EbsiDidAuth.createDidAuthResponse(
-      didAuthResponseCall
-    );
-
-    this.redirectToRP(serviceUrl, didAuthResponseJwt);
-  }
-
-  async didAuth(urlParameters: URLSearchParams) {
+  const didAuth = async (urlParameters: URLSearchParams) => {
     if (!urlParameters) throw new Error("No URL Parameters provided");
 
     const clientId = urlParameters.get("client_id");
-    const didAuthRequestJwt = urlParameters.get("request");
-    if (!clientId || !didAuthRequestJwt)
+    const didAuthRequest = urlParameters.get("request");
+    if (!clientId || !didAuthRequest)
       throw new Error("Error parsing DIDAuth request");
 
-    const token = parseJwt(didAuthRequestJwt);
+    const token = parseJwt(didAuthRequest);
     if (!token.iss) throw new Error("No issuer found in DIDAuth request token");
-    const serviceName = await issuer.getIssuerName(token.iss);
-    this.setState({
-      serviceUrl: clientId,
-      serviceDID: token.iss,
-      serviceName,
-      didAuthRequestJwt,
-    });
-  }
+    const issuerName = await issuer.getIssuerName(token.iss);
 
-  openModalAskingPass() {
-    this.setState({
-      isModalAskingForPass: true,
-    });
-  }
+    setServiceDID(token.iss);
+    setServiceUrl(clientId);
+    setServiceName(issuerName);
+    setDidAuthRequestJwt(didAuthRequest);
+  };
 
-  render() {
-    const {
-      serviceUrl,
-      serviceDID,
-      serviceName,
-      isModalAskingForPass,
-      passwordForKeyGeneration,
-    } = this.state;
+  // ComponentDidMount
+  useEffect(() => {
+    async function componentDidMount() {
+      const { location } = props;
+      const urlParameters = new URLSearchParams(location.search);
+      try {
+        await didAuth(urlParameters);
+      } catch (error) {
+        // do nothing
+      }
+    }
+    componentDidMount();
+  }, [props]);
 
-    return (
-      <div className="app">
-        <main className="main">
-          <Panel>
-            <PanelTitle>Authorization</PanelTitle>
-            <div className="panelBody">
-              <div className="panelImageContainer">
-                <img
-                  src={step1SVG}
-                  alt=""
-                  role="presentation"
-                  className="panelImage"
-                />
-              </div>
-              <div className="panelMainContent">
-                {serviceName === "-" && (
-                  <div>
-                    <h3 className="panelBodyTitle">
-                      Connect with the service with DID:
-                    </h3>
-                    <p
-                      className="panelBodyText"
-                      style={{ wordWrap: "break-word" }}
-                    >
-                      {serviceDID}
-                    </p>
-                  </div>
-                )}
-                {serviceName !== "-" && (
+  return (
+    <div className={styles.app}>
+      <main className={styles.main}>
+        <Panel>
+          <PanelTitle>Authorization</PanelTitle>
+          <div className="panelBody">
+            <div className="panelImageContainer">
+              <img
+                src={step1SVG}
+                alt=""
+                role="presentation"
+                className="panelImage"
+              />
+            </div>
+            <div className="panelMainContent">
+              {serviceName === "-" && (
+                <div>
                   <h3 className="panelBodyTitle">
-                    {serviceName} wants to connects you
+                    Connect with the service with DID:
                   </h3>
-                )}
-                <p className="panelBodyText" style={{ wordWrap: "break-word" }}>
-                  {serviceUrl}
-                </p>
-              </div>
+                  <p
+                    className="panelBodyText"
+                    style={{ wordWrap: "break-word" }}
+                  >
+                    {serviceDID}
+                  </p>
+                </div>
+              )}
+              {serviceName !== "-" && (
+                <h3 className="panelBodyTitle">
+                  {serviceName} wants to connects you
+                </h3>
+              )}
+              <p className="panelBodyText" style={{ wordWrap: "break-word" }}>
+                {serviceUrl}
+              </p>
             </div>
-            <div className="panelFooter">
-              <button
-                className="panelLink"
-                type="button"
-                tabIndex={0}
-                onClick={this.authorize}
-              >
-                Authorize
-              </button>
-            </div>
-          </Panel>
-        </main>
-        <Modal show={isModalAskingForPass} onHide={this.closeModalAskingPass}>
+          </div>
+          <div className={styles.panelFooter}>
+            <button
+              className="ecl-button ecl-button--call"
+              type="button"
+              onClick={openModalAskingPass}
+            >
+              Authorize
+            </button>
+          </div>
+        </Panel>
+      </main>
+      <Modal show={isModalAskingForPass} onHide={closeModalAskingPass}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Modal.Header
-            className="ModalHeader"
+            className={styles.ModalHeader}
             style={{ backgroundColor: colors.EC_BLUE }}
             closeButton
           >
-            <Modal.Title className="ModalTitle">Password</Modal.Title>
+            <Modal.Title>Password</Modal.Title>
           </Modal.Header>
           <Modal.Body className="ModalBody">
-            <h4> Please type a password to authorize the connection. </h4>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              value={passwordForKeyGeneration}
-              onChange={this.handleChangePass}
-            />
+            <div className="ecl-form-group">
+              <label className="ecl-form-label" htmlFor="did-auth-password">
+                Please type a password to authorize the connection.
+              </label>
+              {errors.didAuthPassword && (
+                <div className="ecl-feedback-message">
+                  {errors.didAuthPassword.message || "Invalid password!"}
+                </div>
+              )}
+              <input
+                type="password"
+                id="did-auth-password"
+                name="didAuthPassword"
+                className={classNames("ecl-text-input ecl-u-width-100", {
+                  "ecl-text-input--invalid": errors.didAuthPassword,
+                })}
+                placeholder="Password"
+                ref={register({ required: true })}
+              />
+            </div>
+            {authenticationError && (
+              <div
+                role="alert"
+                className="ecl-message ecl-message--error ecl-u-mt-m"
+                data-ecl-message="true"
+              >
+                <svg
+                  focusable="false"
+                  aria-hidden="true"
+                  className="ecl-message__icon ecl-icon ecl-icon--l"
+                >
+                  <use xlinkHref={`${eclIcons}#notifications--error`} />
+                </svg>
+                <div className="ecl-message__content">
+                  <div className="ecl-message__title">
+                    {authenticationError}
+                  </div>
+                </div>
+              </div>
+            )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={this.onAuthorizeClick}>
-              Authorize
-            </Button>
+            <button
+              type="submit"
+              className="ecl-button ecl-button--primary"
+              disabled={verifyingDidAuth}
+            >
+              {verifyingDidAuth ? (
+                <>
+                  <svg
+                    focusable="false"
+                    aria-hidden="true"
+                    className={classNames(
+                      "ecl-icon ecl-icon--xs",
+                      styles.spinner
+                    )}
+                  >
+                    <use xlinkHref={`${eclIcons}#general--spinner`} />
+                  </svg>{" "}
+                  Checking...
+                </>
+              ) : (
+                "Authorize"
+              )}
+            </button>
           </Modal.Footer>
-        </Modal>
-      </div>
-    );
-  }
+        </form>
+      </Modal>
+    </div>
+  );
 }
 export default DidAuth;

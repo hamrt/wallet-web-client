@@ -16,14 +16,14 @@ class TermsConditions extends Component<Props> {
 
   render() {
     return (
-      <div>
+      <>
         <Jumbotron
           className="jumbotron"
           style={{ backgroundColor: colors.EC_BLUE }}
         >
           <Container style={{ color: colors.WHITE }}>
             <h1>Terms and conditions</h1>
-            <p> EBSI Wallet</p>
+            <p>EBSI Wallet</p>
           </Container>
         </Jumbotron>
 
@@ -68,7 +68,7 @@ class TermsConditions extends Component<Props> {
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
           >
-            <b>Purpose.-</b>By downloading, using or accessing the EBSI WALLET
+            <b>Purpose.-</b> By downloading, using or accessing the EBSI WALLET
             DID application (the &ldquo;application&rdquo;, or the
             &ldquo;wallet&rdquo;) you agree to the following terms and
             conditions of use (collectively, these &ldquo;Terms&rdquo;). Please
@@ -81,12 +81,13 @@ class TermsConditions extends Component<Props> {
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
           >
-            <b>Download of the application and access to the Service.-</b>Access
-            to the application is via an EU login, currently requiring only a
-            valid email. The application download is free, but the cost of the
-            connection necessary for the operation of the same through your
-            mobile device, will be at your sole expense and charge according to
-            the rate you have contracted with your mobile phone operator.
+            <b>Download of the application and access to the Service.-</b>{" "}
+            Access to the application is via an EU login, currently requiring
+            only a valid email. The application download is free, but the cost
+            of the connection necessary for the operation of the same through
+            your mobile device, will be at your sole expense and charge
+            according to the rate you have contracted with your mobile phone
+            operator.
           </p>
           <p
             className="ecl-fact-figures__description"
@@ -177,7 +178,10 @@ class TermsConditions extends Component<Props> {
             and data protection. Consequently, the user must read and accept
             each other carefully before installing the application, having
             updated information on them on the website{" "}
-            <a href="https://ec.europa.eu/info/legal-notice_en">
+            <a
+              className="ecl-link"
+              href="https://ec.europa.eu/info/legal-notice_en"
+            >
               https://ec.europa.eu/info/legal-notice_en
             </a>{" "}
             or in the application.
@@ -206,26 +210,36 @@ class TermsConditions extends Component<Props> {
             liable, in any case or circumstance, for the following facts and
             contents, or for any damages that may, where appropriate, arise from
             them:
-            <br />
-            - Lack of availability, continuity, access, maintenance and
-            effective operation of the application and/or its services and
-            updating, accuracy, completeness, relevance, timeliness and
-            reliability of its contents, whatever the cause and technical
-            difficulties or problems or another nature in which these facts
-            originate.
-            <br />
-            - The transmission and/or existence of viruses, other elements or
-            programs harmful to the devices of the users that could affect them,
-            as a consequence of the access, use or examination of the
-            application site, or that produced alterations in their electronic
-            documents or files.
-            <br />
-            - Vices or defects of the contents and/or services that are accessed
-            through the application.
-            <br />
-            - For the reception, storage, obtaining, dissemination or
-            transmission by the users of the contents of the application.
-            <br />
+          </p>
+          <ul className="ecl-fact-figures__description">
+            <li>
+              Lack of availability, continuity, access, maintenance and
+              effective operation of the application and/or its services and
+              updating, accuracy, completeness, relevance, timeliness and
+              reliability of its contents, whatever the cause and technical
+              difficulties or problems or another nature in which these facts
+              originate.
+            </li>
+            <li>
+              The transmission and/or existence of viruses, other elements or
+              programs harmful to the devices of the users that could affect
+              them, as a consequence of the access, use or examination of the
+              application site, or that produced alterations in their electronic
+              documents or files.
+            </li>
+            <li>
+              Vices or defects of the contents and/or services that are accessed
+              through the application.
+            </li>
+            <li>
+              For the reception, storage, obtaining, dissemination or
+              transmission by the users of the contents of the application.
+            </li>
+          </ul>
+          <p
+            className="ecl-fact-figures__description"
+            style={{ wordWrap: "break-word" }}
+          >
             The above enumeration is merely enunciative and is not, in any case,
             exclusive or exclusive in any of its points. In all cases, EU
             excludes any liability for damages of any kind derived directly or
@@ -255,7 +269,10 @@ class TermsConditions extends Component<Props> {
             </b>{" "}
             In case of divergence on any matter related to these general
             conditions, you can make a prior claim to the EU at the address{" "}
-            <a href="https://ec.europa.eu/">https://ec.europa.eu/</a>.
+            <a className="ecl-link" href="https://ec.europa.eu/">
+              https://ec.europa.eu/
+            </a>
+            .
             <br />
             These general conditions will be governed by EU legislation. Issues
             that arise on the occasion of the interpretation, application or
@@ -263,7 +280,6 @@ class TermsConditions extends Component<Props> {
             courts and tribunals that are competent in accordance with Belgium
             procedural legislation.
           </p>
-
           <p
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
@@ -279,7 +295,7 @@ class TermsConditions extends Component<Props> {
             All legal issues related to the use of your data in the framework of
             the Application (for example, retention periods, recipients, as well
             as your rights) are those collected at{" "}
-            <a href="https://www.EU/legal/privacy-policy/">
+            <a className="ecl-link" href="https://www.EU/legal/privacy-policy/">
               https://www.EU/legal/privacy-policy/
             </a>{" "}
             .
@@ -288,7 +304,7 @@ class TermsConditions extends Component<Props> {
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
           >
-            <b>Security.-</b>In compliance with current regulations, EU has
+            <b>Security.-</b> In compliance with current regulations, EU has
             adopted the necessary technical and organizational measures to
             maintain the level of security required in response to the personal
             data processed. It is also equipped with the precise mechanisms at
@@ -366,79 +382,101 @@ class TermsConditions extends Component<Props> {
             style={{ wordWrap: "break-word" }}
           >
             <b>Obligations of the users.-</b>
-            <br />
-            1) Service request: the user expressly requests the provision of the
-            EBSI Wallet DID and is obliged to use it in accordance with the
-            procedures, service regulations, and, where appropriate, the
-            technical components supplied by the EU.
-            <br /> <br />
-            2) Accuracy of the information: The user will be obliged to provide
-            the necessary data for the provision of the service, and must be
-            responsible for ensuring that all the information included, by any
-            means, in the application is accurate, complete for the purpose of
-            the service, and is updated during the provision of the service. The
-            user must immediately inform the UE of any inaccuracies detected
-            once the application has been registered, as well as the changes
-            that occur in the information provided
-            <br /> <br />
-            3) Delivery and acceptance of the service: The user accepts these
-            conditions at the time of entering their data, and accept the
-            service on their mobile device, by checking the corresponding box.
-            <br /> <br />
-            4) Obligation of custody: The user is obliged to guard the
-            confidentiality of his access to the application, his password for
-            the key generation, private keys and encryption secrets. In case of
-            loss or theft of the mobile device, it is necessary that you
-            immediately request the suspension or revocation of the service
-            through the same application, from an authorized office, through the
-            web, or another enabled telephone channel.
-            <br /> <br />
-            5) Obligations of correct use: The user is obliged to use the
-            service exclusively for the authorized uses in these Specific terms
-            & conditions. The user must comply with any law and regulation that
-            may affect his right to use the system and specifically, the
-            applicable regulations regarding trust services in whatever is
-            appropriate. The user cannot adopt inspection, alteration or
-            decompilation measures of application without the prior express
-            permission of the EU.
-            <br /> <br />
-            6) Prohibited transactions: The user undertakes not to use the EBSI
-            wallet DID or any other technical support provided by the EU to
-            carry out any transaction prohibited by applicable law. EBSI wallet
-            DID has not been designed or in any case allows its use or resale as
-            control equipment for dangerous situations, or for uses that require
-            error-proof actions, such as the operation of nuclear facilities,
-            navigation systems or aerial communication, systems of air traffic
-            control or weapons control systems, where an error could directly
-            cause death, physical damage or serious environmental damage.
-            <br /> <br />
+          </p>
+          <ol className="ecl-fact-figures__description">
+            <li>
+              Service request: the user expressly requests the provision of the
+              EBSI Wallet DID and is obliged to use it in accordance with the
+              procedures, service regulations, and, where appropriate, the
+              technical components supplied by the EU.
+            </li>
+            <li>
+              Accuracy of the information: The user will be obliged to provide
+              the necessary data for the provision of the service, and must be
+              responsible for ensuring that all the information included, by any
+              means, in the application is accurate, complete for the purpose of
+              the service, and is updated during the provision of the service.
+              The user must immediately inform the UE of any inaccuracies
+              detected once the application has been registered, as well as the
+              changes that occur in the information provided
+            </li>
+            <li>
+              Delivery and acceptance of the service: The user accepts these
+              conditions at the time of entering their data, and accept the
+              service on their mobile device, by checking the corresponding box.
+            </li>
+            <li>
+              Obligation of custody: The user is obliged to guard the
+              confidentiality of his access to the application, his password for
+              the key generation, private keys and encryption secrets. In case
+              of loss or theft of the mobile device, it is necessary that you
+              immediately request the suspension or revocation of the service
+              through the same application, from an authorized office, through
+              the web, or another enabled telephone channel.
+            </li>
+            <li>
+              Obligations of correct use: The user is obliged to use the service
+              exclusively for the authorized uses in these Specific terms &
+              conditions. The user must comply with any law and regulation that
+              may affect his right to use the system and specifically, the
+              applicable regulations regarding trust services in whatever is
+              appropriate. The user cannot adopt inspection, alteration or
+              decompilation measures of application without the prior express
+              permission of the EU.
+            </li>
+            <li>
+              Prohibited transactions: The user undertakes not to use the EBSI
+              wallet DID or any other technical support provided by the EU to
+              carry out any transaction prohibited by applicable law. EBSI
+              wallet DID has not been designed or in any case allows its use or
+              resale as control equipment for dangerous situations, or for uses
+              that require error-proof actions, such as the operation of nuclear
+              facilities, navigation systems or aerial communication, systems of
+              air traffic control or weapons control systems, where an error
+              could directly cause death, physical damage or serious
+              environmental damage.
+            </li>
+          </ol>
+          <p
+            className="ecl-fact-figures__description"
+            style={{ wordWrap: "break-word" }}
+          >
             Obligations of the third parties using verifiable IDs and
             attestations
-            <br /> <br />
-            1) Third parties using verifiable IDs and attestations (Third
-            parties), are obliged to provide the services in the manner provided
-            in terms and conditions, in the documentation of the applicable EBSI
-            Wallet DID services, and subject to the current regulatory
-            legislation, including, when applicable, the Regulation (EU) ) nº
-            910/2014, of July 23 and the legislation that is dictated for its
-            development, to its own pacts
-            <br />
-            2) Specifically, third parties are obligated to:
-            <br />
-            - Identify and authenticate the User or wallet holder, correctly.
-            <br />
-            - Safely keep all the information and evidence generated as a result
-            of its activity.
-            <br />
-            - Enable the necessary computer and telematic system to validate
-            transactions.
-            <br />
-            - Fulfil its obligations derived from the GDPR, and specifically
-            store the strict information necessary for the provision of the
-            service.
-            <br />
           </p>
-          <br />
+          <ol className="ecl-fact-figures__description">
+            <li>
+              Third parties using verifiable IDs and attestations (Third
+              parties), are obliged to provide the services in the manner
+              provided in terms and conditions, in the documentation of the
+              applicable EBSI Wallet DID services, and subject to the current
+              regulatory legislation, including, when applicable, the Regulation
+              (EU) ) nº 910/2014, of July 23 and the legislation that is
+              dictated for its development, to its own pacts
+            </li>
+            <li>
+              Specifically, third parties are obligated to:
+              <ul className="ecl-fact-figures__description">
+                <li>
+                  Identify and authenticate the User or wallet holder,
+                  correctly.
+                </li>
+                <li>
+                  Safely keep all the information and evidence generated as a
+                  result of its activity.
+                </li>
+                <li>
+                  Enable the necessary computer and telematic system to validate
+                  transactions.
+                </li>
+                <li>
+                  Fulfil its obligations derived from the GDPR, and specifically
+                  store the strict information necessary for the provision of
+                  the service.
+                </li>
+              </ul>
+            </li>
+          </ol>
           <p
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
@@ -450,27 +488,40 @@ class TermsConditions extends Component<Props> {
             <br /> <br />
             <b>Presentation.-</b> EBSI Platform is a peer to peer network of
             interconnected nodes of two types:
-            <br />
-            1) EBSI nodes at European level, operate by the Commission
-            <br />
-            2) EBSI nodes at a national level, operate by following Member
-            States: Italy, Spain, Belgium, France, Sweden, Austria, Malta.
-            <br />
+          </p>
+          <ol className="ecl-fact-figures__description">
+            <li>EBSI nodes at European level, operate by the Commission</li>
+            <li>
+              EBSI nodes at a national level, operate by following Member
+              States: Italy, Spain, Belgium, France, Sweden, Austria, Malta.
+            </li>
+          </ol>
+          <p
+            className="ecl-fact-figures__description"
+            style={{ wordWrap: "break-word" }}
+          >
             All the nodes will be able to create and broadcast transactions that
             will update the ledger.
-            <br />
+          </p>
+          <p
+            className="ecl-fact-figures__description"
+            style={{ wordWrap: "break-word" }}
+          >
             The architecture of each node will be composed of two main
             functional areas:
-            <br />
-            -A set of four layers comprising components which together provide
-            the EBSI infrastructure, which contain capabilities common to all
-            use cases. These layers will include generic capabilities and
-            connectivity to Blockchain networks.
-            <br />
-            -A set of two layers comprising use case-specific components
-            enabling support for hosting of business applications.
           </p>
-          <br />
+          <ul className="ecl-fact-figures__description">
+            <li>
+              A set of four layers comprising components which together provide
+              the EBSI infrastructure, which contain capabilities common to all
+              use cases. These layers will include generic capabilities and
+              connectivity to Blockchain networks.
+            </li>
+            <li>
+              A set of two layers comprising use case-specific components
+              enabling support for hosting of business applications.
+            </li>
+          </ul>
           <p
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
@@ -513,11 +564,17 @@ class TermsConditions extends Component<Props> {
             <br />
             All bare metal VM machines used for the EBSI v1.0 Stack Nodes will
             have the following minimum technical requirements:
-            <br />
-            -4vCPU <br />
-            -16G RAM <br />
-            -1TB SSD. <br />
-            -Linux OS <br />
+          </p>
+          <ul className="ecl-fact-figures__description">
+            <li>4vCPU</li>
+            <li>16G RAM</li>
+            <li>1TB SSD</li>
+            <li>Linux OS</li>
+          </ul>
+          <p
+            className="ecl-fact-figures__description"
+            style={{ wordWrap: "break-word" }}
+          >
             Inside each EBSI bare-metal VM node, each sub-component will run in
             a dedicated docker container. Ubuntu server 18.04 LTS will be used
             for the docker container OS. If the Member State will also handle
@@ -533,16 +590,17 @@ class TermsConditions extends Component<Props> {
             level.
             <br />
           </p>
-          <br />
           <p
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
           >
             <b>General Architecture Aspects </b>
             <br />
-            See:
-            <br />
-            <a href="https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Minimum+Technical+Requirements+for+an+EBSI+v1.0+NODE+Deployment">
+            See:{" "}
+            <a
+              className="ecl-link"
+              href="https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/Minimum+Technical+Requirements+for+an+EBSI+v1.0+NODE+Deployment"
+            >
               Minimum Technical Requirements for an EBSI v1.0 NODE Deployment
               within Member States or Institutions
             </a>
@@ -559,11 +617,14 @@ class TermsConditions extends Component<Props> {
             <br />
             EC Node Infrastructure Architecture - to be published on CEF
             Building Blocks Web Site &gt;{" "}
-            <a href="https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/EBSI">
+            <a
+              className="ecl-link"
+              href="https://ec.europa.eu/cefdigital/wiki/display/CEFDIGITAL/EBSI"
+            >
               EBSI
             </a>{" "}
             or requested from EBSI support at{" "}
-            <a href="mailto:CEF-EBSI-support@ec.europa.eu">
+            <a className="ecl-link" href="mailto:CEF-EBSI-support@ec.europa.eu">
               CEF-EBSI-support@ec.europa.eu
             </a>
           </p>
@@ -575,7 +636,6 @@ class TermsConditions extends Component<Props> {
             Commission or EBP reserves the right to request a takedown of the
             network or node for the whole network or just one node
           </p>
-
           <p
             className="ecl-fact-figures__description"
             style={{ wordWrap: "break-word" }}
@@ -584,52 +644,71 @@ class TermsConditions extends Component<Props> {
               Node Operator Authorization, Representation and Warranties,
               Obligations.
             </b>
-            <br />
-            1) Responsibilities at all times during this Agreement:
-            <br />
-            - To comply with the terms of this Agreement and the terms of all
-            other agreements to which you are a party in connection with your
-            performance under this Agreement.
-            <br />
-            - To operate the Node in strict compliance with terms of this
-            Agreement and will not take any action not expressly authorized
-            hereunder.
-            <br />
-            - To comply with the documentation of the applicable EBSI Wallet DID
-            services, and subject to the current regulatory legislation.
-            <br />- You acknowledge and agree to, and will at all times comply
-            with, the Node Information Policy located at:{" "}
-            <a href="https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?pageId=189432828">
-              5 - EBSI v1 Node Operator Terms & Conditions
-            </a>
-            <br />
-            -To not modify or attempt to modify the Software for any purpose
-            including but not limited to attempting to circumvent the audit,
-            bypass security, manipulate the performance of, or otherwise disrupt
-            the Services, or otherwise interfere with the operation of the EBSI
-            Services.
-            <br />
-            - The Node will meet all performance requirements referred to in
-            this Agreement, as well as any performance requirements set forth in
-            the Documentation or other instructions;
-            <br />
-            - In connection with your use of the Software and/or operation of a
-            Node hereunder, UE may provide notice of and may, from time to time,
-            require you to affirm and/or re-affirm your agreement to this
-            Agreement; your continued use of the Software is contingent upon
-            your promptly providing such affirmation as requested by UE.
-            <br />
-            <br />
-            3) Restrictions You will not operate the Node except as expressly
-            authorized hereunder. Without limiting the generality of the
-            foregoing, you will not:
-            <br />
-            <br />
-            - Operate more than one Node.
-            <br />- Operate a Node that does not meet the following technical
-            requirements
           </p>
-
+          <ol className="ecl-fact-figures__description">
+            <li>
+              Responsibilities at all times during this Agreement:
+              <ul className="ecl-fact-figures__description">
+                <li>
+                  To comply with the terms of this Agreement and the terms of
+                  all other agreements to which you are a party in connection
+                  with your performance under this Agreement.
+                </li>
+                <li>
+                  To operate the Node in strict compliance with terms of this
+                  Agreement and will not take any action not expressly
+                  authorized hereunder.
+                </li>
+                <li>
+                  To comply with the documentation of the applicable EBSI Wallet
+                  DID services, and subject to the current regulatory
+                  legislation.
+                </li>
+                <li>
+                  You acknowledge and agree to, and will at all times comply
+                  with, the Node Information Policy located at:{" "}
+                  <a
+                    className="ecl-link"
+                    href="https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?pageId=189432828"
+                  >
+                    5 - EBSI v1 Node Operator Terms & Conditions
+                  </a>
+                </li>
+                <li>
+                  To not modify or attempt to modify the Software for any
+                  purpose including but not limited to attempting to circumvent
+                  the audit, bypass security, manipulate the performance of, or
+                  otherwise disrupt the Services, or otherwise interfere with
+                  the operation of the EBSI Services.
+                </li>
+                <li>
+                  The Node will meet all performance requirements referred to in
+                  this Agreement, as well as any performance requirements set
+                  forth in the Documentation or other instructions;
+                </li>
+                <li>
+                  In connection with your use of the Software and/or operation
+                  of a Node hereunder, UE may provide notice of and may, from
+                  time to time, require you to affirm and/or re-affirm your
+                  agreement to this Agreement; your continued use of the
+                  Software is contingent upon your promptly providing such
+                  affirmation as requested by UE.
+                </li>
+              </ul>
+            </li>
+            <li>
+              Restrictions You will not operate the Node except as expressly
+              authorized hereunder. Without limiting the generality of the
+              foregoing, you will not:
+              <ul className="ecl-fact-figures__description">
+                <li>Operate more than one Node.</li>
+                <li>
+                  Operate a Node that does not meet the following technical
+                  requirements
+                </li>
+              </ul>
+            </li>
+          </ol>
           <div className="button-container">
             <button
               type="button"
@@ -642,7 +721,7 @@ class TermsConditions extends Component<Props> {
           </div>
         </div>
         <Footer />
-      </div>
+      </>
     );
   }
 }

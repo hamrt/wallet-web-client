@@ -1,6 +1,5 @@
 import { decodeJwt } from "@cef-ebsi/did-jwt";
-import { TransactionRequest } from "@ethersproject/abstract-provider";
-import { ethers, Transaction } from "ethers";
+import { ethers, providers, Transaction } from "ethers";
 import UserWallet, { IWalletOptions } from "./UserWallet";
 import * as mocks from "../test/mocks/mocks";
 import * as util from "./Util";
@@ -115,7 +114,7 @@ describe("when signing an Ethereum Tx", () => {
     const password = "1234";
     const data = `0x${Buffer.from("Sending test messages!").toString("hex")}`;
     const wallet = await UserWallet.userWalletBuilder({ password });
-    const txJSON: TransactionRequest = {
+    const txJSON: providers.TransactionRequest = {
       gasPrice: ethers.utils.hexlify(0),
       gasLimit: ethers.utils.hexlify(221000),
       to: "0x0000000000000000000000000000000000000000",

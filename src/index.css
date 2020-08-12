@@ -16,3 +16,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Bootstrap overrides */
+.modal-content,
+.modal-header,
+.modal-footer {
+  border-radius: 0;
+}
