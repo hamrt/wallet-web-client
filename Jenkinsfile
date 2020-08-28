@@ -10,6 +10,12 @@ pipeline {
                checkout scm;
             }
         }
+        stage('Unit Test') {
+            steps{
+                sh 'yarn install --frozen-lockfile'
+                sh 'yarn run test:ci'
+            }
+        }
         stage('Build image') {
             steps {
                 sh "if [[ -f .env.integration ]]; then { cp .env.integration .env; }; fi"
