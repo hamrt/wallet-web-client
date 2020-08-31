@@ -5,7 +5,7 @@ import ToastEbsi from "./ToastEbsi";
 import colors from "../../config/colors";
 
 describe("ebsi toast", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(1);
     const method = jest.fn();
     const wrapper = mount(

@@ -3,6 +3,14 @@ pipeline {
     environment {
         CONTAINER_NAME= "`grep -A1 services docker-compose-ci.yml | tail -1 | sed -e s'/ //'g -e s'/://'g`"
         TAG = "`grep image docker-compose-ci.yml | cut -d':' -f3`"
+        REACT_APP_EBSI_ENV='integration'
+        REACT_APP_DEMO='https://app.intebsi.xyz/demo'
+        REACT_APP_WALLET='https://app.intebsi.xyz/wallet'
+        REACT_APP_WALLET_API='https://api.intebsi.xyz/wallet'
+        REACT_APP_ID_HUB_API='https://api.intebsi.xyz/wallet/idhub'
+        REACT_APP_EULOGIN='https://ecas.ec.europa.eu/cas'
+        PUBLIC_URL='${REACT_APP_WALLET}'
+        REACT_APP_URL='${PUBLIC_URL}'
     }
     stages {
         stage('Clone repo') {

@@ -1,15 +1,9 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount, shallow } from "enzyme";
+import { render, act } from "@testing-library/react";
 import Notifications from "./Notifications";
-import SecureEnclave from "../../secureEnclave/SecureEnclave";
-import * as DataStorage from "../../utils/DataStorage";
-import * as JWTHandler from "../../utils/JWTHandler";
 import * as mocks from "../../test/mocks/mocks";
 import * as wallet from "../../apis/wallet";
-import * as values from "../../test/mocks/values";
-import * as ecas from "../../apis/ecas";
-import colors from "../../config/colors";
 
 const mockResponse = jest.fn();
 Object.defineProperty(window, "location", {
@@ -20,302 +14,436 @@ Object.defineProperty(window, "location", {
   writable: true,
 });
 const historyMock: any[] = [];
-const mockedLocation: any[] = [];
-const notificationsComponent = shallow<Notifications>(
-  <Notifications history={historyMock} location={mockedLocation} />
-);
-const instance = notificationsComponent.instance() as Notifications;
 
 describe("notifications renders", () => {
-  it("notifications should renders without crashing", () => {
+  it("notifications should render without crashing", () => {
     expect.assertions(1);
 
-    const mockedLoc = { search: jest.fn() };
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
-        <Notifications location={mockedLoc} history={historyMock} />
+        <Notifications history={historyMock} />
       </BrowserRouter>
     );
 
     expect(wrapper).toBeDefined();
   });
 
-  it("should redirect to login page if it has not a jwt", () => {
+  it("should display an error message if it can't get the notifications", async () => {
     expect.assertions(1);
 
-    const spy = jest.spyOn(DataStorage, "connectionNotEstablished");
-    spy.mockReturnValue(true);
+    const spy = jest.spyOn(wallet, "getNotifications");
+    spy.mockResolvedValue({ status: 400, data: "error message" });
 
-    const spyTokenExpired = jest.spyOn(JWTHandler, "isTokenExpired");
-    spyTokenExpired.mockReturnValue(false);
+    const { findByText } = render(
+      <BrowserRouter>
+        <Notifications history={historyMock} />
+      </BrowserRouter>
+    );
 
-    const redirectToMock = jest.spyOn(instance, "redirectTo");
-    instance.componentDidMount();
-
-    expect(redirectToMock).toHaveBeenCalledWith("");
-    spy.mockRestore();
-    spyTokenExpired.mockRestore();
-    redirectToMock.mockRestore();
-  });
-
-  it("should call the loginLink if page if JWT is expired", () => {
-    expect.assertions(1);
-
-    const spy = jest.spyOn(DataStorage, "connectionNotEstablished");
-    spy.mockReturnValue(false);
-
-    const spyTokenExpired = jest.spyOn(JWTHandler, "isTokenExpired");
-    spyTokenExpired.mockReturnValue(true);
-
-    const loginLinkMock = jest.spyOn(ecas, "loginLink");
-    instance.componentDidMount();
-
-    expect(loginLinkMock).toHaveBeenCalledWith();
-    spy.mockRestore();
-    spyTokenExpired.mockRestore();
-    loginLinkMock.mockRestore();
+    const el = await findByText(
+      "Error getting the notifications: error message"
+    );
+    expect(el).toBeDefined();
   });
 
   it("should get all the notifications and generate a NotificationItem for each one", async () => {
-    expect.assertions(1);
+    expect.assertions(2);
 
     const spy = jest.spyOn(wallet, "getNotifications");
     spy.mockResolvedValue({ status: 200, data: mocks.getNotifications });
 
-    await instance.getNotifications();
+    const { container } = render(
+      <BrowserRouter>
+        <Notifications history={historyMock} />
+      </BrowserRouter>
+    );
 
-    expect(notificationsComponent.state("notifications")).toHaveLength(2);
+    // https://kentcdodds.com/blog/fix-the-not-wrapped-in-act-warning
+    await act(() => Promise.resolve());
+
+    // Should display 2 notifications
+    expect(
+      container.querySelectorAll(
+        '[data-tut="reactour_notifications"] > article'
+      )
+    ).toHaveLength(2);
+
+    // Should match snapshot
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <header
+          class="ecl-site-header-harmonised--group1 ecl-site-header-harmonised"
+        >
+          <div
+            class="ecl-site-header-harmonised__container ecl-container"
+          >
+            <div
+              class="ecl-site-header-harmonised__top"
+            >
+              <a
+                aria-label="European Commission"
+                class="ecl-link ecl-link--standalone ecl-site-header-harmonised__logo-link"
+                href="/profile"
+              >
+                <img
+                  alt="European Commission logo"
+                  class="ecl-site-header-harmonised__logo-image"
+                  src="logo--en.svg"
+                  title="European Commission"
+                />
+              </a>
+            </div>
+          </div>
+          <nav
+            aria-expanded="false"
+            class="ecl-menu--group1 ecl-menu"
+            data-ecl-auto-init="Menu"
+            data-ecl-menu="true"
+          >
+            <div
+              class="ecl-menu__overlay"
+              data-ecl-menu-overlay="true"
+            />
+            <div
+              class="ecl-container ecl-menu__container"
+            >
+              <a
+                class="ecl-link ecl-link--standalone ecl-menu__open"
+                data-ecl-menu-open="true"
+                href="/"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="ecl-icon ecl-icon--s"
+                  focusable="false"
+                >
+                  <use
+                    xlink:href="icons.svg#general--hamburger"
+                  />
+                </svg>
+                Menu
+              </a>
+              <div
+                class="ecl-menu__site-name"
+              >
+                EBSI Wallet
+              </div>
+              <section
+                class="ecl-menu__inner"
+                data-ecl-menu-inner="true"
+              >
+                <header
+                  class="ecl-menu__inner-header"
+                >
+                  <button
+                    class="ecl-menu__close ecl-button ecl-button--text"
+                    data-ecl-menu-close="true"
+                    type="button"
+                  >
+                    <span
+                      class="ecl-menu__close-container ecl-button__container"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="ecl-button__icon ecl-button__icon--before ecl-icon ecl-icon--s"
+                        data-ecl-icon="true"
+                        focusable="false"
+                      >
+                        <use
+                          xlink:href="icons.svg#ui--close-filled"
+                        />
+                      </svg>
+                      <span
+                        class="ecl-button__label"
+                        data-ecl-label="true"
+                      >
+                        Close
+                      </span>
+                    </span>
+                  </button>
+                  <div
+                    class="ecl-menu__title"
+                  >
+                    Menu
+                  </div>
+                  <button
+                    class="ecl-menu__back ecl-button ecl-button--text"
+                    data-ecl-menu-back="true"
+                    type="submit"
+                  >
+                    <span
+                      class="ecl-button__container"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        class="ecl-button__icon ecl-button__icon--before ecl-icon ecl-icon--s ecl-icon--rotate-270"
+                        data-ecl-icon="true"
+                        focusable="false"
+                      >
+                        <use
+                          xlink:href="icons.svg#ui--corner-arrow"
+                        />
+                      </svg>
+                      <span
+                        class="ecl-button__label"
+                        data-ecl-label="true"
+                      >
+                        Back
+                      </span>
+                    </span>
+                  </button>
+                </header>
+                <ul
+                  class="ecl-menu__list"
+                >
+                  <li
+                    class="ecl-menu__item"
+                    data-ecl-menu-item="true"
+                  >
+                    <a
+                      class="ecl-menu__link"
+                      data-ecl-menu-link="true"
+                      href="/profile"
+                    >
+                      My Profile
+                    </a>
+                  </li>
+                  <li
+                    class="ecl-menu__item"
+                    data-ecl-menu-item="true"
+                  >
+                    <a
+                      class="ecl-menu__link"
+                      data-ecl-menu-link="true"
+                      href="/credentials"
+                    >
+                      Credentials
+                    </a>
+                  </li>
+                  <li
+                    class="ecl-menu__item"
+                    data-ecl-menu-item="true"
+                  >
+                    <a
+                      class="ecl-menu__link"
+                      data-ecl-menu-link="true"
+                      href="/notifications"
+                    >
+                      Notifications
+                    </a>
+                  </li>
+                  <li
+                    class="ecl-menu__item"
+                    data-ecl-menu-item="true"
+                  >
+                    <a
+                      class="ecl-menu__link"
+                      data-ecl-menu-link="true"
+                      href="/presentations"
+                    >
+                      Presentations
+                    </a>
+                  </li>
+                  <li
+                    class="ecl-menu__item"
+                    data-ecl-menu-item="true"
+                  >
+                    <a
+                      class="ecl-menu__link"
+                      data-ecl-menu-link="true"
+                      href="/"
+                    >
+                      Logout
+                    </a>
+                  </li>
+                </ul>
+              </section>
+            </div>
+          </nav>
+          <div
+            class="container"
+          >
+            <div
+              class="row"
+            >
+              <div
+                class="col col"
+              />
+            </div>
+          </div>
+          <div
+            class="ribbon"
+            data-tut="reactour_header"
+          >
+            <a
+              class="ribbonText"
+              href="https://app.intebsi.xyz/demo"
+            >
+              EBSI DEMO
+            </a>
+          </div>
+        </header>
+        <div
+          class="ecl-page-header-harmonised ecl-u-mt-l"
+        >
+          <div
+            class="ecl-container"
+          >
+            <h1
+              class="ecl-page-header-harmonised__title"
+            >
+              Notifications Page
+            </h1>
+          </div>
+        </div>
+        <div
+          class="ecl-container"
+        >
+          <p>
+            List of the pending notifications to be signed.
+          </p>
+        </div>
+        <main
+          class="ecl-container ecl-u-flex-grow-1 ecl-u-mb-l"
+        >
+          <div
+            data-tut="reactour_notifications"
+          >
+            <article
+              class="ecl-card ecl-card--tile notificationItem"
+            >
+              <header
+                class="ecl-card__header"
+              >
+                <h1
+                  class="ecl-card__title"
+                >
+                  <img
+                    alt=""
+                    class="rounded mr-2"
+                    height="32"
+                    src="european-union.png"
+                    width="32"
+                  />
+                   
+                  <a
+                    class="ecl-link ecl-link--standalone"
+                    href="/notifications"
+                    type="button"
+                  >
+                    Request your eID Presentation
+                  </a>
+                </h1>
+              </header>
+              <div
+                class="ecl-card__body"
+              >
+                <div
+                  class="ecl-card__description"
+                />
+              </div>
+              <footer
+                class="ecl-card__footer"
+              >
+                <ul
+                  class="ecl-card__info-container"
+                >
+                  <li
+                    class="ecl-card__info-item"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="ecl-icon ecl-icon--xs"
+                      focusable="false"
+                    >
+                      <use
+                        xlink:href="icons.svg#general--calendar"
+                      />
+                    </svg>
+                    <span
+                      class="ecl-card__info-label"
+                    >
+                      Invalid date
+                    </span>
+                  </li>
+                </ul>
+              </footer>
+            </article>
+            <article
+              class="ecl-card ecl-card--tile notificationItem"
+            >
+              <header
+                class="ecl-card__header"
+              >
+                <h1
+                  class="ecl-card__title"
+                >
+                  <img
+                    alt=""
+                    class="rounded mr-2"
+                    height="32"
+                    src="european-union.png"
+                    width="32"
+                  />
+                   
+                  <a
+                    class="ecl-link ecl-link--standalone"
+                    href="/notifications"
+                    type="button"
+                  >
+                    Store My Diploma
+                  </a>
+                </h1>
+              </header>
+              <div
+                class="ecl-card__body"
+              >
+                <div
+                  class="ecl-card__description"
+                />
+              </div>
+              <footer
+                class="ecl-card__footer"
+              >
+                <ul
+                  class="ecl-card__info-container"
+                >
+                  <li
+                    class="ecl-card__info-item"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="ecl-icon ecl-icon--xs"
+                      focusable="false"
+                    >
+                      <use
+                        xlink:href="icons.svg#general--calendar"
+                      />
+                    </svg>
+                    <span
+                      class="ecl-card__info-label"
+                    >
+                      Invalid date
+                    </span>
+                  </li>
+                </ul>
+              </footer>
+            </article>
+          </div>
+        </main>
+        <footer
+          class="ecl-footer-core"
+        />
+        <button
+          class="ecl-button ecl-button--primary tourButton"
+          title="Open guided tour"
+          type="button"
+        >
+          ?
+        </button>
+      </div>
+    `);
 
     spy.mockRestore();
-  });
-
-  it("should decrypt the Keys when click the button Validate", async () => {
-    expect.assertions(1);
-
-    instance.passwordForKeyGeneration = {
-      current: { value: "1234" },
-    } as any;
-    instance.setState({ ticketFromUrl: mocks.ticket } as any);
-
-    const decryptKeysMock = jest.spyOn(instance, "decryptKeys");
-    const se = SecureEnclave.Instance;
-
-    await instance.onValidateClick(undefined as any);
-
-    expect(decryptKeysMock).toHaveBeenCalledWith(se, "1234");
-
-    decryptKeysMock.mockRestore();
-  });
-
-  it("should display a succesfully toast and reload page when accept the notification", async () => {
-    expect.assertions(2);
-
-    const spy = jest.spyOn(wallet, "acceptNotification");
-    spy.mockResolvedValue({
-      status: 200,
-      data: mocks.acceptNotificationReponse,
-    });
-
-    const openSuccessToastMock = jest.spyOn(instance, "openSuccessToast");
-    jest.spyOn(window.location, "reload").mockImplementation();
-
-    await instance.acceptNotification(mocks.getNotification as any);
-
-    expect(openSuccessToastMock).toHaveBeenCalledWith(
-      mocks.acceptNotificationReponse.message
-    );
-    expect(window.location.reload).toHaveBeenCalledWith();
-    spy.mockRestore();
-    openSuccessToastMock.mockRestore();
-  });
-
-  it("should display a error toast when something is wrong accepting the notification", async () => {
-    expect.assertions(1);
-
-    const spy = jest.spyOn(wallet, "acceptNotification");
-    spy.mockResolvedValue({ status: 400, data: "Error" });
-
-    const openToastMock = jest.spyOn(instance, "openToast");
-
-    await instance.acceptNotification(mocks.getNotification as any);
-
-    expect(openToastMock).toHaveBeenCalledWith(
-      `${values.errorAcceptingNotification} Error`
-    );
-
-    spy.mockRestore();
-    openToastMock.mockRestore();
-  });
-
-  it("should display a succesfully toast and reload page when sign a notification", async () => {
-    expect.assertions(2);
-
-    const spy = jest.spyOn(wallet, "acceptNotification");
-    spy.mockResolvedValue({
-      status: 200,
-      data: mocks.acceptNotificationReponse,
-    });
-
-    const spyBody = jest.spyOn(instance, "getBodyWithNotificationSigned");
-    spyBody.mockResolvedValue(mocks.bodyToSign);
-
-    const openSuccessToastMock = jest.spyOn(instance, "openSuccessToast");
-    jest.spyOn(window.location, "reload").mockImplementation();
-
-    const se = SecureEnclave.Instance;
-    await instance.signNotification(
-      se,
-      "1234",
-      mocks.getNotificationToSign as any
-    );
-
-    expect(openSuccessToastMock).toHaveBeenCalledWith(
-      mocks.acceptNotificationReponse.message
-    );
-    expect(window.location.reload).toHaveBeenCalledWith();
-    spy.mockRestore();
-    openSuccessToastMock.mockRestore();
-  });
-
-  it("should display a error toast when something is wrong signing the notification", async () => {
-    expect.assertions(1);
-
-    const spy = jest.spyOn(wallet, "acceptNotification");
-    spy.mockResolvedValue({ status: 400, data: "Error" });
-
-    const openToastMock = jest.spyOn(instance, "openToast");
-
-    const se = SecureEnclave.Instance;
-    await instance.signNotification(
-      se,
-      "1234",
-      mocks.getNotificationToSign as any
-    );
-
-    expect(openToastMock).toHaveBeenCalledWith(
-      `${values.errorSigningNotification} Error`
-    );
-
-    spy.mockRestore();
-    openToastMock.mockRestore();
-  });
-});
-
-describe("auxiliar methods for notifications", () => {
-  // eslint-disable-next-line jest/no-hooks
-  beforeEach(async () => {
-    jest.spyOn(window.location, "assign").mockImplementation();
-  });
-
-  it("should open the toast", () => {
-    expect.assertions(4);
-
-    instance.openToast("message");
-
-    expect(notificationsComponent.state("isToastOpen")).toBe(true);
-    expect(notificationsComponent.state("toastMessage")).toBe("message");
-    expect(notificationsComponent.state("isLoadingOpen")).toBe(false);
-    expect(notificationsComponent.state("toastColor")).toBe(colors.EC_RED);
-  });
-
-  it("should open the modal toast with a success message", () => {
-    expect.assertions(4);
-
-    instance.openSuccessToast(values.successMessage);
-
-    expect(notificationsComponent.state("isToastOpen")).toBe(true);
-    expect(notificationsComponent.state("toastMessage")).toBe(
-      values.successMessage
-    );
-    expect(notificationsComponent.state("isAccepting")).toBe(false);
-    expect(notificationsComponent.state("toastColor")).toBe(colors.EC_GREEN);
-  });
-
-  it("should close the toast", () => {
-    expect.assertions(1);
-
-    instance.closeToast();
-
-    expect(notificationsComponent.state("isToastOpen")).toBe(false);
-  });
-
-  it("should start loading", () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).startLoading();
-
-    expect(notificationsComponent.state("isLoadingOpen")).toBe(true);
-  });
-  it("should stop loading", () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).stopLoading();
-
-    expect(notificationsComponent.state("isLoadingOpen")).toBe(false);
-  });
-  it("should open the modal when openModalAskingForPass is called", () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).openModalAskingForPass();
-
-    expect(notificationsComponent.state("isModalAskingForPass")).toBe(true);
-  });
-
-  it("should close the modal asking for pass", () => {
-    expect.assertions(1);
-    (notificationsComponent.instance() as Notifications).closeModalAskingForPass();
-
-    expect(notificationsComponent.state("isModalAskingForPass")).toBe(false);
-  });
-
-  it("should open the notification", async () => {
-    expect.assertions(1);
-
-    const openNotificationModalMock = jest.spyOn(
-      notificationsComponent.instance() as Notifications,
-      "openNotificationModal"
-    );
-
-    await (notificationsComponent.instance() as Notifications).openNotification(
-      mocks.getNotification as any
-    );
-
-    expect(openNotificationModalMock).toHaveBeenCalledWith(
-      mocks.getNotification
-    );
-    openNotificationModalMock.mockRestore();
-  });
-  it("should open the notification modal", () => {
-    expect.assertions(2);
-    (notificationsComponent.instance() as Notifications).openNotificationModal(
-      mocks.getNotification as any
-    );
-
-    expect(notificationsComponent.state("isModalNotificationOpen")).toBe(true);
-    expect(notificationsComponent.state("notification")).toBe(
-      mocks.getNotification
-    );
-    // spy.mockRestore();
-  });
-  it("should close the notification modal", async () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).closeNotificationModal();
-
-    expect(notificationsComponent.state("isModalNotificationOpen")).toBe(false);
-  });
-  it("should open the tour", async () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).openTour();
-
-    expect(notificationsComponent.state("isTourOpen")).toBe(true);
-  });
-  it("should close the tour", async () => {
-    expect.assertions(1);
-
-    (notificationsComponent.instance() as Notifications).closeTour();
-
-    expect(notificationsComponent.state("isTourOpen")).toBe(false);
   });
 });

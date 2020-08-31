@@ -14,6 +14,7 @@ describe("credential item presentation", () => {
         <CredentialItemPresentation
           credential={credential}
           methodToSelect={methodToOpen}
+          defaultChecked={false}
         />
       </BrowserRouter>
     );

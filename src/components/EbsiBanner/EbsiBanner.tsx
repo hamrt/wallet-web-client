@@ -1,41 +1,36 @@
 import React from "react";
-import { Jumbotron, Container, Spinner, Button } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import "./EbsiBanner.css";
-import colors from "../../config/colors";
 
 type CallbackFunction = () => void;
 
 type Props = {
   title: string;
   subtitle: string;
-  shouldAskToDecryptKey?: boolean;
-  openModalAskingPass?: CallbackFunction;
   isLoadingOpen: boolean;
 };
 
-const EbsiBanner = ({
-  title,
-  subtitle,
-  shouldAskToDecryptKey,
-  openModalAskingPass,
-  isLoadingOpen,
-}: Props) => (
-  <Jumbotron className="jumbotron" style={{ backgroundColor: colors.EC_BLUE }}>
-    <Container style={{ color: colors.WHITE }}>
-      <h1>{title}</h1>
+const EbsiBanner = ({ title, subtitle, isLoadingOpen }: Props) => (
+  <>
+    <div className="ecl-page-header-harmonised ecl-u-mt-l">
+      <div className="ecl-container">
+        <h1 className="ecl-page-header-harmonised__title">{title}</h1>
+      </div>
+    </div>
+    <div className="ecl-container">
       <p>{subtitle}</p>
-      {shouldAskToDecryptKey && (
-        <Button variant="danger" size="lg" block onClick={openModalAskingPass}>
-          You still have to insert your password to decrypt the keys.
-        </Button>
-      )}
-      <br />
+
       {isLoadingOpen && (
-        <Spinner animation="border" role="status" variant="danger">
-          <span className="sr-only">Loading...</span>
-        </Spinner>
+        <div className="ecl-u-mv-l">
+          <Spinner animation="border" role="status" variant="danger">
+            <span className="sr-only">Loading...</span>
+          </Spinner>
+        </div>
       )}
-    </Container>
-  </Jumbotron>
+    </div>
+  </>
 );
+
+EbsiBanner.defaultProps = {} as Partial<Props>;
+
 export default EbsiBanner;

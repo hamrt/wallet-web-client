@@ -1,7 +1,5 @@
 import React from "react";
-import "./App.css";
-import { Switch, Route, BrowserRouter } from "react-router-dom";
-import { Col, Container, Row } from "react-bootstrap";
+import { Switch, Route, BrowserRouter, Redirect } from "react-router-dom";
 import Login from "./Login/Login";
 import Profile from "./Profile/Profile";
 import DidAuth from "./DidAuth/DidAuth";
@@ -19,30 +17,30 @@ const basename = publicUrl.startsWith("http")
 
 function App() {
   return (
-    <div className="App">
-      <Container>
-        <Row>
-          <Col>
-            <BrowserRouter basename={basename}>
+    <BrowserRouter basename={basename}>
+      <Switch>
+        <Route exact path="/terms" component={TermsConditions} />
+        <Route exact path="/termsAndConditions">
+          <Redirect to="/terms" />
+        </Route>
+        <Route path="*">
+          <Terms>
+            <Login>
               <Switch>
-                <Route exact path="/" component={Terms} />
-                <Route
-                  exact
-                  path="/termsAndConditions"
-                  component={TermsConditions}
-                />
-                <Route exact path="/login" component={Login} />
                 <Route path="/auth" component={DidAuth} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/notifications" component={Notifications} />
                 <Route path="/presentations" component={Presentations} />
                 <Route path="/credentials" component={Credentials} />
+                <Route path="*">
+                  <Redirect to="/profile" />
+                </Route>
               </Switch>
-            </BrowserRouter>
-          </Col>
-        </Row>
-      </Container>
-    </div>
+            </Login>
+          </Terms>
+        </Route>
+      </Switch>
+    </BrowserRouter>
   );
 }
 

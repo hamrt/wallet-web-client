@@ -75,7 +75,23 @@ You can find the list of customizable ARGs and ENVs in `Dockerfile`.
 Run the app from the base directory:
 
 Firstly, create a copy of `.env.example` and name it `.env` in this directory; change the variables if needed.
-Also make sure you set the proper REACT_APP_EBSI_ENV.
+
+Warning! If you want to override `REACT_APP_EBSI_ENV` or `REACT_APP_WALLET` variables locally when working in development, e.g. when you run `yarn start`, you must create a new file: `.env.development.local`. Configure the 2 variables there. You can learn more about how Create-React-App's configuration works here: https://create-react-app.dev/docs/adding-custom-environment-variables/#what-other-env-files-can-be-used
+
+Here's an example of what the `.env.development.local` file could look like:
+
+```
+REACT_APP_EBSI_ENV=integration
+REACT_APP_WALLET=http://localhost:8080/wallet
+```
+
+When working locally, either use `REACT_APP_EBSI_ENV=local` if you run the APIs locally in parallel, or `REACT_APP_EBSI_ENV=integration` to use the online APIs.
+
+Make sure that `REACT_APP_WALLET` points to the URL of the local server.
+
+If you have trouble with ECAS, you may also want to point to the acceptance version of the service: `REACT_APP_EULOGIN=https://ecas.acceptance.ec.europa.eu/cas`.
+
+Now that your environment is configured, run:
 
 ```sh
 yarn install

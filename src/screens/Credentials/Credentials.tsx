@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import queryString from "query-string";
 import "./Credentials.css";
-import { ListGroup, Modal, Button, Form } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
+import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
 import Header from "../../components/Header/Header";
 import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
 import Footer from "../../components/Footer/Footer";
@@ -11,30 +10,23 @@ import CredentialItem from "../../components/CredentialItem/CredentialItem";
 import ToastEbsi from "../../components/ToastEbsi/ToastEbsi";
 import CredentialModal from "../../components/CredentialModal/CredentialModal";
 import colors from "../../config/colors";
-import {
-  getJWT,
-  getKeys,
-  connectionNotEstablished,
-  storeDID,
-  storeJWT,
-  storeUserName,
-  keysNotExist,
-} from "../../utils/DataStorage";
+import { getJWT, connectionNotEstablished } from "../../utils/DataStorage";
 import { strB64dec } from "../../utils/strB64dec";
-import SecureEnclave from "../../secureEnclave/SecureEnclave";
-import { parseJwt, isTokenExpired } from "../../utils/JWTHandler";
-import * as transform from "../../utils/StringTransformation";
+import { isTokenExpired } from "../../utils/JWTHandler";
 import * as tour from "../../utils/Tour";
 import * as models from "../../models/Models";
 import * as idHub from "../../apis/idHub";
-import * as wallet from "../../apis/wallet";
-import signToken from "../../utils/auth";
 import REQUIRED_VARIABLES from "../../config/env";
 import { loginLink } from "../../apis/ecas";
 import { IAttribute } from "../../dtos/attributes";
-import { IWalletOptions } from "../../secureEnclave/UserWallet";
 
 const DEMO = REQUIRED_VARIABLES.REACT_APP_DEMO;
+
+export enum CredentialsStatus {
+  Loading,
+  Success,
+  Error,
+}
 
 type Props = {
   history: any;
@@ -43,16 +35,15 @@ type Props = {
 
 type State = {
   credentials: JSX.Element[];
+  credentialsStatus: CredentialsStatus;
+  credentialsError: string;
   credential: IAttribute;
   isModalCredentialOpen: boolean;
   isToastOpen: boolean;
   toastMessage: string;
   toastColor: string;
   isLoadingOpen: boolean;
-  shouldAskToDecryptKey: boolean;
-  isModalAskingForPass: boolean;
   isTourOpen: boolean;
-  ticketFromUrl: string;
 };
 
 class Credentials extends Component<Props, State> {
@@ -65,45 +56,30 @@ class Credentials extends Component<Props, State> {
 
     this.state = {
       credentials: [],
+      credentialsStatus: CredentialsStatus.Loading,
+      credentialsError: "",
       credential: models.credential,
       isModalCredentialOpen: false,
       isToastOpen: false,
       toastMessage: "Error",
       toastColor: colors.EC_GREEN,
       isLoadingOpen: false,
-      shouldAskToDecryptKey: false,
-      isModalAskingForPass: false,
       isTourOpen: false,
-      ticketFromUrl: "",
     };
     this.closeToast = this.closeToast.bind(this);
-    this.openModalAskingPass = this.openModalAskingPass.bind(this);
     this.closeCredentialModal = this.closeCredentialModal.bind(this);
     this.displayCredential = this.displayCredential.bind(this);
   }
 
   componentDidMount() {
-    this.handleKeys();
-  }
-
-  onContinueClick = async () => {
-    try {
-      const { ticketFromUrl } = this.state;
-      this.closeModalAskingPass();
-      this.startLoading();
-      const userPassword = this.passwordForKeyGeneration.current?.value;
-      if (!userPassword) throw new Error("No password provided");
-
-      await this.decryptKeys(userPassword);
-      await this.establishBond(ticketFromUrl, userPassword);
-    } catch (error) {
-      this.closeModalAskingPass();
-      this.openToast(error.toString());
-      this.setState({
-        shouldAskToDecryptKey: true,
-      });
+    if (connectionNotEstablished()) {
+      this.redirectTo("");
+    } else if (isTokenExpired(getJWT())) {
+      window.location.assign(loginLink());
+    } else {
+      this.getCredentials();
     }
-  };
+  }
 
   async getCredentials() {
     this.startLoading();
@@ -127,6 +103,8 @@ class Credentials extends Component<Props, State> {
         ));
       this.stopLoading();
       this.setState({
+        isLoadingOpen: false,
+        credentialsStatus: CredentialsStatus.Success,
         credentials,
       });
     } else {
@@ -134,39 +112,14 @@ class Credentials extends Component<Props, State> {
         this.openToast("Token invalid.");
         this.redirectTo("");
       }
-      this.openToast(`Error getting the credentials. ${response.data}`);
+
+      this.setState({
+        isLoadingOpen: false,
+        credentialsStatus: CredentialsStatus.Error,
+        credentialsError: response.data,
+      });
     }
   }
-
-  decryptKeys = async (password: string) => {
-    const se = SecureEnclave.Instance;
-    const encryptedKey = getKeys();
-    if (!encryptedKey) throw new Error("No keys found.");
-    const options: IWalletOptions = {
-      encryptedKey,
-      password,
-    };
-    await se.restoreWallet(options);
-  };
-
-  storeConnection = (jwt: string) => {
-    storeJWT(jwt);
-    try {
-      const token = parseJwt(jwt);
-      const username = transform.transformUserName(token.userName);
-      storeUserName(username);
-      storeDID(token.did);
-    } catch (error) {
-      this.openToast("Token invalid.");
-      this.redirectTo("");
-    }
-  };
-
-  closeModalAskingPass = () => {
-    this.setState({
-      isModalAskingForPass: false,
-    });
-  };
 
   closeTour = () => {
     this.setState({
@@ -201,50 +154,6 @@ class Credentials extends Component<Props, State> {
     }
   }
 
-  async establishBond(ticketFromUrl: string, password: string) {
-    try {
-      const token = await signToken(ticketFromUrl, password);
-      const response = await wallet.establishBond(token);
-      if (response.status === 200 || response.status === 201) {
-        this.storeConnection(response.data.accessToken);
-        this.openSuccessToast();
-        this.getCredentials();
-        this.stopLoading();
-      } else {
-        this.stopLoading();
-        if (response.status === 404) {
-          this.openToast("Token invalid.");
-          this.redirectTo("");
-        }
-        this.openToast(response.data);
-      }
-    } catch (error) {
-      this.stopLoading();
-      this.openToast(
-        `Could not sign token and establish connection to the wallet: ${error.message}`
-      );
-    }
-  }
-
-  handleKeys() {
-    const { location } = this.props;
-    const ticketFromUrl = queryString.parse(location.search).ticket;
-    if (!ticketFromUrl || typeof ticketFromUrl !== "string") {
-      this.redirectIfUserIsNotLogged();
-      return;
-    }
-
-    this.manageAccess(ticketFromUrl);
-  }
-
-  manageAccess(ticketFromUrl: string) {
-    if (keysNotExist()) {
-      this.redirectTo(`profile?ticket=${ticketFromUrl}`);
-    }
-    this.setState({ ticketFromUrl });
-    this.openModalAskingPass();
-  }
-
   openCredentialModal(credential: IAttribute) {
     const credentialDecoded = credential;
     credentialDecoded.dataDecoded = strB64dec(credential.data.base64);
@@ -254,19 +163,11 @@ class Credentials extends Component<Props, State> {
     });
   }
 
-  openModalAskingPass() {
-    this.setState({
-      isModalAskingForPass: true,
-      shouldAskToDecryptKey: true,
-    });
-  }
-
   openSuccessToast() {
     this.setState({
       isToastOpen: true,
       toastMessage: "The key decryption was successful.",
       toastColor: colors.EC_GREEN,
-      shouldAskToDecryptKey: false,
     });
   }
 
@@ -291,16 +192,6 @@ class Credentials extends Component<Props, State> {
     });
   }
 
-  redirectIfUserIsNotLogged() {
-    if (connectionNotEstablished()) {
-      this.redirectTo("");
-    } else if (isTokenExpired(getJWT() || "")) {
-      window.location.assign(loginLink());
-    } else {
-      this.getCredentials();
-    }
-  }
-
   redirectTo(whereRedirect: string) {
     const { history } = this.props;
     history.push(`/${whereRedirect}`);
@@ -321,10 +212,10 @@ class Credentials extends Component<Props, State> {
   render() {
     const {
       credentials,
+      credentialsError,
+      credentialsStatus,
       credential,
       isModalCredentialOpen,
-      isModalAskingForPass,
-      shouldAskToDecryptKey,
       isLoadingOpen,
       isToastOpen,
       toastColor,
@@ -333,9 +224,8 @@ class Credentials extends Component<Props, State> {
     } = this.state;
 
     return (
-      <div className="credentials-container">
+      <>
         <Header />
-
         <ToastEbsi
           isToastOpen={isToastOpen}
           methodToClose={this.closeToast}
@@ -346,61 +236,54 @@ class Credentials extends Component<Props, State> {
         <EbsiBanner
           title="Credentials Page"
           subtitle="List of your credentials."
-          shouldAskToDecryptKey={shouldAskToDecryptKey}
-          openModalAskingPass={this.openModalAskingPass}
           isLoadingOpen={isLoadingOpen}
         />
-        <div className="table-container">
-          <Modal show={isModalAskingForPass} onHide={this.closeModalAskingPass}>
-            <Modal.Header
-              className="ModalHeader"
-              style={{ backgroundColor: colors.EC_BLUE }}
-              closeButton
-            >
-              <Modal.Title>Password</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="ModalBody">
-              <h4> Please type a password for the key decryption. </h4>
-              <Form.Control
-                type="password"
-                placeholder="Password"
-                ref={this.passwordForKeyGeneration}
-              />
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="primary" onClick={this.onContinueClick}>
-                Continue
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
+        <main className="ecl-container ecl-u-flex-grow-1 ecl-u-mb-l">
           <CredentialModal
             credential={credential}
             isModalCredentialOpen={isModalCredentialOpen}
             methodToClose={this.closeCredentialModal}
           />
-
-          {credentials.length === 0 && (
-            <p>
-              You don&#8217;t have any credential at the moment. Follow the{" "}
-              <a href={DEMO}> demonstrator</a> to create some.
-            </p>
+          {credentialsStatus === CredentialsStatus.Error && (
+            <div
+              role="alert"
+              className="ecl-message ecl-message--error"
+              data-ecl-message="true"
+            >
+              <svg
+                focusable="false"
+                aria-hidden="true"
+                className="ecl-message__icon ecl-icon ecl-icon--l"
+              >
+                <use xlinkHref={`${eclIcons}#notifications--error`} />
+              </svg>
+              <div className="ecl-message__content">
+                <div className="ecl-message__title">Error</div>
+                <p className="ecl-message__description">{credentialsError}</p>
+              </div>
+            </div>
           )}
-          <ListGroup
-            className="list-credentials"
-            data-tut="reactour_credentials"
-          >
-            {credentials}
-          </ListGroup>
-          <Button
-            onClick={this.openTour}
-            className="tourButton"
-            title="Open guided tour"
-          >
-            ?
-          </Button>
-        </div>
+          {credentialsStatus === CredentialsStatus.Success &&
+            credentials.length === 0 && (
+              <p>
+                You don&#8217;t have any credential at the moment. Follow the{" "}
+                <a className="ecl-link" href={DEMO}>
+                  demonstrator
+                </a>{" "}
+                to create some.
+              </p>
+            )}
+          <div data-tut="reactour_credentials">{credentials}</div>
+        </main>
         <Footer />
+        <button
+          onClick={this.openTour}
+          className="ecl-button ecl-button--primary tourButton"
+          type="button"
+          title="Open guided tour"
+        >
+          ?
+        </button>
         <Tour
           steps={tour.stepsCredentials}
           isOpen={isTourOpen}
@@ -408,7 +291,7 @@ class Credentials extends Component<Props, State> {
           onAfterOpen={this.disableBody}
           onBeforeClose={this.enableBody}
         />
-      </div>
+      </>
     );
   }
 }

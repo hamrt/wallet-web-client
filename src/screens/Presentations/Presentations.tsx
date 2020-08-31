@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import "./Presentations.css";
-import { Button, ListGroup } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
+import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import * as tour from "../../utils/Tour";
@@ -23,13 +23,21 @@ import { IAttribute } from "../../dtos/attributes";
 
 const DEMO = REQUIRED_VARIABLES.REACT_APP_DEMO;
 
+export enum PresentationsStatus {
+  Loading,
+  Success,
+  Error,
+}
+
 type Props = {
   history: any;
   location: any;
 };
 
 type State = {
-  credentials: JSX.Element[];
+  presentations: JSX.Element[];
+  presentationsStatus: PresentationsStatus;
+  presentationsError: string;
   credential: IAttribute;
   isToastOpen: boolean;
   toastColor: string;
@@ -44,7 +52,9 @@ class Presentations extends Component<Props, State> {
     super(props);
 
     this.state = {
-      credentials: [],
+      presentations: [],
+      presentationsStatus: PresentationsStatus.Loading,
+      presentationsError: "",
       credential: models.credential,
       isToastOpen: false,
       toastColor: colors.EC_GREEN,
@@ -60,7 +70,7 @@ class Presentations extends Component<Props, State> {
   componentDidMount() {
     if (connectionNotEstablished()) {
       this.redirectTo("");
-    } else if (isTokenExpired(getJWT() || "")) {
+    } else if (isTokenExpired(getJWT())) {
       window.location.assign(loginLink());
     }
     this.getCredentials();
@@ -71,7 +81,7 @@ class Presentations extends Component<Props, State> {
     const response = await idHub.getCredentials();
     if (response.status === 200 || response.status === 201) {
       const outAttrs = response.data.items as IAttribute[];
-      const credentials = outAttrs
+      const presentations = outAttrs
         .filter((attr) => attr.name === "VerifiablePresentation")
         .map((attrTemp) => (
           <CredentialItem
@@ -82,14 +92,21 @@ class Presentations extends Component<Props, State> {
         ));
 
       this.setState({
-        credentials,
+        isLoadingOpen: false,
+        presentationsStatus: PresentationsStatus.Success,
+        presentations,
       });
     } else {
       if (response.status === 404) {
         this.openToast("Token invalid.");
         this.redirectTo("");
       }
-      this.openToast(`Error getting the credentials. ${response.data}`);
+
+      this.setState({
+        isLoadingOpen: false,
+        presentationsStatus: PresentationsStatus.Error,
+        presentationsError: `Error getting the presentations: ${response.data}`,
+      });
     }
   }
 
@@ -172,7 +189,9 @@ class Presentations extends Component<Props, State> {
 
   render() {
     const {
-      credentials,
+      presentations,
+      presentationsStatus,
+      presentationsError,
       credential,
       isToastOpen,
       isModalCredentialOpen,
@@ -183,9 +202,8 @@ class Presentations extends Component<Props, State> {
     } = this.state;
 
     return (
-      <div className="credentials-container">
+      <>
         <Header />
-
         <ToastEbsi
           isToastOpen={isToastOpen}
           methodToClose={this.closeToast}
@@ -193,39 +211,57 @@ class Presentations extends Component<Props, State> {
           colorText={colors.WHITE}
           toastMessage={toastMessage}
         />
-
         <EbsiBanner
           title="Presentations Page"
           subtitle="List of your presentations history."
           isLoadingOpen={isLoadingOpen}
         />
-        <div className="table-container">
+        <main className="ecl-container ecl-u-flex-grow-1 ecl-u-mb-l">
           <CredentialModal
             credential={credential}
             isModalCredentialOpen={isModalCredentialOpen}
             methodToClose={this.closeModalCredential}
           />
-          {credentials.length === 0 && (
-            <p>
-              You don&#8217;t have any presentation at the moment. Follow the{" "}
-              <a href={DEMO}> demonstrator</a> to create some.
-            </p>
+          {presentationsStatus === PresentationsStatus.Error && (
+            <div
+              role="alert"
+              className="ecl-message ecl-message--error"
+              data-ecl-message="true"
+            >
+              <svg
+                focusable="false"
+                aria-hidden="true"
+                className="ecl-message__icon ecl-icon ecl-icon--l"
+              >
+                <use xlinkHref={`${eclIcons}#notifications--error`} />
+              </svg>
+              <div className="ecl-message__content">
+                <div className="ecl-message__title">Error</div>
+                <p className="ecl-message__description">{presentationsError}</p>
+              </div>
+            </div>
           )}
-          <ListGroup
-            className="list-credentials"
-            data-tut="reactour_presentations"
-          >
-            {credentials}
-          </ListGroup>
-          <Button
-            onClick={this.openTour}
-            className="tourButton"
-            title="Open guided tour"
-          >
-            ?
-          </Button>
-        </div>
+          {presentationsStatus === PresentationsStatus.Success &&
+            presentations.length === 0 && (
+              <p>
+                You don&#8217;t have any presentation at the moment. Follow the{" "}
+                <a className="ecl-link" href={DEMO}>
+                  demonstrator
+                </a>{" "}
+                to create some.
+              </p>
+            )}
+          <div data-tut="reactour_presentations">{presentations}</div>
+        </main>
         <Footer />
+        <button
+          onClick={this.openTour}
+          className="ecl-button ecl-button--primary tourButton"
+          type="button"
+          title="Open guided tour"
+        >
+          ?
+        </button>
         <Tour
           steps={tour.stepsPresentations}
           isOpen={isTourOpen}
@@ -233,7 +269,7 @@ class Presentations extends Component<Props, State> {
           onAfterOpen={this.disableBody}
           onBeforeClose={this.enableBody}
         />
-      </div>
+      </>
     );
   }
 }

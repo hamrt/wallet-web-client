@@ -6,6 +6,7 @@ import { loginLink } from "../../apis/ecas";
 type TitleProps = {
   children: React.ReactNode;
 };
+
 export const PanelTitle = ({ children }: TitleProps) => (
   <div className="panelTitle">{children}</div>
 );
@@ -37,5 +38,10 @@ export const PanelBody = ({ icon, title, linkLabel, children }: BodyProps) => (
     </div>
   </div>
 );
+
+PanelBody.defaultProps = {
+  title: "",
+  linkLabel: "",
+} as Partial<BodyProps>;
 
 export const Panel = ({ children }: TitleProps) => <div>{children}</div>;

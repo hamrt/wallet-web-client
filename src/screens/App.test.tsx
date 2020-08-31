@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 
 describe("app", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(0);
     // Set location to "/wallet" (avoid warnings)
     Object.defineProperty(window, "location", {

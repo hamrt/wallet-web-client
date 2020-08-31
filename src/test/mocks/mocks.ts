@@ -1,5 +1,9 @@
 import { attributes } from "../../dtos";
-import { NotificationsOptions, INotification } from "../../dtos/notifications";
+import {
+  NotificationsOptions,
+  INotification,
+  NotificationType,
+} from "../../dtos/notifications";
 
 export const getCredentials = {
   items: [
@@ -97,6 +101,7 @@ export const getNotifications = {
     last: `/notifications?page[after]=10&page[size]=5`,
   },
 };
+
 export const getCredential = {
   data: {
     base64:
@@ -107,18 +112,6 @@ export const getCredential = {
   did: "did:ebsi:0xcDA56e98CD9e454143285b72b5De809e7C40C43F",
   name: "Verifiable ID",
   type: ["Verifiable ID"],
-};
-
-export const getCredentialVP = {
-  hash: "0x52814a963ff4131353445f42ee664bf632502660f718cfbb6fad3e203e7c17c3",
-  id: "cred-c37a7d50-638b-11ea-a961-e72ecff4092c",
-  did: "did:ebsi:0x111111",
-  name: "VerifiablePresentation",
-  type: ["VerifiablePresentation"],
-  data: {
-    base64:
-      "ewogICJAY29udGV4dCI6ICJbJ2h0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxJywnT1RIRVIgQ09OVEVYVCAtLSBERVBFTkRTIE9OIFdIQVQgVkMvVkEgSVMgSU5DTFVERUQnXSIsCiAgInR5cGUiOiAiVmVyaWZpYWJsZVByZXNlbnRhdGlvbiIsCiAgInZlcmlmaWFibGVDcmVkZW50aWFsIjogWwogICAgImV5SjBlWEFpT2lKS1YxUWlMQ0poYkdjaU9pSkZVekkxTmtzdFVpSjkuZXlKcFlYUWlPakUxTmpZNU1qTXlOamtzSW5OMVlpSTZJbVJwWkRwbGRHaHlPakI0TkRNMVpHWXpaV1JoTlRjeE5UUmpaamhqWmpjNU1qWXdOems0T0RGbU1qa3hNbVkxTkdSaU5DSXNJbTVpWmlJNk1UVTJNamsxTURJNE1pd2lkbU1pT25zaVFHTnZiblJsZUhRaU9sc2lhSFIwY0hNNkx5OTNkM2N1ZHpNdWIzSm5Mekl3TVRndlkzSmxaR1Z1ZEdsaGJITXZkakVpTENKb2RIUndjem92TDNkM2R5NTNNeTV2Y21jdk1qQXhPQzlqY21Wa1pXNTBhV0ZzY3k5bGVHRnRjR3hsY3k5Mk1TSmRMQ0owZVhCbElqcGJJbFpsY21sbWFXRmliR1ZEY21Wa1pXNTBhV0ZzSWl3aVZXNXBkbVZ5YzJsMGVVUmxaM0psWlVOeVpXUmxiblJwWVd3aVhTd2lZM0psWkdWdWRHbGhiRk4xWW1wbFkzUWlPbnNpWkdWbmNtVmxJanA3SW5SNWNHVWlPaUpDWVdOb1pXeHZja1JsWjNKbFpTSXNJbTVoYldVaU9pSkNZV05qWVd4aGRYTERxV0YwSUdWdUlHMTFjMmx4ZFdWeklHNTFiY09wY21seGRXVnpJbjE5ZlN3aWFYTnpJam9pWkdsa09tVjBhSEk2TUhobU1USXpNbVk0TkRCbU0yRmtOMlF5TTJaalpHRmhPRFJrTm1NMk5tUmhZekkwWldaaU1UazRJbjAuckZSWlVDdzNHdTBFX0k1WkpicmJwdUhWMUpOQXdwWGFpRlp1SjU5aUotVE5xdWZyNGN1R0NCRUVDRmJnUUYtbHBObTUxY3FTeDNZMklkV2FVcGF0SlFBIiwKICAgICJleUowZVhBaU9pSktWMVFpTENKaGJHY2lPaUpGVXpJMU5rc3RVaUo5LmV5SnBZWFFpT2pFMU5qWTVNak15Tmprc0luTjFZaUk2SW1ScFpEcGxkR2h5T2pCNE5ETTFaR1l6WldSaE5UY3hOVFJqWmpoalpqYzVNall3TnprNE9ERm1Namt4TW1ZMU5HUmlOQ0lzSW01aVppSTZNVFUyTWprMU1ESTRNaXdpZG1NaU9uc2lRR052Ym5SbGVIUWlPbHNpYUhSMGNITTZMeTkzZDNjdWR6TXViM0puTHpJd01UZ3ZZM0psWkdWdWRHbGhiSE12ZGpFaUxDSm9kSFJ3Y3pvdkwzZDNkeTUzTXk1dmNtY3ZNakF4T0M5amNtVmtaVzUwYVdGc2N5OWxlR0Z0Y0d4bGN5OTJNU0pkTENKMGVYQmxJanBiSWxabGNtbG1hV0ZpYkdWRGNtVmtaVzUwYVdGc0lpd2lWVzVwZG1WeWMybDBlVVJsWjNKbFpVTnlaV1JsYm5ScFlXd2lYU3dpWTNKbFpHVnVkR2xoYkZOMVltcGxZM1FpT25zaVpHVm5jbVZsSWpwN0luUjVjR1VpT2lKQ1lXTm9aV3h2Y2tSbFozSmxaU0lzSW01aGJXVWlPaUpDWVdOallXeGhkWExEcVdGMElHVnVJRzExYzJseGRXVnpJRzUxYmNPcGNtbHhkV1Z6SW4xOWZTd2lhWE56SWpvaVpHbGtPbVYwYUhJNk1IaG1NVEl6TW1ZNE5EQm1NMkZrTjJReU0yWmpaR0ZoT0RSa05tTTJObVJoWXpJMFpXWmlNVGs0SW4wLnJGUlpVQ3czR3UwRV9JNVpKYnJicHVIVjFKTkF3cFhhaUZadUo1OWlKLVROcXVmcjRjdUdDQkVFQ0ZiZ1FGLWxwTm01MWNxU3gzWTJJZFdhVXBhdEpRQSIKICBdLAogICJwcm9vZiI6IHsKICAgICJ0eXBlIjogIkVjZHNhU2VjcDI1NmsxU2lnbmF0dXJlMjAxOSIsCiAgICAiY3JlYXRlZCI6ICIyMDE5LTA2LTIyVDE0OjExOjQ0WiIsCiAgICAicHJvb2ZQdXJwb3NlIjogImFzc2VydGlvbk1ldGhvZCIsCiAgICAidmVyaWZpY2F0aW9uTWV0aG9kIjogImRpZDplYnNpOmU3NmZiNGI0OTAwI2tleS0xIiwKICAgICJjaGFsbGVuZ2UiOiAiMWY0NGQ1NWYtZjE2MS00OTM4LWE2NTktZjgwMjY0NjdmMTI2IiwKICAgICJkb21haW4iOiAiNGp0NzhoNDdmaDQ3IiwKICAgICJqd3MiOiAiZXlKLi4uNzgiCiAgfSwKICAidGVybXNPZlVzZSI6ICJBIHNwZWNpZmljIHRlcm1zIG9mIGNvbmRpdGlvbnMgdG8gdXNlIHRoZSBWZXJpZmlhYmxlIFByZXNlbnRhdGlvbi4iCn0K",
-  },
 };
 
 export const getVID: attributes.IAttribute = {
@@ -142,7 +135,7 @@ export const getNotification: INotification = {
   sender: "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2",
   message: {
     didOwner: "did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263",
-    notificationType: 2,
+    notificationType: NotificationType.REQUEST_PRESENTATION,
     name: '["Verifiable ID"]',
     hash: "0x6a1358d06f3fd5aa29e498fe06b8bba5e96ba9aaabee165a54204fba015c9e38",
     data: {
@@ -157,6 +150,74 @@ export const getNotification: INotification = {
   selectedCredsTypes: [],
   dataDecoded:
     '{"@context":["https://www.w3.org/2018/credentials/v1","https://EBSI-WEBSITE.EU/schemas/vc/2019/v1#","https://EBSI-WEBSITE.EU/schemas/eidas/2019/v1#"],"id":"ebsi:type-version-of-the-credential","type":["VerifiableCredential","EssifVerifiableID"],"issuer":"did:ebsi:0xcDA56e98CD9e454143285b72b5De809e7C40C43F","issuanceDate":"2020-04-28T21:06:46.000Z","expirationDate":"2030-04-28T21:06:46.976Z","credentialSubject":{"personIdentifier":"BE/BE/02635542Y","currentFamilyName":"Bean","currentGivenName":"Alex","birthName":"Bean","dateOfBirth":"1998-02-14","placeOfBirth":"Barcelona","currentAddress":"Brussels","gender":"Male","id":"did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263","govId":""},"proof":{"type":"EidasSeal2019","created":"2020-04-28T21:06:46.000Z","proofPurpose":"assertionMethod","verificationMethod":"did:ebsi:0xcDA56e98CD9e454143285b72b5De809e7C40C43F#eidasKey","jws":"eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NkstUiJ9.eyJpYXQiOjE1ODgxMDgwMDYsInN1YiI6ImRpZDplYnNpOjB4ODBDM2UxZDA0NjE1YjNjMkI1ZUYyMkM0MWE1YUY1MkYyMmQzMjI2MyIsInZjIjp7IkBjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIiwiaHR0cHM6Ly9FQlNJLVdFQlNJVEUuRVUvc2NoZW1hcy92Yy8yMDE5L3YxIyIsImh0dHBzOi8vRUJTSS1XRUJTSVRFLkVVL3NjaGVtYXMvZWlkYXMvMjAxOS92MSMiXSwiaWQiOiJlYnNpOnR5cGUtdmVyc2lvbi1vZi10aGUtY3JlZGVudGlhbCIsInR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJFc3NpZlZlcmlmaWFibGVJRCJdLCJjcmVkZW50aWFsU3ViamVjdCI6eyJwZXJzb25JZGVudGlmaWVyIjoiQkUvQkUvMDI2MzU1NDJZIiwiY3VycmVudEZhbWlseU5hbWUiOiJCZWFuIiwiY3VycmVudEdpdmVuTmFtZSI6IkFsZXgiLCJiaXJ0aE5hbWUiOiJCZWFuIiwiZGF0ZU9mQmlydGgiOiIxOTk4LTAyLTE0IiwicGxhY2VPZkJpcnRoIjoiQmFyY2Vsb25hIiwiY3VycmVudEFkZHJlc3MiOiJCcnVzc2VscyIsImdlbmRlciI6Ik1hbGUiLCJpZCI6ImRpZDplYnNpOjB4ODBDM2UxZDA0NjE1YjNjMkI1ZUYyMkM0MWE1YUY1MkYyMmQzMjI2MyIsImdvdklkIjoiIn19LCJpc3MiOiJkaWQ6ZWJzaToweDc5NDc1ZjBmZkIxNWVEOGMyN0Q3RmU5QTBDZWIxNTg1Q2MzZkIxQjMifQ.PpxOY_Qd312jUd-uj-NifzhGNgYAmcTiiEUZBcH0VI3AwCmeuxlknjh7TFR-z02BWPCFpZILbmtx-Bx8XkiaKgA"}}',
+};
+
+export const getStoreCredentialNotification: INotification = {
+  id: "c3b5f000-89e8-11ea-88b7-b759be3ae4e3",
+  receiver: "did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263",
+  sender: "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2",
+  message: {
+    data: {
+      base64: "some data encoded as base64",
+    },
+    hash: "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+    didOwner: "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF",
+    notificationType: NotificationType.STORE_CREDENTIAL,
+    name: "a name",
+  },
+  selectedCredentials: [],
+  selectedCredsTypes: [],
+};
+
+export const getSignPayloadNotification: INotification = {
+  id: "c3b5f000-89e8-11ea-88b7-b759be3ae4e3",
+  receiver: "did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263",
+  sender: "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2",
+  message: {
+    data: {
+      base64: "some data encoded as base64",
+    },
+    hash: "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+    didOwner: "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF",
+    notificationType: NotificationType.SIGN_PAYLOAD,
+    name: "a name",
+  },
+  selectedCredentials: [],
+  selectedCredsTypes: [],
+};
+
+export const getSignTransactionNotification: INotification = {
+  id: "c3b5f000-89e8-11ea-88b7-b759be3ae4e3",
+  receiver: "did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263",
+  sender: "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2",
+  message: {
+    data: {
+      base64: "some data encoded as base64",
+    },
+    hash: "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+    didOwner: "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF",
+    notificationType: NotificationType.SIGN_TX,
+    name: "a name",
+  },
+  selectedCredentials: [],
+  selectedCredsTypes: [],
+};
+
+export const getUnknownNotification: INotification = {
+  id: "c3b5f000-89e8-11ea-88b7-b759be3ae4e3",
+  receiver: "did:ebsi:0x80C3e1d04615b3c2B5eF22C41a5aF52F22d32263",
+  sender: "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2",
+  message: {
+    data: {
+      base64: "some data encoded as base64",
+    },
+    hash: "c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+    didOwner: "did:ebsi:0x16048B83FAdaCdCB20198ABc45562Df1A3e289aF",
+    notificationType: NotificationType.NONE,
+    name: "a name",
+  },
+  selectedCredentials: [],
+  selectedCredsTypes: [],
 };
 
 export const getNotificationToSign = {
@@ -196,10 +257,6 @@ export const ticket =
 
 export const ticketUrl =
   "?ticket=ST-47490980-anop8SmoWBdI58D8b1p45jECMYQOxN3SgdWyXVLbzbPvQuDJpv3vr6oakdVCGKRE4BkQOlZ9dzKk6ENFgzLGbHm-jpJZscgsw0Kbzv0qZfUQt1-JXUKZK3btNzQhf0I5QlzISceHNQeaj4JSmCmOslBd2cFt0D9zUhM9Nm5mMP0zZNN6NidCboI4jobDG8UZ4gyMjW";
-
-export const didGovernment =
-  "did:ebsi:0xcDA56e98CD9e454143285b72b5De809e7C40C43F";
-export const didFake = "did:ebsi:0x79475f0ffB15eD8c27D7Fe9A0Ceb1585Cc3fB222";
 
 export const did = "did:ebsi:0x87Af15Ee9E19c5D1D042E4E9e2a5C449d4A14078";
 
@@ -285,9 +342,6 @@ export const mockedGetDID = {
 
 export const userJwt =
   "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJqa3UiOiJodHRwczovL2FwaS5lYnNpLnh5ei9lYnNpdHJ1c3RlZGFwcC9wdWJsaWMta2V5cy8iLCJraWQiOiJlYnNpLXdhbGxldCJ9.eyJzdWIiOiJuMDAzNW5raCIsImlhdCI6MTU4MTA2OTI1MSwiZXhwIjoxNTgxMTU1NjUxLCJhdWQiOiJlYnNpLXdhbGxldCIsImRpZCI6ImRpZDplYnNpOjB4RjNmMDI5ZTc2Yzg0MmJjMDEzOTU1YmY1NDhhOWM1YkFhM0QzRjMzMiIsInVzZXJOYW1lIjoiQmVhbiZBbGV4IiwidXNlcklkIjoibjAwMzVua2gifQ.PA-mqrAt1f8d6RBw0EnpidBJhRAGnQ7YUtA2h2qXHR8lamF62KdTiQRY-XjPkM6otWhiKfzuVEr5WY3Z-EaWMg";
-
-export const didauth =
-  "?did-auth=openid://&scope=openid%20did_authn?response_type=id_token&client_id=https://localhost:8080/demo/spanish-university&request=eyJhbGciOiJFUzI1NkstUiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDplYnNpOjB4QjdjOTVlRjgxOTUwM2E1YTMyQjYyZTA4NTBmMGFDMzIyMTcyNjIxYSNrZXktMSJ9.eyJpYXQiOjE1ODg2NjU2MDMsImV4cCI6MTU4ODY2NTkwMywiaXNzIjoiZGlkOmVic2k6MHhCN2M5NWVGODE5NTAzYTVhMzJCNjJlMDg1MGYwYUMzMjIxNzI2MjFhIiwic2NvcGUiOiJvcGVuaWQgZGlkX2F1dGhuIiwicmVzcG9uc2VfdHlwZSI6ImlkX3Rva2VuIiwiY2xpZW50X2lkIjoiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MC9kZW1vL3NwYW5pc2gtdW5pdmVyc2l0eSIsIm5vbmNlIjoiNTAxNTYxNWUtZjEzOC00NmIwLWJjOTEtYTU5ZTZjZjI5NDUyIn0.KzyMfU26I51P6Y19LAjON9Pw_qRZ8fVF2stm1vcJFwKfDnvYDINSeY7_Gi3eOkJxhqzPU66K2yf5cCfI-1a4rAA";
 
 export const hash =
   "0x52814a963ff4131353445f42ee664bf632502660f718cfbb6fad3e203e7c17c3";

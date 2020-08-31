@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Modal } from "react-bootstrap";
 import classNames from "classnames";
@@ -8,17 +9,13 @@ import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg
 import { parseJwt } from "../../utils/JWTHandler";
 import { Panel, PanelTitle } from "../../components/Panel/Panel";
 import REQUIRED_VARIABLES from "../../config/env";
-import colors from "../../config/colors";
 import step1SVG from "../../assets/images/step1.svg";
 import styles from "./DidAuth.module.css";
 import * as issuer from "../../utils/issuer";
 import { createResponse, decryptKeys } from "./DidAuth.utils";
 
-type Props = {
-  location: any;
-};
-
-function DidAuth(props: Props) {
+function DidAuth() {
+  const location = useLocation();
   const [serviceUrl, setServiceUrl] = useState("");
   const [serviceDID, setServiceDID] = useState("");
   const [serviceName, setServiceName] = useState("");
@@ -75,7 +72,6 @@ function DidAuth(props: Props) {
   // ComponentDidMount
   useEffect(() => {
     async function componentDidMount() {
-      const { location } = props;
       const urlParameters = new URLSearchParams(location.search);
       try {
         await didAuth(urlParameters);
@@ -84,7 +80,7 @@ function DidAuth(props: Props) {
       }
     }
     componentDidMount();
-  }, [props]);
+  }, [location]);
 
   return (
     <div className={styles.app}>
@@ -137,17 +133,13 @@ function DidAuth(props: Props) {
       </main>
       <Modal show={isModalAskingForPass} onHide={closeModalAskingPass}>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Modal.Header
-            className={styles.ModalHeader}
-            style={{ backgroundColor: colors.EC_BLUE }}
-            closeButton
-          >
+          <Modal.Header className="ModalHeader" closeButton>
             <Modal.Title>Password</Modal.Title>
           </Modal.Header>
           <Modal.Body className="ModalBody">
             <div className="ecl-form-group">
               <label className="ecl-form-label" htmlFor="did-auth-password">
-                Please type a password to authorize the connection.
+                Please type your password to authorize the connection.
               </label>
               {errors.didAuthPassword && (
                 <div className="ecl-feedback-message">

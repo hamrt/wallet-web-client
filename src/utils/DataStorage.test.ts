@@ -8,18 +8,21 @@ describe("data storage", () => {
 
     expect(DataStorage.getDID()).toBe(mocks.did);
   });
+
   it("should store the user name in the local storage", () => {
     expect.assertions(1);
     DataStorage.storeUserName("Eva");
 
     expect(DataStorage.getUserName()).toBe("Eva");
   });
+
   it("should store the JWT in the local storage", () => {
     expect.assertions(1);
     DataStorage.storeJWT(mocks.jwtToEstablishBond);
 
     expect(DataStorage.getJWT()).toBe(mocks.jwtToEstablishBond);
   });
+
   it("should store the keys in the local storage", () => {
     expect.assertions(1);
     DataStorage.storeKeys(JSON.stringify(mocks.keys));
@@ -27,6 +30,7 @@ describe("data storage", () => {
 
     expect(DataStorage.getKeys()).toStrictEqual(expected);
   });
+
   it("should store the terms in the local storage", () => {
     expect.assertions(1);
     DataStorage.storeTerms(true);

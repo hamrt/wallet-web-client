@@ -4,7 +4,7 @@ import { mount } from "enzyme";
 import VP from "./VP";
 
 describe("verifiable presentation", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(1);
     const wrapper = mount(
       <BrowserRouter>

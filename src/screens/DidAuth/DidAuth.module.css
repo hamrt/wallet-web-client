@@ -24,14 +24,6 @@
   justify-content: flex-end;
 }
 
-.ModalHeader {
-  color: #fff;
-}
-
-.ModalHeader :global(.close) {
-  color: #fff;
-}
-
 .spinner {
   animation: spin 1s infinite cubic-bezier(0.43, 0.12, 0.57, 0.88);
   will-change: transform;

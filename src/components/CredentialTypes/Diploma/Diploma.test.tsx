@@ -5,7 +5,7 @@ import Diploma from "./Diploma";
 import diploma from "../../../test/mocks/diploma.json";
 
 describe("diploma", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(1);
     const data = diploma;
     const wrapper = mount(

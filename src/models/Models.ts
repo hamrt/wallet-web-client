@@ -9,6 +9,7 @@ const credential = {
   did: "",
   dataDecoded: "",
 };
+
 const notification = {
   id: "",
   sender: "",
@@ -28,38 +29,4 @@ const notification = {
   dataDecoded: "",
 };
 
-const vid = {
-  personIdentifier: "",
-  currentFamilyName: "",
-  currentGivenName: "",
-  birthName: "",
-  dateOfBirth: "",
-  currentAddress: "",
-  gender: "",
-  id: "",
-  govId: "",
-};
-
-const diploma = {
-  issuer: "",
-  credentialSubject: {
-    achievements: [
-      {
-        title: "",
-        issuedDate: "",
-        learningSpecification: {
-          iscedFcode: "",
-          hasAccreditation: { targetFramework: "" },
-        },
-        hasPart: [
-          {
-            wasDerivedFrom: {
-              grade: { numericScore: "" },
-            },
-          },
-        ],
-      },
-    ],
-  },
-};
-export { credential, notification, vid, diploma };
+export { credential, notification };

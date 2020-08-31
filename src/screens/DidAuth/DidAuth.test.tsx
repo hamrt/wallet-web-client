@@ -6,11 +6,10 @@ import DidAuth from "./DidAuth";
 describe("did auth", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
-    const mock = jest.fn();
 
     const wrapper = mount(
       <BrowserRouter>
-        <DidAuth location={mock} />
+        <DidAuth />
       </BrowserRouter>
     );
 
@@ -19,11 +18,10 @@ describe("did auth", () => {
 
   it("should open a modal when the user clicks on 'Authorize' button", () => {
     expect.assertions(2);
-    const mock = jest.fn();
 
     const wrapper = mount(
       <BrowserRouter>
-        <DidAuth location={mock} />
+        <DidAuth />
       </BrowserRouter>
     );
 

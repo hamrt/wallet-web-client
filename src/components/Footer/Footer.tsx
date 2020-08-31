@@ -1,14 +1,5 @@
 import React from "react";
-import "./Footer.css";
 
-const Footer = () => (
-  <>
-    <footer className="footer ecl-footer-core">
-      <div className="ecl-container ecl-footer-core__container">
-        <div className="ecl-footer-core__section ecl-footer-core__section1" />
-      </div>
-    </footer>
-  </>
-);
+const Footer = () => <footer className="ecl-footer-core" />;
 
 export default Footer;

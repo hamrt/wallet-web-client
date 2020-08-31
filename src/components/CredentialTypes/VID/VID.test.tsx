@@ -5,7 +5,7 @@ import VID from "./VID";
 import vid from "../../../test/mocks/verifiableid.json";
 
 describe("verifiableid", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(1);
     const data = vid;
     const wrapper = mount(

@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Ribbon from "./Ribbon";
 
 describe("ribbon", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(0);
     const div = document.createElement("div");
     ReactDOM.render(

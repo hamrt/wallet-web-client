@@ -1,4 +1,4 @@
-import { JWTClaims } from "@cef-ebsi/did-auth/dist";
+import { JWTClaims } from "@cef-ebsi/did-auth";
 
 export interface IUserAuthZToken extends JWTClaims {
   sub: string; // EU Login/ECAS Username that is obtained from the ECAS.
@@ -26,7 +26,7 @@ const parseJwt = (token: string): IUserAuthZToken => {
   return JSON.parse(jsonPayload);
 };
 
-const isTokenExpired = (jwt: string): boolean => {
+const isTokenExpired = (jwt: string | null): boolean => {
   if (jwt === null || jwt === "") return true;
   const payload = parseJwt(jwt);
   if (!payload || !payload.exp) return true;

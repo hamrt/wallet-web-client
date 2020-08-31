@@ -1,4 +1,4 @@
-import signToken from "./auth";
+import { signToken } from "./auth";
 import * as localDs from "./DataStorage";
 import SecureEnclave from "../secureEnclave/SecureEnclave";
 

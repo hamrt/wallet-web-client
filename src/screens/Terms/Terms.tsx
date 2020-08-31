@@ -1,112 +1,55 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { Component } from "react";
-import queryString from "query-string";
-import "./Terms.css";
-import { Jumbotron, Container } from "react-bootstrap";
+import React from "react";
+import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
+import icons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
 import Footer from "../../components/Footer/Footer";
 import { getTerms, storeTerms } from "../../utils/DataStorage";
-import colors from "../../config/colors";
-import icons from "../../assets/icons.svg";
 
 type Props = {
-  history: any;
-  location: any;
+  children: any;
 };
 
-type State = {
-  areTermsAccepted: boolean;
-};
+function Terms({ children }: Props) {
+  const { register, handleSubmit, errors } = useForm();
 
-class Terms extends Component<Props, State> {
-  constructor(props: Readonly<Props>) {
-    super(props);
-
-    this.state = {
-      areTermsAccepted: false,
-    };
-  }
-
-  componentDidMount() {
-    this.handleAccess();
-  }
-
-  onSubmitClick = () => {
-    const { areTermsAccepted } = this.state;
-    if (areTermsAccepted) {
-      storeTerms(true);
-      this.goToLoginIfAlreadyAccepted();
-    } else {
-      storeTerms(false);
-    }
+  const onSubmit = () => {
+    storeTerms(true);
   };
 
-  onChange = () => {
-    const { areTermsAccepted } = this.state;
-    const termsAndConditionsChanged = !areTermsAccepted;
-    this.setState({
-      areTermsAccepted: termsAndConditionsChanged,
-    });
-  };
-
-  onCancelClick = () => {
-    storeTerms(false);
-    this.setState({
-      areTermsAccepted: false,
-    });
-    window.location.reload();
-  };
-
-  handleAccess() {
-    const { location, history } = this.props;
-    const urlParameters = queryString.parse(location.search);
-    if (urlParameters["did-auth"] !== undefined) {
-      history.push(`/auth${location.search}`);
-    } else {
-      this.goToLoginIfAlreadyAccepted();
-    }
+  if (getTerms()) {
+    return <>{children}</>;
   }
 
-  goToLoginIfAlreadyAccepted() {
-    const { history } = this.props;
-    if (getTerms()) {
-      history.push("/login");
-    }
-  }
-
-  render() {
-    const { areTermsAccepted } = this.state;
-
-    return (
-      <div className="flex-col">
-        <Jumbotron
-          className="jumbotron"
-          style={{ backgroundColor: colors.EC_BLUE }}
-        >
-          <Container style={{ color: colors.WHITE }}>
-            <h1>Welcome to your EBSI wallet</h1>
-          </Container>
-        </Jumbotron>
-        <div className="terms ecl-u-flex-grow-1">
-          <div className="ecl-fact-figures__value">Terms and Conditions</div>
-          <p className="ecl-fact-figures__description">
-            Find more information by{" "}
-            <Link to="/termsAndConditions" className="ecl-link">
-              clicking here
-            </Link>
-            .
-          </p>
-          <div className="ecl-fact-figures_checkbox">
+  return (
+    <>
+      <div className="ecl-u-bg-blue">
+        <div className="ecl-container ecl-u-pv-m ecl-u-pv-lg-2xl">
+          <h1 className="ecl-u-type-heading-1 ecl-u-type-color-white">
+            Welcome to your EBSI wallet
+          </h1>
+        </div>
+      </div>
+      <div className="ecl-container ecl-u-flex-grow-1 ecl-u-pv-l">
+        <h2 className="ecl-u-type-heading-2">Terms and Conditions</h2>
+        <p className="ecl-u-type-paragraph">
+          Find more information by{" "}
+          <Link to="/termsAndConditions" className="ecl-link">
+            clicking here
+          </Link>
+          .
+        </p>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="ecl-form-group">
             <input
               type="checkbox"
-              defaultChecked={areTermsAccepted || false}
-              onChange={this.onChange}
               className="ecl-checkbox__input"
-              id="checkbox-default"
-              name="checkbox-default"
+              id="terms"
+              name="terms"
+              ref={register({ required: true })}
             />
             <label
-              htmlFor="checkbox-default"
+              htmlFor="terms"
               className="ecl-form-label ecl-checkbox__label"
             >
               <span className="ecl-checkbox__box">
@@ -121,27 +64,22 @@ class Terms extends Component<Props, State> {
               I agree to the Terms and Conditions
             </label>
           </div>
-          <div className="button-container">
-            <button
-              type="button"
-              className="ecl-button ecl-button--secondary"
-              onClick={this.onCancelClick}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="ecl-button ecl-button--primary ecl-u-ml-l"
-              onClick={this.onSubmitClick}
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-        <Footer />
+          <button
+            type="submit"
+            className="ecl-button ecl-button--primary ecl-u-mt-l"
+          >
+            Continue
+          </button>
+          {errors.terms && (
+            <div className="ecl-feedback-message ecl-u-mt-m">
+              You must agree to the Terms and Conditions before continuing.
+            </div>
+          )}
+        </form>
       </div>
-    );
-  }
+      <Footer />
+    </>
+  );
 }
 
 export default Terms;

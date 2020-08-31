@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { ListGroup } from "react-bootstrap";
-import "./CredentialItem.css";
-import colors from "../../config/colors";
+import { Link } from "react-router-dom";
+import styles from "./CredentialItem.module.css";
 import * as transform from "../../utils/StringTransformation";
 import { getIssuer } from "../../utils/issuer";
 import logoDiploma from "../../assets/images/diploma.png";
@@ -46,27 +45,36 @@ class CredentialItem extends Component<Props, State> {
     const { credential, methodToOpen } = this.props;
     const { issuer, name } = this.state;
     return (
-      <ListGroup.Item
-        className="credential"
-        action
-        onClick={() => methodToOpen(credential.hash)}
+      <article
+        className={`ecl-card ecl-card--tile ${styles.credentialItem}`}
         key={credential.id}
-        style={{ backgroundColor: colors.EC_BLUE }}
       >
-        <img
-          src={logoDiploma}
-          height="32"
-          width="32"
-          className="logo rounded mr-2"
-          alt=""
-        />
-        <p style={{ color: colors.WHITE, wordWrap: "break-word" }}>
-          <b>{name}</b>
-        </p>
-        <p style={{ color: colors.EC_YELLOW, wordWrap: "break-word" }}>
-          Issued By: {issuer}
-        </p>
-      </ListGroup.Item>
+        <header className="ecl-card__header">
+          <h1 className="ecl-card__title">
+            <img
+              src={logoDiploma}
+              height="32"
+              width="32"
+              className="logo rounded mr-2"
+              alt=""
+            />{" "}
+            <Link
+              to="/notifications"
+              onClick={(e) => {
+                e.preventDefault();
+                methodToOpen(credential.hash);
+              }}
+              className="ecl-link ecl-link--standalone"
+              type="button"
+            >
+              {name}
+            </Link>
+          </h1>
+        </header>
+        <div className="ecl-card__body">
+          <div className="ecl-card__description">Issued By: {issuer}</div>
+        </div>
+      </article>
     );
   }
 }

@@ -34,6 +34,7 @@ class Ecas {
   }
 
   loginLink = (): string => {
+    sessionStorage.setItem("urlBeforeLogin", window.location.href);
     const query = {
       service: `${options.service_url}/credentials`,
       renew: options.renew !== undefined ? !!options.renew : false,

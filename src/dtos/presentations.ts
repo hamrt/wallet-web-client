@@ -5,10 +5,6 @@ export interface PresentationInputCall {
   redirectURL?: string;
 }
 
-export interface PresentationCredentialCall extends PresentationInputCall {
-  credentials: string[];
-}
-
 const presentationInputFromJSON = (json: any): PresentationInputCall => {
   if (!json) throw new Error("No data provided");
   return {

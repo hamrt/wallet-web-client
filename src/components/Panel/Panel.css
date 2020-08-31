@@ -82,6 +82,7 @@
 .panelBodyTitle {
   margin: 0;
   font-size: 1.4rem;
+  word-break: break-word;
 }
 
 .panelBodyText {

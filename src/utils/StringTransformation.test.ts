@@ -156,6 +156,7 @@ describe("string transformation", () => {
       );
       expect(response).toMatch("Select: Unknown Credential");
     });
+
     it("should return 'Select: Verifiable eID' when array text passed with a single string array of arrays", () => {
       expect.assertions(1);
       const arrText = [["VerifiableCredential", "EssifVerifiableID"]];

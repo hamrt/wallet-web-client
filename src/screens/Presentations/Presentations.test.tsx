@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { mount, shallow } from "enzyme";
-import Presentations from "./Presentations";
+import Presentations, { PresentationsStatus } from "./Presentations";
 import * as DataStorage from "../../utils/DataStorage";
 import * as JWTHandler from "../../utils/JWTHandler";
 import * as mocks from "../../test/mocks/mocks";
@@ -16,7 +16,7 @@ describe("presentations renders", () => {
     jest.spyOn(window.location, "assign").mockImplementation();
   });
 
-  it("presentations should renders without crashing", () => {
+  it("presentations should render without crashing", () => {
     expect.assertions(1);
     const mockedLocation: any[] = [];
     const mockedHistory: any[] = [];
@@ -77,7 +77,7 @@ describe("presentations renders", () => {
     loginLinkMock.mockRestore();
   });
 
-  it("should get all the credentials and generate a CredentialItem for each one", async () => {
+  it("should get all the presentations and generate a CredentialItem for each one", async () => {
     expect.assertions(1);
     const historyMock: any[] = [];
     const mockedLocation: any[] = [];
@@ -90,12 +90,12 @@ describe("presentations renders", () => {
 
     await (presentationsComponent.instance() as Presentations).getCredentials();
 
-    expect(presentationsComponent.state("credentials")).toHaveLength(1);
+    expect(presentationsComponent.state("presentations")).toHaveLength(1);
 
     spy.mockRestore();
   });
 
-  it("should call the method openToast if something is wrong fetching the credentials", async () => {
+  it("should have presentationsStatus == 'error' if something is wrong fetching the presentations", async () => {
     expect.assertions(2);
     const historyMock: any[] = [];
     const mockedLocation: any[] = [];
@@ -105,20 +105,14 @@ describe("presentations renders", () => {
     const spy = jest.spyOn(idHub, "getCredentials");
     spy.mockResolvedValue({ status: 400, data: "Error" });
 
-    const openToastMock = jest.spyOn(
-      presentationsComponent.instance() as Presentations,
-      "openToast"
-    );
-
     await (presentationsComponent.instance() as Presentations).getCredentials();
 
-    expect(presentationsComponent.state("credentials")).toHaveLength(0);
-    expect(openToastMock).toHaveBeenCalledWith(
-      `${values.errorGettingCredentials}${" "}Error`
+    expect(presentationsComponent.state("presentations")).toHaveLength(0);
+    expect(presentationsComponent.state("presentationsStatus")).toStrictEqual(
+      PresentationsStatus.Error
     );
 
     spy.mockRestore();
-    openToastMock.mockRestore();
   });
 
   it("should retrieve and display the credential", async () => {

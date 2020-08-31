@@ -1,7 +1,6 @@
 import React from "react";
-import { ListGroup, Form } from "react-bootstrap";
-import "./CredentialItemPresentation.css";
-import colors from "../../config/colors";
+import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
+import styles from "./CredentialItemPresentation.module.css";
 import * as transform from "../../utils/StringTransformation";
 import { getIssuer } from "../../utils/issuer";
 import diplomaImage from "../../assets/images/diploma.png";
@@ -16,6 +15,7 @@ type CallbackFunctionSelect = (
 type Props = {
   credential: IAttribute;
   methodToSelect: CallbackFunctionSelect;
+  defaultChecked: boolean;
 };
 
 type State = {
@@ -47,43 +47,54 @@ class CredentialItemPresentation extends React.Component<Props, State> {
   }
 
   render() {
-    const { credential, methodToSelect } = this.props;
+    const { credential, methodToSelect, defaultChecked } = this.props;
     const { issuer, name } = this.state;
     return (
-      <ListGroup.Item
-        className="credential ecl-card ecl-card--title"
-        key={credential.id}
-        style={{ backgroundColor: colors.EC_BLUE }}
-      >
-        <img
-          src={diplomaImage}
-          height="32"
-          width="32"
-          className="logo rounded mr-2"
-          alt=""
-        />
-        <div>
-          <p style={{ color: colors.WHITE, wordWrap: "break-word" }}>
-            <b>{name}</b>
-          </p>
-          <p
-            className="credential-text"
-            style={{ color: colors.EC_YELLOW, wordWrap: "break-word" }}
-          >
-            Issued by: {issuer}
-          </p>
-        </div>
-        <div key="checkbox" className="checkbox mb-3">
-          <Form.Check
-            onChange={() =>
-              methodToSelect(credential.hash, credential.type as string[])
-            }
-            style={{ color: colors.EC_YELLOW }}
-            type="checkbox"
-            id={credential.id}
-          />
-        </div>
-      </ListGroup.Item>
+      <label htmlFor={credential.id}>
+        <article
+          className={`${styles.credentialItem} ecl-card`}
+          key={credential.id}
+        >
+          <div className={`${styles.checkbox} ecl-checkbox`}>
+            <input
+              className="ecl-checkbox__input"
+              id={credential.id}
+              name={credential.id}
+              type="checkbox"
+              defaultChecked={defaultChecked}
+              onChange={() =>
+                methodToSelect(credential.hash, credential.type as string[])
+              }
+            />
+            <div className="ecl-checkbox__label">
+              <span className="ecl-checkbox__box">
+                <svg
+                  focusable="false"
+                  aria-hidden="true"
+                  className="ecl-checkbox__icon ecl-icon ecl-icon--s"
+                >
+                  <use xlinkHref={`${eclIcons}#ui--check`} />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <header className="ecl-card__header">
+            <h1 className="ecl-card__title">
+              <img
+                src={diplomaImage}
+                height="32"
+                width="32"
+                className="rounded mr-2"
+                alt=""
+              />{" "}
+              {name}
+            </h1>
+          </header>
+          <div className="ecl-card__body">
+            <div className="ecl-card__description">Issued by: {issuer}</div>
+          </div>
+        </article>
+      </label>
     );
   }
 }

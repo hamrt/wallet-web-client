@@ -1,8 +1,7 @@
 import React from "react";
+import { render, fireEvent, act } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { mount, shallow } from "enzyme";
 import Terms from "./Terms";
-import * as DataStorage from "../../utils/DataStorage";
 
 describe("terms", () => {
   const assignMock = jest.fn();
@@ -10,116 +9,80 @@ describe("terms", () => {
   afterEach(() => {
     assignMock.mockClear();
   });
-  it("should renders without crashing", () => {
+
+  it("should render without crashing", () => {
     expect.assertions(1);
-    const mockedHistory: any[] = [];
-    const mockedLocation = { search: jest.fn() };
-    const wrapper = mount(
+
+    const wrapper = render(
       <BrowserRouter>
-        <Terms history={mockedHistory} location={mockedLocation} />
+        <Terms>Test</Terms>
       </BrowserRouter>
     );
 
     expect(wrapper).not.toBeNull();
   });
 
-  it("should stay in the same screen when click the button Submit and the checkbox has not been selected", () => {
+  it("should render the children if the terms have already been accepted", () => {
     expect.assertions(1);
 
-    const mockHistory = { push: jest.fn() };
-    const mockedLocation = { search: jest.fn() };
-    const termsComponent = shallow(
-      <Terms history={mockHistory} location={mockedLocation} />
+    localStorage.setItem("T&C", "true");
+    const { container } = render(
+      <BrowserRouter>
+        <Terms>Test</Terms>
+      </BrowserRouter>
     );
 
-    termsComponent.setState({ areTermsAccepted: false });
-    (termsComponent.instance() as Terms).onSubmitClick();
-    expect(mockHistory.push).toHaveBeenCalledTimes(0);
+    expect(container).toHaveTextContent("Test");
+
+    localStorage.removeItem("T&C");
   });
 
-  it("should go to the login page if the terms has already been accepted", () => {
-    expect.assertions(1);
-    const historyMock = { push: jest.fn() };
-    const mockedLocation = { search: jest.fn() };
-    const termsComponent = shallow(
-      <Terms history={historyMock} location={mockedLocation} />
-    );
-    const spy = jest.spyOn(DataStorage, "getTerms");
-    spy.mockReturnValue(true);
-    (termsComponent.instance() as Terms).goToLoginIfAlreadyAccepted();
-
-    expect(historyMock.push.mock.calls[0]).toMatchObject(["/login"]);
-    spy.mockRestore();
-  });
-
-  it("should stay in the same page the first time is opened", () => {
-    expect.assertions(1);
-    const historyMock = { push: jest.fn() };
-    const mockedLocation = { search: jest.fn() };
-    const termsComponent = shallow(
-      <Terms history={historyMock} location={mockedLocation} />
-    );
-    const spy = jest.spyOn(DataStorage, "getTerms");
-    spy.mockReturnValue(false);
-    (termsComponent.instance() as Terms).goToLoginIfAlreadyAccepted();
-
-    expect(historyMock.push).toHaveBeenCalledTimes(0);
-    spy.mockRestore();
-  });
-
-  it("should change correctly the state when checkbox is selected", () => {
+  it("should render a form if the terms have not been accepted yet", () => {
     expect.assertions(2);
 
-    const mockedHistory = {};
-    const mockedLocation = { search: jest.fn() };
-    const termsComponent = shallow(
-      <Terms history={mockedHistory} location={mockedLocation} />
+    const { container } = render(
+      <BrowserRouter>
+        <Terms>Test</Terms>
+      </BrowserRouter>
     );
 
-    termsComponent.setState({ areTermsAccepted: true });
-    (termsComponent.instance() as Terms).onChange();
-    expect(termsComponent.state("areTermsAccepted")).toBe(false);
+    // Check that it doesn't render the children
+    expect(container).not.toHaveTextContent("Test");
 
-    termsComponent.setState({ areTermsAccepted: false });
-    (termsComponent.instance() as Terms).onChange();
-    expect(termsComponent.state("areTermsAccepted")).toBe(true);
+    // Check that it contains the form - if getByTestId doesn't find it, it throws an error
+    expect(container.querySelector("form")).not.toBeNull();
   });
 
-  it("should go to the login page when click the button Submit and the checkbox has been selected", () => {
-    expect.assertions(1);
+  it("should render the children if the terms have been accepted", async () => {
+    expect.assertions(2);
 
-    const historyMock = { push: jest.fn() };
-    const mockedLocation = { search: jest.fn() };
-    const termsComponent = shallow(
-      <Terms history={historyMock} location={mockedLocation} />
-    );
-    const terms = termsComponent.instance() as Terms;
-    const mockLogin = jest
-      .spyOn(Terms.prototype, "goToLoginIfAlreadyAccepted")
-      .mockImplementation();
-
-    termsComponent.setState({ areTermsAccepted: true });
-    terms.onSubmitClick();
-
-    expect(mockLogin).toHaveBeenCalledTimes(1);
-    mockLogin.mockRestore();
-  });
-
-  it("should have the value of the termsAccepted false, when click the button Cancel", () => {
-    expect.assertions(1);
-    const mockedLocation = { search: jest.fn() };
-    Object.defineProperty(window, "location", {
-      value: {
-        reload: assignMock,
-      },
-      writable: true,
-    });
-    const mockedHistory: any[] = [];
-    const termsComponent = shallow(
-      <Terms history={mockedHistory} location={mockedLocation} />
+    const { container, getByRole, getByLabelText } = render(
+      <BrowserRouter>
+        <Terms>Test</Terms>
+      </BrowserRouter>
     );
 
-    (termsComponent.instance() as Terms).onCancelClick();
-    expect(termsComponent.state("areTermsAccepted")).toBe(false);
+    // Click on "Continue without accepting"
+    const submitButton = getByRole("button", { name: "Continue" });
+    fireEvent.click(submitButton);
+
+    // https://kentcdodds.com/blog/fix-the-not-wrapped-in-act-warning
+    await act(() => Promise.resolve());
+
+    // Check that the children are rendered now
+    expect(container).toHaveTextContent(
+      "You must agree to the Terms and Conditions before continuing."
+    );
+
+    // Accept the terms and submit
+    const checkboxLabel = getByLabelText("I agree to the Terms and Conditions");
+    fireEvent.click(checkboxLabel);
+    fireEvent.click(submitButton);
+
+    // https://kentcdodds.com/blog/fix-the-not-wrapped-in-act-warning
+    await act(() => Promise.resolve());
+
+    // Check that the children are rendered now
+    expect(container).toHaveTextContent("Test");
   });
 });

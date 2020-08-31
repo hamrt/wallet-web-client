@@ -3,7 +3,7 @@ import SecureEnclave from "../secureEnclave/SecureEnclave";
 import * as config from "../config/config";
 import { getDID } from "./DataStorage";
 
-const signToken = async (
+export const signToken = async (
   ticketFromUrl: string,
   password: string
 ): Promise<string> => {

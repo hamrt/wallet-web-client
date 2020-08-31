@@ -1,6 +1,5 @@
 import React from "react";
 import { ReactourStep } from "reactour";
-import colors from "../config/colors";
 
 const stepsCredentials: ReactourStep[] = [
   {
@@ -8,9 +7,9 @@ const stepsCredentials: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>
+          <strong className="ecl-u-type-color-blue">
             You will see here your credentials.
-          </b>
+          </strong>
           <br />
           Tap in the credential to see more details about it.
         </div>
@@ -23,7 +22,7 @@ const stepsCredentials: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>Demonstration Flow.</b>
+          <strong className="ecl-u-type-color-blue">Demonstration Flow.</strong>
           <br />
           When you are on the Wallet and other pages and have completed your
           tasks there, don&#8217;t forget to tap on the &apos;EBSI DEMO&apos;
@@ -40,9 +39,9 @@ const stepsNotifications: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>
+          <strong className="ecl-u-type-color-blue">
             You will see here your notifications.
-          </b>
+          </strong>
           <br />
           Tap in the notification to Verify it.
         </div>
@@ -55,7 +54,7 @@ const stepsNotifications: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>Demonstration Flow.</b>
+          <strong className="ecl-u-type-color-blue">Demonstration Flow.</strong>
           <br />
           When you are on the Wallet and other pages and have completed your
           tasks there, don&#8217;t forget to tap on the &apos;EBSI DEMO&apos;
@@ -72,9 +71,9 @@ const stepsPresentations: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>
+          <strong className="ecl-u-type-color-blue">
             You will see here your presentations.
-          </b>
+          </strong>
           <br />
           Tap in the presentation to see more details about it.
         </div>
@@ -87,7 +86,7 @@ const stepsPresentations: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>Demonstration Flow.</b>
+          <strong className="ecl-u-type-color-blue">Demonstration Flow.</strong>
           <br />
           When you are on the Wallet and other pages and have completed your
           tasks there, don&#8217;t forget to tap on the &lsquo;EBSI DEMO&rsquo;
@@ -104,7 +103,9 @@ const stepsProfile: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>This is your profile page.</b>
+          <strong className="ecl-u-type-color-blue">
+            This is your profile page.
+          </strong>
           <br />
           In this area you can see your DID and manage your keys.
         </div>
@@ -117,7 +118,7 @@ const stepsProfile: ReactourStep[] = [
     content: function DemoHelperComponent() {
       return (
         <div>
-          <b style={{ color: colors.EC_BLUE }}>Demonstration Flow.</b>
+          <strong className="ecl-u-type-color-blue">Demonstration Flow.</strong>
           <br />
           When you are on the Wallet and other pages and have completed your
           tasks there, don&#8217;t forget to tap on the &lsquo;EBSI DEMO&rsquo;

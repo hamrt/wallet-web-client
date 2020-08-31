@@ -1,8 +1,9 @@
 import { getKeys } from "./DataStorage";
+
 /**
  * Function that export the keys (download a json file)
  */
-function exportKeys() {
+export function exportKeys() {
   const filename = "keys.json";
   const contentType = "application/json;charset=utf-8;";
   const keys = getKeys();
@@ -24,10 +25,11 @@ function exportKeys() {
     document.body.removeChild(a);
   }
 }
+
 /**
  * Function that import the keys (upload a document)
  */
-function importKeys(e: any, context: any) {
+export function importKeys(e: any, context: any) {
   const certificateFile = e.target.files[0];
   let filename = certificateFile.name;
   const regExpWhiteSpace = new RegExp(" ", "g");
@@ -51,4 +53,4 @@ function importKeys(e: any, context: any) {
   }
 }
 
-export { exportKeys, importKeys };
+export default { exportKeys, importKeys };

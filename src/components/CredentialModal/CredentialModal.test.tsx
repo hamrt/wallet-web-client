@@ -5,7 +5,7 @@ import CredentialModal from "./CredentialModal";
 import * as mocks from "../../test/mocks/mocks";
 
 describe("credential modal", () => {
-  it("should renders without crashing", () => {
+  it("should render without crashing", () => {
     expect.assertions(1);
     const credential = mocks.getVID;
     const methodToOpen = jest.fn();

@@ -1,28 +1,21 @@
 import React, { Component } from "react";
-import queryString from "query-string";
+import { Link } from "react-router-dom";
 import "./Profile.css";
-import { Button, Badge, Modal, Form } from "react-bootstrap";
+import { Badge, Modal, Form } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
-import { parseJwt, isTokenExpired } from "../../utils/JWTHandler";
+import { isTokenExpired } from "../../utils/JWTHandler";
 import { loginLink } from "../../apis/ecas";
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import {
   connectionNotEstablished,
-  storeJWT,
-  storeUserName,
   getUserName,
-  storeDID,
   getDID,
   storeKeys,
-  keysNotExist,
   getJWT,
 } from "../../utils/DataStorage";
-import ToastEbsi from "../../components/ToastEbsi/ToastEbsi";
 import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
-import SecureEnclave from "../../secureEnclave/SecureEnclave";
-import colors from "../../config/colors";
 import { strB64dec } from "../../utils/strB64dec";
 import * as tour from "../../utils/Tour";
 import * as models from "../../models/Models";
@@ -30,7 +23,6 @@ import * as idHub from "../../apis/idHub";
 import * as wallet from "../../apis/wallet";
 import * as transform from "../../utils/StringTransformation";
 import * as keysManager from "../../utils/KeysHandler";
-import signToken from "../../utils/auth";
 import { INotification } from "../../dtos/notifications";
 import { IAttribute } from "../../dtos/attributes";
 import { attributes } from "../../dtos";
@@ -41,16 +33,9 @@ type Props = {
 };
 
 type State = {
-  isKeysGeneratorOpen: boolean;
   isModalImportOpen: boolean;
-  isToastOpen: boolean;
-  toastMessage: string;
-  isLoadingOpen: boolean;
-  toastColor: string;
   username: string;
   did: string;
-  passwordForKeyGeneration: string;
-  confirmPassword: string;
   notifications: INotification[];
   notification1: INotification;
   notification2: INotification;
@@ -73,16 +58,9 @@ class Profile extends Component<Props, State> {
     this.passwordForKeyGeneration = React.createRef();
 
     this.state = {
-      isKeysGeneratorOpen: false,
       isModalImportOpen: false,
-      isToastOpen: false,
-      toastMessage: "Error",
-      isLoadingOpen: false,
-      toastColor: colors.EC_GREEN,
       username: getUserName() || "",
       did: getDID() || "",
-      passwordForKeyGeneration: "",
-      confirmPassword: "",
       notifications: [],
       notification1: models.notification,
       notification2: models.notification,
@@ -95,31 +73,21 @@ class Profile extends Component<Props, State> {
       credentialsName: [],
       dataInBase64: "",
     };
-    this.closeToast = this.closeToast.bind(this);
   }
 
   componentDidMount() {
-    this.handleKeys();
-  }
-
-  onGenerateClick = async () => {
-    try {
-      this.closeKeysGenerator();
-      this.startLoading();
-
-      const userPassword = this.passwordForKeyGeneration.current?.value;
-      if (!userPassword) throw new Error("No password provided");
-
-      await this.setUpKeys(userPassword);
-      await this.handleTicket(userPassword);
-
-      this.stopLoading();
-    } catch (error) {
-      this.closeKeysGenerator();
-      this.stopLoading();
-      this.openToast(error.toString());
+    if (connectionNotEstablished()) {
+      this.redirectTo("");
+      return;
     }
-  };
+    if (isTokenExpired(getJWT())) {
+      window.location.assign(loginLink());
+      return;
+    }
+    // other cases
+    this.getNotifications();
+    this.getCredentials();
+  }
 
   getNotifications = async (): Promise<void> => {
     const jwt = getJWT();
@@ -127,7 +95,6 @@ class Profile extends Component<Props, State> {
 
     const response = await wallet.getNotifications(jwt);
     if (response.status === 200 || response.status === 201) {
-      this.stopLoading();
       this.setState({
         notifications: response.data.items,
         notification1: response.data.items[0],
@@ -164,18 +131,6 @@ class Profile extends Component<Props, State> {
     }
   }
 
-  setUpKeys = async (userPassword: string) => {
-    const se = SecureEnclave.Instance;
-    const options = {
-      password: userPassword,
-    };
-    const did = await se.addNewWallet(options);
-    const keys = se.exportEncryptedKeys(did);
-    storeDID(did);
-    storeKeys(keys);
-    this.openSuccessToast("The key generation was successful");
-  };
-
   displayJustCredentials = (list: attributes.IAttribute[]) => {
     const listOfCredentials = list.filter(
       (attribute) => attribute.type !== "VerifiablePresentation"
@@ -184,50 +139,12 @@ class Profile extends Component<Props, State> {
     return listOfCredentials;
   };
 
-  handleChangeConfirmPass = (e: { target: { value: any } }) => {
-    this.setState({
-      confirmPassword: e.target.value,
-    });
-  };
-
-  handleChangePass = (e: { target: { value: any } }) => {
-    this.setState({
-      passwordForKeyGeneration: e.target.value,
-    });
-  };
-
   disableBody = (target: HTMLDivElement) => {
     disableBodyScroll(target);
   };
 
   enableBody = (target: HTMLDivElement) => {
     enableBodyScroll(target);
-  };
-
-  storeConnection = (jwt: string) => {
-    storeJWT(jwt);
-    try {
-      const token = parseJwt(jwt);
-      const username = transform.transformUserName(token.userName);
-      this.stopLoading();
-      this.setState({
-        did: token.did,
-        username,
-      });
-
-      storeUserName(username);
-      storeDID(token.did);
-    } catch (error) {
-      this.stopLoading();
-      this.openToast("Token invalid.");
-      this.redirectTo("");
-    }
-  };
-
-  closeKeysGenerator = () => {
-    this.setState({
-      isKeysGeneratorOpen: false,
-    });
   };
 
   openModalImport = () => {
@@ -262,109 +179,6 @@ class Profile extends Component<Props, State> {
     this.redirectTo("credentials");
   };
 
-  async handleTicket(password: string) {
-    const { location } = this.props;
-    const ticketFromUrl = queryString.parse(location.search).ticket;
-
-    if (!ticketFromUrl) this.redirectIfUserIsNotLogged();
-    if (typeof ticketFromUrl !== "string")
-      throw new Error("ticket not in string format");
-    await this.establishBond(ticketFromUrl, password);
-  }
-
-  redirectIfUserIsNotLogged() {
-    if (connectionNotEstablished()) {
-      this.redirectTo("");
-      return;
-    }
-    if (isTokenExpired(getJWT() || "")) {
-      window.location.assign(loginLink());
-      return;
-    }
-    // other cases
-    this.getNotifications();
-    this.getCredentials();
-  }
-
-  handleKeys() {
-    const { location } = this.props;
-    const ticketFromUrl = queryString.parse(location.search).ticket;
-    if (ticketFromUrl !== undefined) {
-      if (keysNotExist()) {
-        this.openKeysGenerator();
-      }
-    } else {
-      this.redirectIfUserIsNotLogged();
-    }
-  }
-
-  async establishBond(ticketFromUrl: string, password: string) {
-    try {
-      const token = await signToken(ticketFromUrl, password);
-
-      const response = await wallet.establishBond(token);
-      if (response.status === 200 || response.status === 201) {
-        this.storeConnection(response.data.accessToken);
-        this.getNotifications();
-        this.getCredentials();
-      } else {
-        if (response.status === 404) {
-          this.stopLoading();
-          this.openToast("Token invalid.");
-          this.redirectTo("");
-        }
-        this.closeToast();
-        this.stopLoading();
-        this.openToast(response.data);
-      }
-    } catch (error) {
-      this.stopLoading();
-      this.openToast(
-        `Could not sign token and establish connection to the wallet: ${error.message}`
-      );
-    }
-  }
-
-  openKeysGenerator() {
-    this.setState({
-      isKeysGeneratorOpen: true,
-    });
-  }
-
-  startLoading() {
-    this.setState({
-      isLoadingOpen: true,
-    });
-  }
-
-  stopLoading() {
-    this.setState({
-      isLoadingOpen: false,
-    });
-  }
-
-  openToast(message: string) {
-    this.setState({
-      isToastOpen: true,
-      toastMessage: message,
-      toastColor: colors.EC_RED,
-    });
-  }
-
-  openSuccessToast(message: string) {
-    this.setState({
-      isToastOpen: true,
-      toastMessage: message,
-      toastColor: colors.EC_GREEN,
-    });
-  }
-
-  closeToast() {
-    this.setState({
-      isToastOpen: false,
-    });
-  }
-
   redirectTo(whereRedirect: string) {
     const { history } = this.props;
     history.push(`/${whereRedirect}`);
@@ -372,16 +186,9 @@ class Profile extends Component<Props, State> {
 
   render() {
     const {
-      isLoadingOpen,
       username,
       did,
-      isToastOpen,
       isModalImportOpen,
-      toastMessage,
-      toastColor,
-      isKeysGeneratorOpen,
-      confirmPassword,
-      passwordForKeyGeneration,
       notifications,
       notification1,
       notification2,
@@ -394,82 +201,10 @@ class Profile extends Component<Props, State> {
       credentialsName,
     } = this.state;
     return (
-      <div>
+      <>
         <Header />
-
-        <ToastEbsi
-          isToastOpen={isToastOpen}
-          methodToClose={this.closeToast}
-          toastColor={toastColor}
-          colorText={colors.WHITE}
-          toastMessage={toastMessage}
-        />
-
-        <Modal show={isKeysGeneratorOpen} onHide={this.closeKeysGenerator}>
-          <Modal.Header
-            className="ModalHeader"
-            style={{ backgroundColor: colors.EC_BLUE }}
-            closeButton
-          >
-            <Modal.Title>Generate Keys</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="ModalBody">
-            <h4> Please type a password for the key generation. </h4>
-            <p style={{ color: colors.EC_RED }}>
-              {" "}
-              Please keep this password, you will need it for signing
-              credentials{" "}
-            </p>
-            <div className="ecl-fact-figures__description">
-              {" "}
-              Please note that if you will not be able to recover your wallet
-              unless you download your keys. Note that clicking on
-              &ldquo;Restart User Journey&rdquo; will delete your access to your
-              current wallet.
-            </div>
-            <Form.Control
-              type="password"
-              placeholder="Password"
-              ref={this.passwordForKeyGeneration}
-              value={passwordForKeyGeneration}
-              onChange={this.handleChangePass}
-            />
-            <br />
-            <p style={{ color: colors.BLACK }}> Confirm your Password </p>
-            <Form.Control
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={this.handleChangeConfirmPass}
-            />
-            {confirmPassword !== "" &&
-              passwordForKeyGeneration !== confirmPassword && (
-                <p style={{ color: colors.EC_RED }}>
-                  {" "}
-                  Your password and confirmation password do not match.
-                </p>
-              )}
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="primary"
-              onClick={this.onGenerateClick}
-              disabled={
-                passwordForKeyGeneration === "" ||
-                passwordForKeyGeneration !== confirmPassword
-              }
-            >
-              Generate
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
         <Modal show={isModalImportOpen} onHide={this.closeModalImport}>
-          <Modal.Header
-            className="ModalHeader"
-            style={{ backgroundColor: colors.EC_BLUE }}
-            closeButton
-          >
+          <Modal.Header className="ModalHeader" closeButton>
             <Modal.Title>Import Keys</Modal.Title>
           </Modal.Header>
           <Modal.Body className="ModalBody">
@@ -483,135 +218,158 @@ class Profile extends Component<Props, State> {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={this.uploadDocument}>
+            <button
+              className="ecl-button ecl-button--primary"
+              type="button"
+              onClick={this.uploadDocument}
+            >
               Upload
-            </Button>
+            </button>
           </Modal.Footer>
         </Modal>
-
-        <EbsiBanner
-          title="Welcome to your EBSI wallet"
-          subtitle="My Profile"
-          isLoadingOpen={isLoadingOpen}
-        />
-
-        <div className="profile ecl-fact-figures--col-4">
-          <div className="ecl-fact-figures__items">
-            <div className="ecl-fact-figures__item">
-              <div className="ecl-fact-figures__value">Personal</div>
-              <div className="ecl-fact-figures__description"> {username}</div>
-              <div className="ecl-fact-figures__title">My DID Address</div>
+        <EbsiBanner title="Welcome to your EBSI wallet" subtitle="My Profile" />
+        <main className="ecl-container ecl-u-flex-grow-1 ecl-u-mb-l">
+          <div className="ecl-row">
+            <div className="ecl-col-lg-4">
+              <h2 className="ecl-u-type-heading-2">Personal</h2>
+              <p> {username}</p>
+              <h3 className="ecl-u-type-heading-3">My DID Address</h3>
               <div
-                className="ecl-fact-figures__description"
                 data-tut="reactour_center"
                 style={{ wordWrap: "break-word" }}
               >
                 {did}
               </div>
-              <div className="ecl-fact-figures__description">
-                {" "}
+              <p className="ecl-u-type-paragraph ecl-u-mt-m">
                 Please note that if you will not be able to recover your wallet
                 unless you download your keys. Note that clicking on
                 &ldquo;Restart User Journey&rdquo; will delete your access to
                 your current wallet.
-              </div>
-              <Button variant="info" onClick={this.openModalImport}>
+              </p>
+              <button
+                className="ecl-button ecl-button--primary ecl-u-mr-s ecl-u-mb-s"
+                type="button"
+                onClick={this.openModalImport}
+              >
                 Import Keys
-              </Button>
-              <div className="ecl-fact-figures__description"> </div>
-              <Button variant="info" onClick={() => keysManager.exportKeys()}>
+              </button>
+              <button
+                className="ecl-button ecl-button--primary"
+                type="button"
+                onClick={() => keysManager.exportKeys()}
+              >
                 Export Keys
-              </Button>
+              </button>
             </div>
-            <div className="ecl-fact-figures__item">
-              <div className="ecl-fact-figures__value">
-                Notifications{" "}
+            <div className="ecl-col-lg-4">
+              <h2 className="ecl-u-type-heading-2">
+                Notifications
                 {notifications.length > 0 && (
-                  <Badge variant="danger">{notifications.length}</Badge>
+                  <>
+                    {" "}
+                    <Badge variant="danger">{notifications.length}</Badge>
+                  </>
                 )}
-              </div>
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__title">
-                Latest Notifications
-              </div>
-
-              <dl className="ecl-fact-figures__description">
-                <dd style={{ wordWrap: "break-word" }}>
-                  {notification1 !== undefined
-                    ? transform.notificationType(
-                        notification1.message.notificationType,
-                        notification1.message.name,
-                        notification1.message.redirectURL
-                      )
-                    : "-"}
-                </dd>
-                <dd style={{ wordWrap: "break-word" }}>
-                  {notification2 !== undefined
-                    ? transform.notificationType(
-                        notification2.message.notificationType,
-                        notification2.message.name,
-                        notification2.message.redirectURL
-                      )
-                    : "-"}
-                </dd>
-                <dd style={{ wordWrap: "break-word" }}>
-                  {notification3 !== undefined
-                    ? transform.notificationType(
-                        notification3.message.notificationType,
-                        notification3.message.name,
-                        notification3.message.redirectURL
-                      )
-                    : "-"}
-                </dd>
-              </dl>
-              <Button
-                variant="info"
-                onClick={() => this.redirectTo("notifications")}
-              >
-                See All Pending Notifications
-              </Button>
+              </h2>
+              {notifications.length === 0 && (
+                <p className="ecl-u-type-paragraph">
+                  You don&apos;t have any pending notifications.
+                </p>
+              )}
+              {notifications.length > 0 && (
+                <>
+                  <ul className="ecl-unordered-list">
+                    {notification1 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {transform.notificationType(
+                          notification1.message.notificationType,
+                          notification1.message.name,
+                          notification1.message.redirectURL
+                        )}
+                      </li>
+                    )}
+                    {notification2 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {transform.notificationType(
+                          notification2.message.notificationType,
+                          notification2.message.name,
+                          notification2.message.redirectURL
+                        )}
+                      </li>
+                    )}
+                    {notification3 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {transform.notificationType(
+                          notification3.message.notificationType,
+                          notification3.message.name,
+                          notification3.message.redirectURL
+                        )}
+                      </li>
+                    )}
+                  </ul>
+                  <Link
+                    to="/notifications"
+                    className="ecl-link ecl-link--cta ecl-u-mt-s"
+                  >
+                    See All Pending Notifications
+                  </Link>
+                </>
+              )}
             </div>
-            <div className="ecl-fact-figures__item">
-              <div className="ecl-fact-figures__value">
-                Credentials{" "}
+            <div className="ecl-col-lg-4">
+              <h2 className="ecl-u-type-heading-2">
+                Credentials
                 {credentials.length > 0 && (
-                  <Badge variant="danger">{credentials.length}</Badge>
+                  <>
+                    {" "}
+                    <Badge variant="danger">{credentials.length}</Badge>
+                  </>
                 )}
-              </div>
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__description" />
-              <div className="ecl-fact-figures__title">Latest Credentials</div>
-              <dl className="ecl-fact-figures__description">
-                <dd style={{ wordWrap: "break-word" }}>
-                  {credential1 !== undefined ? credentialsName[0] : "-"}
-                </dd>
-                <dd style={{ wordWrap: "break-word" }}>
-                  {credential2 !== undefined ? credentialsName[1] : "-"}
-                </dd>
-                <dd style={{ wordWrap: "break-word" }}>
-                  {credential3 !== undefined ? credentialsName[2] : "-"}
-                </dd>
-              </dl>
-              <Button
-                variant="info"
-                onClick={() => this.redirectTo("credentials")}
-              >
-                See All Credentials
-              </Button>
+              </h2>
+              {credentials.length === 0 && (
+                <p className="ecl-u-type-paragraph">
+                  You don&apos;t have any credentials yet.
+                </p>
+              )}
+              {credentials.length > 0 && (
+                <>
+                  <ul className="ecl-unordered-list">
+                    {credential1 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {credentialsName[0]}
+                      </li>
+                    )}
+                    {credential2 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {credentialsName[1]}
+                      </li>
+                    )}
+                    {credential3 !== undefined && (
+                      <li className="ecl-unordered-list__item">
+                        {credentialsName[2]}
+                      </li>
+                    )}
+                  </ul>
+                  <Link
+                    to="/credentials"
+                    className="ecl-link ecl-link--cta ecl-u-mt-s  "
+                  >
+                    See All Credentials
+                  </Link>
+                </>
+              )}
             </div>
           </div>
-          <Button
-            onClick={this.openTour}
-            className="tourButton"
-            title="Open guided tour"
-          >
-            ?
-          </Button>
-        </div>
+        </main>
         <Footer />
+        <button
+          onClick={this.openTour}
+          className="ecl-button ecl-button--primary tourButton"
+          type="button"
+          title="Open guided tour"
+        >
+          ?
+        </button>
         <Tour
           steps={tour.stepsProfile}
           isOpen={isTourOpen}
@@ -619,7 +377,7 @@ class Profile extends Component<Props, State> {
           onAfterOpen={this.disableBody}
           onBeforeClose={this.enableBody}
         />
-      </div>
+      </>
     );
   }
 }

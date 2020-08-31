@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import colors from "../../../config/colors";
 import backgroundEUimage from "../../../assets/images/eu-background.svg";
 
 class VP extends Component {
@@ -7,7 +6,7 @@ class VP extends Component {
 
   render() {
     return (
-      <div className="credentialData">
+      <div style={{ textAlign: "center" }}>
         <img
           src={backgroundEUimage}
           height="196"
@@ -15,7 +14,7 @@ class VP extends Component {
           className="logo rounded mr-2"
           alt=""
         />
-        <p style={{ color: colors.EC_YELLOW, wordWrap: "break-word" }}>
+        <p>
           <b>Verifiable eID Presentation.</b>
         </p>
       </div>
