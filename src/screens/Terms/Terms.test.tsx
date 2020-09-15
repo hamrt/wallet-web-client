@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import Terms from "./Terms";
+import { Terms } from "./Terms";
 
 describe("terms", () => {
   const assignMock = jest.fn();

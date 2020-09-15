@@ -7,7 +7,7 @@ import {
   waitFor,
   screen,
 } from "@testing-library/react";
-import NotificationModal from "./NotificationModal";
+import { NotificationModal } from "./NotificationModal";
 import * as mocks from "../../test/mocks/mocks";
 import * as idHub from "../../apis/idHub";
 import * as issuerUtils from "../../utils/issuer";
@@ -34,7 +34,7 @@ describe("modal of type RequestPresentationModal", () => {
   });
 
   it("should display the modal", async () => {
-    expect.assertions(6);
+    expect.assertions(8);
     const notification = mocks.getNotification;
     const cb = jest.fn();
 
@@ -88,85 +88,74 @@ describe("modal of type RequestPresentationModal", () => {
       throw new Error("Can't find the modal");
     }
 
-    expect(modal).toMatchInlineSnapshot(`
+    expect(modal.querySelector(".modal-header")).toMatchInlineSnapshot(`
       <div
-        aria-modal="true"
-        class="fade modal show"
-        role="dialog"
-        style="display: block;"
-        tabindex="-1"
+        class="ModalHeader modal-header"
       >
         <div
-          class="modal-dialog"
-          role="document"
+          class="modal-title h4"
         >
-          <div
-            class="modal-content"
-          >
-            <div
-              class="ModalHeader modal-header"
-            >
-              <div
-                class="modal-title h4"
-              >
-                Create presentation
-              </div>
-              <div
-                class="spinner spinner-border text-danger"
-                role="status"
-              >
-                <span
-                  class="sr-only"
-                >
-                  Loading...
-                </span>
-              </div>
-              <button
-                class="close"
-                type="button"
-              >
-                <span
-                  aria-hidden="true"
-                >
-                  ×
-                </span>
-                <span
-                  class="sr-only"
-                >
-                  Close
-                </span>
-              </button>
-            </div>
-            <div
-              class="modal-body"
-            >
-              
-              <p
-                class="ecl-u-type-paragraph"
-              >
-                <strong>
-                  Select: Verifiable eID Credential
-                </strong>
-              </p>
-            </div>
-            <div
-              class="modal-footer"
-            >
-              <button
-                class="ecl-button ecl-button--ghost"
-                type="button"
-              >
-                Close
-              </button>
-              <button
-                class="ecl-button ecl-button--primary"
-                type="button"
-              >
-                Create presentation
-              </button>
-            </div>
-          </div>
+          Create presentation
         </div>
+        <div
+          class="spinner spinner-border text-danger"
+          role="status"
+        >
+          <span
+            class="sr-only"
+          >
+            Loading...
+          </span>
+        </div>
+        <button
+          class="close"
+          type="button"
+        >
+          <span
+            aria-hidden="true"
+          >
+            ×
+          </span>
+          <span
+            class="sr-only"
+          >
+            Close
+          </span>
+        </button>
+      </div>
+    `);
+
+    expect(modal.querySelector(".modal-body")).toMatchInlineSnapshot(`
+      <div
+        class="modal-body"
+      >
+        
+        <p
+          class="ecl-u-type-paragraph"
+        >
+          <strong>
+            Select: Verifiable eID Credential
+          </strong>
+        </p>
+      </div>
+    `);
+
+    expect(modal.querySelector(".modal-footer")).toMatchInlineSnapshot(`
+      <div
+        class="modal-footer"
+      >
+        <button
+          class="ecl-button ecl-button--ghost"
+          type="button"
+        >
+          Close
+        </button>
+        <button
+          class="ecl-button ecl-button--primary"
+          type="button"
+        >
+          Create presentation
+        </button>
       </div>
     `);
 
@@ -175,105 +164,83 @@ describe("modal of type RequestPresentationModal", () => {
       window.document.querySelector('.spinner[role="status"]')
     );
 
-    // And wait until the requester is displayed
+    // And wait until the requests have resolved
     await waitFor(() => screen.getByText(/requested a presentation/i));
-
-    expect(idHubSpy).toHaveBeenCalledTimes(1);
-
-    // Here's what the modal body looks like when it has not yet loaded all the details
-    expect(modal.querySelector(".modal-body")).toMatchInlineSnapshot(`
-      <div
-        class="modal-body"
-      >
-        <p
-          class="ecl-u-type-paragraph"
-        >
-          did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2
-           requested a presentation.
-        </p>
-        <p
-          class="ecl-u-type-paragraph"
-        >
-          <strong>
-            Select: Verifiable eID Credential
-          </strong>
-        </p>
-        <label
-          for="cred-c37a7d50-638b-11ea-a961-e72ecff4092c"
-        >
-          <article
-            class="credentialItem ecl-card"
-          >
-            <div
-              class="checkbox ecl-checkbox"
-            >
-              <input
-                class="ecl-checkbox__input"
-                id="cred-c37a7d50-638b-11ea-a961-e72ecff4092c"
-                name="cred-c37a7d50-638b-11ea-a961-e72ecff4092c"
-                type="checkbox"
-              />
-              <div
-                class="ecl-checkbox__label"
-              >
-                <span
-                  class="ecl-checkbox__box"
-                >
-                  <svg
-                    aria-hidden="true"
-                    class="ecl-checkbox__icon ecl-icon ecl-icon--s"
-                    focusable="false"
-                  >
-                    <use
-                      xlink:href="icons.svg#ui--check"
-                    />
-                  </svg>
-                </span>
-              </div>
-            </div>
-            <header
-              class="ecl-card__header"
-            >
-              <h1
-                class="ecl-card__title"
-              >
-                <img
-                  alt=""
-                  class="rounded mr-2"
-                  height="32"
-                  src="diploma.png"
-                  width="32"
-                />
-                 
-                
-              </h1>
-            </header>
-            <div
-              class="ecl-card__body"
-            >
-              <div
-                class="ecl-card__description"
-              >
-                Issued by: 
-                
-              </div>
-            </div>
-          </article>
-        </label>
-      </div>
-    `);
-
-    // Delay tests so the mocked promises can resolve
-    await new Promise((r) => setTimeout(r, 400));
+    await waitFor(() => screen.getByText(/My Fake Verifiable eID/i));
 
     // Now, check that the credentials are correctly loaded and displayed
     expect(issuerUtilsSpy).toHaveBeenCalledTimes(1);
+
+    expect(idHubSpy).toHaveBeenCalledTimes(1);
+
     expect(modal.querySelector(".modal-body")).toHaveTextContent(
-      "My Fake Verifiable eID"
+      "did:ebsi:0xBDB8618DE3ecdF37a4f13caAC7d9abc097bf9FC2 requested a presentation."
     );
+
     expect(modal.querySelector(".modal-body")).toHaveTextContent(
-      "Issued by: Fake issuer"
+      "Select: Verifiable eID Credential"
     );
+
+    expect(modal.querySelector(".credentialItem")).toMatchInlineSnapshot(`
+      <article
+        class="credentialItem ecl-card"
+      >
+        <div
+          class="checkbox ecl-checkbox"
+        >
+          <input
+            class="ecl-checkbox__input"
+            id="cred-c37a7d50-638b-11ea-a961-e72ecff4092c"
+            name="cred-c37a7d50-638b-11ea-a961-e72ecff4092c"
+            type="checkbox"
+          />
+          <div
+            class="ecl-checkbox__label"
+          >
+            <span
+              class="ecl-checkbox__box"
+            >
+              <svg
+                aria-hidden="true"
+                class="ecl-checkbox__icon ecl-icon ecl-icon--s"
+                focusable="false"
+              >
+                <use
+                  xlink:href="icons.svg#ui--check"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <header
+          class="ecl-card__header"
+        >
+          <h1
+            class="ecl-card__title"
+          >
+            <img
+              alt=""
+              class="rounded mr-2"
+              height="32"
+              src="diploma.png"
+              width="32"
+            />
+             
+            My Fake Verifiable eID
+          </h1>
+        </header>
+        <div
+          class="ecl-card__body"
+        >
+          <div
+            class="ecl-card__description"
+          >
+            Issued by: 
+            Fake issuer
+          </div>
+        </div>
+      </article>
+    `);
   });
 });
 

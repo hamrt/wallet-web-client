@@ -7,9 +7,9 @@ type TitleProps = {
   children: React.ReactNode;
 };
 
-export const PanelTitle = ({ children }: TitleProps) => (
-  <div className="panelTitle">{children}</div>
-);
+export const PanelTitle: React.FunctionComponent<TitleProps> = ({
+  children,
+}: TitleProps) => <div className="panelTitle">{children}</div>;
 
 type BodyProps = {
   icon: string;
@@ -18,7 +18,12 @@ type BodyProps = {
   children: React.ReactNode;
 };
 
-export const PanelBody = ({ icon, title, linkLabel, children }: BodyProps) => (
+export const PanelBody: React.FunctionComponent<BodyProps> = ({
+  icon,
+  title,
+  linkLabel,
+  children,
+}: BodyProps) => (
   <div className="panelBody">
     <div className="panelImageContainer">
       <img src={icon} alt="" role="presentation" className="panelImage" />
@@ -44,4 +49,6 @@ PanelBody.defaultProps = {
   linkLabel: "",
 } as Partial<BodyProps>;
 
-export const Panel = ({ children }: TitleProps) => <div>{children}</div>;
+export const Panel: React.FunctionComponent<TitleProps> = ({
+  children,
+}: TitleProps) => <>{children}</>;

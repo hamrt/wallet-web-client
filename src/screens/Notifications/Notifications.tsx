@@ -7,8 +7,8 @@ import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg
 import { Modal } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
+import { Header } from "../../components/Header/Header";
+import { Footer } from "../../components/Footer/Footer";
 import colors from "../../config/colors";
 import { getJWT } from "../../utils/DataStorage";
 import SecureEnclave from "../../secureEnclave/SecureEnclave";
@@ -16,10 +16,10 @@ import { strB64dec } from "../../utils/strB64dec";
 import * as tour from "../../utils/Tour";
 import * as models from "../../models/Models";
 import * as wallet from "../../apis/wallet";
-import NotificationItem from "../../components/NotificationItem/NotificationItem";
-import NotificationModal from "../../components/NotificationModal/NotificationModal";
-import ToastEbsi from "../../components/ToastEbsi/ToastEbsi";
-import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
+import { NotificationItem } from "../../components/NotificationItem/NotificationItem";
+import { NotificationModal } from "../../components/NotificationModal/NotificationModal";
+import { ToastEbsi } from "../../components/ToastEbsi/ToastEbsi";
+import { EbsiBanner } from "../../components/EbsiBanner/EbsiBanner";
 import REQUIRED_VARIABLES from "../../config/env";
 import { INotification } from "../../dtos/notifications";
 import {
@@ -46,7 +46,9 @@ export enum NotificationProcessingStatus {
   Error,
 }
 
-function Notifications(props: Props) {
+export const Notifications: React.FunctionComponent<Props> = ({
+  history,
+}: Props) => {
   const [notifications, setNotifications] = useState<JSX.Element[]>([]);
   const [notificationsStatus, setNotificationsStatus] = useState<
     NotificationsStatus
@@ -73,7 +75,6 @@ function Notifications(props: Props) {
   const { register, handleSubmit, errors } = useForm();
 
   const redirectTo = (whereRedirect: string) => {
-    const { history } = props;
     history.push(`/${whereRedirect}`);
   };
 
@@ -395,6 +396,6 @@ function Notifications(props: Props) {
       />
     </>
   );
-}
+};
 
 export default Notifications;

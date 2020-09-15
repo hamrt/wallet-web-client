@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { mount, shallow } from "enzyme";
-import Presentations, { PresentationsStatus } from "./Presentations";
+import { Presentations, PresentationsStatus } from "./Presentations";
 import * as DataStorage from "../../utils/DataStorage";
 import * as JWTHandler from "../../utils/JWTHandler";
 import * as mocks from "../../test/mocks/mocks";

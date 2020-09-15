@@ -1,16 +1,13 @@
 import React from "react";
 import "./NotificationModal.css";
 import { INotification } from "../../dtos/notifications";
-import StoreCredentialModal from "./StoreCredentialModal";
-import RequestPresentationModal from "./RequestPresentationModal";
-import SignTransactionModal from "./SignTransactionModal";
-import SignPayloadModal from "./SignPayloadModal";
+import { StoreCredentialModal } from "./StoreCredentialModal";
+import { RequestPresentationModal } from "./RequestPresentationModal";
+import { SignTransactionModal } from "./SignTransactionModal";
+import { SignPayloadModal } from "./SignPayloadModal";
 
 type CallbackFunction = () => void;
-type CallbackFunctionAccept = (
-  notification: INotification,
-  ...args: any[]
-) => void;
+type CallbackFunctionAccept = (notification: INotification) => void;
 
 type Props = {
   notification: INotification;
@@ -20,15 +17,13 @@ type Props = {
   methodToSign: CallbackFunction;
 };
 
-function NotificationModal(props: Props) {
-  const {
-    notification,
-    methodToClose,
-    isModalNotificationOpen,
-    methodToAccept,
-    methodToSign,
-  } = props;
-
+export const NotificationModal: React.FunctionComponent<Props> = ({
+  notification,
+  methodToClose,
+  isModalNotificationOpen,
+  methodToAccept,
+  methodToSign,
+}: Props) => {
   if (
     notification.message.notificationType === 0 ||
     notification.message.notificationType === 1
@@ -77,6 +72,6 @@ function NotificationModal(props: Props) {
   }
 
   return null;
-}
+};
 
 export default NotificationModal;

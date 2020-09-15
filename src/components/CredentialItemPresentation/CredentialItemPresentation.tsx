@@ -6,11 +6,7 @@ import { getIssuer } from "../../utils/issuer";
 import diplomaImage from "../../assets/images/diploma.png";
 import { IAttribute } from "../../dtos/attributes";
 
-type CallbackFunctionSelect = (
-  hash: string,
-  type: string[],
-  ...args: any[]
-) => void;
+type CallbackFunctionSelect = (hash: string, type: string[]) => void;
 
 type Props = {
   credential: IAttribute;
@@ -32,7 +28,7 @@ class CredentialItemPresentation extends React.Component<Props, State> {
     };
   }
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     const { credential } = this.props;
     const issuer = await getIssuer(credential);
     const name = await transform.modifyName(
@@ -46,7 +42,7 @@ class CredentialItemPresentation extends React.Component<Props, State> {
     });
   }
 
-  render() {
+  render(): JSX.Element {
     const { credential, methodToSelect, defaultChecked } = this.props;
     const { issuer, name } = this.state;
     return (

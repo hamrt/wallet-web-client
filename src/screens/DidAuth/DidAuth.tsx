@@ -14,7 +14,7 @@ import styles from "./DidAuth.module.css";
 import * as issuer from "../../utils/issuer";
 import { createResponse, decryptKeys } from "./DidAuth.utils";
 
-function DidAuth() {
+export const DidAuth: React.FunctionComponent = () => {
   const location = useLocation();
   const [serviceUrl, setServiceUrl] = useState("");
   const [serviceDID, setServiceDID] = useState("");
@@ -207,5 +207,5 @@ function DidAuth() {
       </Modal>
     </div>
   );
-}
+};
 export default DidAuth;

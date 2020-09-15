@@ -1,19 +1,18 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
-import Diploma from "./Diploma";
+import { render } from "@testing-library/react";
+import { Diploma } from "./Diploma";
 import diploma from "../../../test/mocks/diploma.json";
 
 describe("diploma", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
-    const data = diploma;
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
-        <Diploma data={data} />
+        <Diploma data={diploma} />
       </BrowserRouter>
     );
 
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 });

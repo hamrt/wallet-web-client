@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { createMemoryHistory } from "history";
 import { render, fireEvent, act } from "@testing-library/react";
-import TermsConditions from "./TermsConditions";
+import { TermsConditions } from "./TermsConditions";
 
 describe("termsConditions", () => {
   it("should render without crashing", () => {

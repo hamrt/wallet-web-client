@@ -3,13 +3,13 @@ import "./Presentations.css";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
 import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
+import { Header } from "../../components/Header/Header";
+import { Footer } from "../../components/Footer/Footer";
 import * as tour from "../../utils/Tour";
 import * as models from "../../models/Models";
 import * as idHub from "../../apis/idHub";
-import ToastEbsi from "../../components/ToastEbsi/ToastEbsi";
-import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
+import { ToastEbsi } from "../../components/ToastEbsi/ToastEbsi";
+import { EbsiBanner } from "../../components/EbsiBanner/EbsiBanner";
 import CredentialItem from "../../components/CredentialItem/CredentialItem";
 import CredentialModal from "../../components/CredentialModal/CredentialModal";
 import colors from "../../config/colors";
@@ -47,7 +47,7 @@ type State = {
   isTourOpen: boolean;
 };
 
-class Presentations extends Component<Props, State> {
+export class Presentations extends Component<Props, State> {
   constructor(props: Readonly<Props>) {
     super(props);
 
@@ -67,7 +67,7 @@ class Presentations extends Component<Props, State> {
     this.closeModalCredential = this.closeModalCredential.bind(this);
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (connectionNotEstablished()) {
       this.redirectTo("");
     } else if (isTokenExpired(getJWT())) {
@@ -76,8 +76,7 @@ class Presentations extends Component<Props, State> {
     this.getCredentials();
   }
 
-  async getCredentials() {
-    const context = this;
+  async getCredentials(): Promise<void> {
     const response = await idHub.getCredentials();
     if (response.status === 200 || response.status === 201) {
       const outAttrs = response.data.items as IAttribute[];
@@ -87,7 +86,7 @@ class Presentations extends Component<Props, State> {
           <CredentialItem
             credential={attrTemp}
             key={attrTemp.id}
-            methodToOpen={context.displayCredential}
+            methodToOpen={this.displayCredential}
           />
         ));
 
@@ -110,27 +109,27 @@ class Presentations extends Component<Props, State> {
     }
   }
 
-  disableBody = (target: HTMLDivElement) => {
+  disableBody = (target: HTMLDivElement): void => {
     disableBodyScroll(target);
   };
 
-  enableBody = (target: HTMLDivElement) => {
+  enableBody = (target: HTMLDivElement): void => {
     enableBodyScroll(target);
   };
 
-  openTour = () => {
+  openTour = (): void => {
     this.setState({
       isTourOpen: true,
     });
   };
 
-  closeTour = () => {
+  closeTour = (): void => {
     this.setState({
       isTourOpen: false,
     });
   };
 
-  async displayCredential(hash: string) {
+  async displayCredential(hash: string): Promise<void> {
     const response = await idHub.getCredential(hash);
     if (response.status === 200 || response.status === 201) {
       this.openModalCredential(response.data);
@@ -143,7 +142,7 @@ class Presentations extends Component<Props, State> {
     }
   }
 
-  openModalCredential(credential: IAttribute) {
+  openModalCredential(credential: IAttribute): void {
     const credentialToOpen = credential;
     credentialToOpen.dataDecoded = strB64dec(credential.data.base64);
     this.setState({
@@ -152,18 +151,18 @@ class Presentations extends Component<Props, State> {
     });
   }
 
-  closeModalCredential() {
+  closeModalCredential(): void {
     this.setState({
       isModalCredentialOpen: false,
     });
   }
 
-  redirectTo(whereRedirect: string) {
+  redirectTo(whereRedirect: string): void {
     const { history } = this.props;
     history.push(`/${whereRedirect}`);
   }
 
-  openToast(message: string) {
+  openToast(message: string): void {
     this.setState({
       isToastOpen: true,
       toastMessage: message,
@@ -172,7 +171,7 @@ class Presentations extends Component<Props, State> {
     });
   }
 
-  openSuccessToast(message: string) {
+  openSuccessToast(message: string): void {
     this.setState({
       isToastOpen: true,
       toastMessage: message,
@@ -181,13 +180,13 @@ class Presentations extends Component<Props, State> {
     });
   }
 
-  closeToast() {
+  closeToast(): void {
     this.setState({
       isToastOpen: false,
     });
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       presentations,
       presentationsStatus,

@@ -3,14 +3,14 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import icons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
-import Footer from "../../components/Footer/Footer";
+import { Footer } from "../../components/Footer/Footer";
 import { getTerms, storeTerms } from "../../utils/DataStorage";
 
 type Props = {
-  children: any;
+  children: React.ReactNode;
 };
 
-function Terms({ children }: Props) {
+export const Terms: React.FunctionComponent<Props> = ({ children }: Props) => {
   const { register, handleSubmit, errors } = useForm();
 
   const onSubmit = () => {
@@ -80,6 +80,6 @@ function Terms({ children }: Props) {
       <Footer />
     </>
   );
-}
+};
 
 export default Terms;

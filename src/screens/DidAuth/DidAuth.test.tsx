@@ -1,13 +1,13 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
-import DidAuth from "./DidAuth";
+import { render, fireEvent } from "@testing-library/react";
+import { DidAuth } from "./DidAuth";
 
 describe("did auth", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
 
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
         <DidAuth />
       </BrowserRouter>
@@ -19,19 +19,20 @@ describe("did auth", () => {
   it("should open a modal when the user clicks on 'Authorize' button", () => {
     expect.assertions(2);
 
-    const wrapper = mount(
+    const { getByRole } = render(
       <BrowserRouter>
         <DidAuth />
       </BrowserRouter>
     );
 
     // There should be no dialog
-    expect(wrapper.find('div[role="dialog"]')).toHaveLength(0);
+    expect(() => getByRole("dialog")).toThrow();
 
     // Click on Authorize
-    wrapper.find("button").simulate("click");
+    const authorizeButton = getByRole("button", { name: "Authorize" });
+    fireEvent.click(authorizeButton);
 
     // The dialog should have been added to the DOM
-    expect(wrapper.find('div[role="dialog"]')).toHaveLength(1);
+    expect(() => getByRole("dialog")).toBeDefined();
   });
 });

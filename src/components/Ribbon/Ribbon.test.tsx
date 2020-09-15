@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter } from "react-router-dom";
-import Ribbon from "./Ribbon";
+import { Ribbon } from "./Ribbon";
 
 describe("ribbon", () => {
   it("should render without crashing", () => {

@@ -3,15 +3,12 @@ import { Modal } from "react-bootstrap";
 import JSONPretty from "react-json-pretty";
 import "./NotificationModal.css";
 import * as transform from "../../utils/StringTransformation";
-import VID from "../CredentialTypes/VID/VID";
-import Diploma from "../CredentialTypes/Diploma/Diploma";
+import { VID } from "../CredentialTypes/VID/VID";
+import { Diploma } from "../CredentialTypes/Diploma/Diploma";
 import { INotification } from "../../dtos/notifications";
 
 type CallbackFunction = () => void;
-type CallbackFunctionAccept = (
-  notification: INotification,
-  ...args: any[]
-) => void;
+type CallbackFunctionAccept = (notification: INotification) => void;
 
 type Props = {
   notification: INotification;
@@ -20,18 +17,16 @@ type Props = {
   methodToAccept: CallbackFunctionAccept;
 };
 
-function StoreCredentialModal(props: Props) {
+export const StoreCredentialModal: React.FunctionComponent<Props> = ({
+  notification,
+  methodToClose,
+  isModalNotificationOpen,
+  methodToAccept,
+}: Props) => {
   const [isFullCredentialDisplayed, setIsFullCredentialDisplayed] = useState(
     false
   );
   const [title, setTitle] = useState("");
-
-  const {
-    notification,
-    methodToClose,
-    isModalNotificationOpen,
-    methodToAccept,
-  } = props;
 
   const closeDetails = () => {
     if (isFullCredentialDisplayed) {
@@ -75,10 +70,10 @@ function StoreCredentialModal(props: Props) {
         {!isFullCredentialDisplayed && (
           <>
             {notification.message.notificationType === 1 && (
-              <VID data={notification.dataDecoded} />
+              <VID data={notification.dataDecoded || ""} />
             )}
             {notification.message.notificationType === 0 && (
-              <Diploma data={notification.dataDecoded} />
+              <Diploma data={notification.dataDecoded || ""} />
             )}
           </>
         )}
@@ -121,6 +116,6 @@ function StoreCredentialModal(props: Props) {
       </Modal.Footer>
     </Modal>
   );
-}
+};
 
 export default StoreCredentialModal;

@@ -1,56 +1,66 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useHistory } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import queryString from "query-string";
-import classNames from "classnames";
-import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
-import SecureEnclave from "../../secureEnclave/SecureEnclave";
-import { Panel, PanelTitle, PanelBody } from "../../components/Panel/Panel";
 import {
   connectionNotEstablished,
-  keysNotExist,
   getJWT,
-  getKeys,
+  keysNotExist,
 } from "../../utils/DataStorage";
 import { isTokenExpired } from "../../utils/JWTHandler";
 import REQUIRED_VARIABLES from "../../config/env";
-import { setUpKeys, handleTicket } from "./Login.utils";
-import step1SVG from "../../assets/images/step1.svg";
-import "./Login.css";
+import { handleTicket } from "./Login.utils";
+import {
+  ChooseMethod,
+  EuLogin,
+  ImportWallet,
+  LocalStorageWallet,
+  NewWallet,
+} from "./screens";
 
 type Props = {
-  children: any;
+  children: React.ReactNode;
 };
+
+export enum Screen {
+  BLANK,
+  EU_LOGIN,
+  CHOOSE_METHOD,
+  LOCAL_STORAGE,
+  NEW_WALLET,
+  IMPORT_WALLET,
+}
 
 const publicUrl = REQUIRED_VARIABLES.REACT_APP_WALLET;
 const basename = publicUrl.startsWith("http")
   ? new URL(publicUrl).pathname
   : publicUrl;
 
-function Login(props: Props) {
-  const { children } = props;
+export const Login: React.FunctionComponent<Props> = ({ children }: Props) => {
   const location = useLocation();
   const history = useHistory();
   const [ticket, setTicket] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState("");
-  const [isKeysGeneratorOpen, setIsKeysGeneratorOpen] = useState(false);
-  const [isExistingPassOpen, setIsExistingPassOpen] = useState(false);
-  const { register, watch, handleSubmit, errors } = useForm();
+  const [screen, setScreen] = useState<Screen>(Screen.BLANK);
 
-  if (!ticket) {
+  const isConnected =
+    !connectionNotEstablished() && !isTokenExpired(getJWT()) && !keysNotExist();
+
+  useEffect(() => {
+    if (!isConnected && !ticket) {
+      // Return to EU Login screen whenever the user is disconnected (e.g. token has expired) and
+      // the user is currently not logging in (no ticket)
+      setScreen(Screen.EU_LOGIN);
+    }
+  }, [isConnected, ticket]);
+
+  useEffect(() => {
     const ticketFromUrl = queryString.parse(location.search).ticket;
     if (ticketFromUrl) {
       setTicket(
         Array.isArray(ticketFromUrl) ? ticketFromUrl[0] : ticketFromUrl
       );
 
-      if (keysNotExist()) {
-        setIsKeysGeneratorOpen(true);
-      } else {
-        setIsExistingPassOpen(true);
-      }
+      setScreen(Screen.CHOOSE_METHOD);
 
       if (sessionStorage.getItem("urlBeforeLogin")) {
         const url = new URL(sessionStorage.getItem("urlBeforeLogin") || "");
@@ -61,227 +71,74 @@ function Login(props: Props) {
         } else {
           pathname = url.pathname;
         }
-        history.replace(pathname);
+        history.replace(pathname + url.search);
       } else {
         const params = new URLSearchParams(location.search);
         params.delete("ticket");
         history.replace({ ...location, search: params.toString() });
       }
     }
-  }
+    // Run useEffect only on component first mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const onSubmitNewPass = async (data: any) => {
-    setIsGenerating(true);
-    setGenerationError("");
-    try {
-      const userPassword = data.passwordForKeyGeneration;
-      if (!userPassword) throw new Error("No password provided");
-
-      await setUpKeys(userPassword);
-      await handleTicket(ticket, userPassword);
-    } catch (error) {
-      setGenerationError(error.toString());
-    }
-
-    setIsGenerating(false);
+  const verifyTicket = async (userPassword: string) => {
+    await handleTicket(ticket, userPassword);
+    setTicket("");
   };
 
-  const onSubmitExistingPass = async (data: any) => {
-    setIsGenerating(true);
-    setGenerationError("");
-    try {
-      const userPassword = data.passwordForKeyGeneration;
-      if (!userPassword) throw new Error("No password provided");
-
-      await SecureEnclave.Instance.restoreWallet({
-        encryptedKey: getKeys() || "",
-        password: userPassword,
-      });
-      await handleTicket(ticket, userPassword);
-    } catch (error) {
-      setGenerationError(error.toString());
-    }
-
-    setIsGenerating(false);
-  };
-
-  if (!connectionNotEstablished() && !isTokenExpired(getJWT())) {
+  if (isConnected) {
     return <>{children}</>;
   }
 
-  if (isKeysGeneratorOpen) {
+  const goToLocalStorageWalletScreen = () => setScreen(Screen.LOCAL_STORAGE);
+  const goToNewWalletScreen = () => setScreen(Screen.NEW_WALLET);
+  const goToImportWalletScreen = () => setScreen(Screen.IMPORT_WALLET);
+  const goToChooseMethodScreen = () => setScreen(Screen.CHOOSE_METHOD);
+
+  if (screen === Screen.CHOOSE_METHOD) {
     return (
-      <div className="ecl-u-bg-blue-130 ecl-u-flex-grow-1">
-        <main className="ecl-container ecl-u-bg-white ecl-u-pa-xl ecl-u-mt-xl">
-          <h1 className="ecl-u-type-heading-1">Generate Keys</h1>
-          <h2 className="ecl-u-type-heading-2">
-            Please type a password for the key generation.
-          </h2>
-          <p className="ecl-u-type-paragraph">
-            Please keep this password, you will need it for signing credentials.
-          </p>
-          <p className="ecl-u-type-paragraph">
-            Please note that if you will not be able to recover your wallet
-            unless you download your keys. Note that clicking on &ldquo;Restart
-            User Journey&rdquo; will delete your access to your current wallet.
-          </p>
-          <form onSubmit={handleSubmit(onSubmitNewPass)}>
-            <div className="ecl-form-group">
-              <label className="ecl-form-label" htmlFor="password-key-gen">
-                Please enter your password:
-              </label>
-              {errors.passwordForKeyGeneration && (
-                <div className="ecl-feedback-message">
-                  {errors.passwordForKeyGeneration.message ||
-                    "Invalid password!"}
-                </div>
-              )}
-              <input
-                type="password"
-                id="password-key-gen"
-                name="passwordForKeyGeneration"
-                className={classNames("ecl-text-input ecl-text-input--m", {
-                  "ecl-text-input--invalid": errors.passwordForKeyGeneration,
-                })}
-                placeholder="Password"
-                ref={register({
-                  required: "Password is required",
-                })}
-              />
-            </div>
-            <div className="ecl-form-group ecl-u-mt-m">
-              <label className="ecl-form-label" htmlFor="password-confirm">
-                Confirm your password:
-              </label>
-              {errors.confirmPassword && (
-                <div className="ecl-feedback-message">
-                  {errors.confirmPassword.message || "Invalid password!"}
-                </div>
-              )}
-              <input
-                type="password"
-                id="password-confirm"
-                name="confirmPassword"
-                className={classNames("ecl-text-input ecl-text-input--m", {
-                  "ecl-text-input--invalid": errors.confirmPassword,
-                })}
-                placeholder="Confirm password"
-                ref={register({
-                  required: "Password confirmation is required",
-                  validate: (value) => {
-                    return (
-                      value === watch("passwordForKeyGeneration") ||
-                      "Your password and confirmation password do not match."
-                    );
-                  },
-                })}
-              />
-            </div>
-            <button
-              className="ecl-button ecl-button--primary ecl-u-mt-l"
-              type="submit"
-              disabled={isGenerating}
-            >
-              {isGenerating ? "Generating..." : "Generate"}
-            </button>
-            {generationError && (
-              <div
-                role="alert"
-                className="ecl-message ecl-message--error ecl-u-mt-l"
-                data-ecl-message="true"
-              >
-                <svg
-                  focusable="false"
-                  aria-hidden="true"
-                  className="ecl-message__icon ecl-icon ecl-icon--l"
-                >
-                  <use xlinkHref={`${eclIcons}#notifications--error`} />
-                </svg>
-                <div className="ecl-message__content">
-                  <div className="ecl-message__title">Error</div>
-                  <p className="ecl-message__description">{generationError}</p>
-                </div>
-              </div>
-            )}
-          </form>
-        </main>
-      </div>
+      <ChooseMethod
+        goToLocalStorageWalletScreen={goToLocalStorageWalletScreen}
+        goToNewWalletScreen={goToNewWalletScreen}
+        goToImportWalletScreen={goToImportWalletScreen}
+      />
     );
   }
 
-  if (isExistingPassOpen) {
+  if (screen === Screen.LOCAL_STORAGE) {
     return (
-      <div className="ecl-u-bg-blue-130 ecl-u-flex-grow-1">
-        <main className="ecl-container ecl-u-bg-white ecl-u-pa-xl ecl-u-mt-xl">
-          <h1 className="ecl-u-type-heading-1">Open Wallet</h1>
-          <form onSubmit={handleSubmit(onSubmitExistingPass)}>
-            <div className="ecl-form-group">
-              <label className="ecl-form-label" htmlFor="password-key-gen">
-                Please enter your password:
-              </label>
-              {errors.passwordForKeyGeneration && (
-                <div className="ecl-feedback-message">
-                  {errors.passwordForKeyGeneration.message ||
-                    "Invalid password!"}
-                </div>
-              )}
-              <input
-                type="password"
-                id="password-key-gen"
-                name="passwordForKeyGeneration"
-                className={classNames("ecl-text-input ecl-text-input--m", {
-                  "ecl-text-input--invalid": errors.passwordForKeyGeneration,
-                })}
-                placeholder="Password"
-                ref={register({
-                  required: "Password is required",
-                })}
-              />
-            </div>
-            <button
-              className="ecl-button ecl-button--primary ecl-u-mt-l"
-              type="submit"
-              disabled={isGenerating}
-            >
-              {isGenerating ? "Opening wallet..." : "Open wallet"}
-            </button>
-            {generationError && (
-              <div
-                role="alert"
-                className="ecl-message ecl-message--error ecl-u-mt-l"
-                data-ecl-message="true"
-              >
-                <svg
-                  focusable="false"
-                  aria-hidden="true"
-                  className="ecl-message__icon ecl-icon ecl-icon--l"
-                >
-                  <use xlinkHref={`${eclIcons}#notifications--error`} />
-                </svg>
-                <div className="ecl-message__content">
-                  <div className="ecl-message__title">Error</div>
-                  <p className="ecl-message__description">{generationError}</p>
-                </div>
-              </div>
-            )}
-          </form>
-        </main>
-      </div>
+      <LocalStorageWallet
+        verifyTicket={verifyTicket}
+        goToChooseMethodScreen={goToChooseMethodScreen}
+      />
     );
   }
 
-  return (
-    <div className="app">
-      <main className="main">
-        <Panel>
-          <PanelTitle>EBSI Wallet</PanelTitle>
-          <PanelBody icon={step1SVG} linkLabel="Login">
-            Authenticate via EU Login to access your EBSI Wallet.
-          </PanelBody>
-        </Panel>
-      </main>
-    </div>
-  );
-}
+  if (screen === Screen.NEW_WALLET) {
+    return (
+      <NewWallet
+        verifyTicket={verifyTicket}
+        goToChooseMethodScreen={goToChooseMethodScreen}
+      />
+    );
+  }
+
+  if (screen === Screen.IMPORT_WALLET) {
+    return (
+      <ImportWallet
+        verifyTicket={verifyTicket}
+        goToChooseMethodScreen={goToChooseMethodScreen}
+      />
+    );
+  }
+
+  if (screen === Screen.EU_LOGIN) {
+    return <EuLogin />;
+  }
+
+  // Blue screen
+  return <div className="ecl-u-bg-blue-130 ecl-u-flex-grow-1" />;
+};
 
 export default Login;

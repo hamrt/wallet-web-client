@@ -3,11 +3,11 @@ import "./Credentials.css";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
 import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
-import Header from "../../components/Header/Header";
-import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
-import Footer from "../../components/Footer/Footer";
+import { Header } from "../../components/Header/Header";
+import { EbsiBanner } from "../../components/EbsiBanner/EbsiBanner";
+import { Footer } from "../../components/Footer/Footer";
 import CredentialItem from "../../components/CredentialItem/CredentialItem";
-import ToastEbsi from "../../components/ToastEbsi/ToastEbsi";
+import { ToastEbsi } from "../../components/ToastEbsi/ToastEbsi";
 import CredentialModal from "../../components/CredentialModal/CredentialModal";
 import colors from "../../config/colors";
 import { getJWT, connectionNotEstablished } from "../../utils/DataStorage";
@@ -46,7 +46,7 @@ type State = {
   isTourOpen: boolean;
 };
 
-class Credentials extends Component<Props, State> {
+export class Credentials extends Component<Props, State> {
   passwordForKeyGeneration: React.RefObject<HTMLInputElement>;
 
   constructor(props: Readonly<Props>) {
@@ -71,7 +71,7 @@ class Credentials extends Component<Props, State> {
     this.displayCredential = this.displayCredential.bind(this);
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (connectionNotEstablished()) {
       this.redirectTo("");
     } else if (isTokenExpired(getJWT())) {
@@ -81,9 +81,8 @@ class Credentials extends Component<Props, State> {
     }
   }
 
-  async getCredentials() {
+  async getCredentials(): Promise<void> {
     this.startLoading();
-    const context = this;
     const response = await idHub.getCredentials();
     if (response.status === 200 || response.status === 201) {
       const outAttrs = response.data.items as IAttribute[];
@@ -98,7 +97,7 @@ class Credentials extends Component<Props, State> {
           <CredentialItem
             credential={attrTemp}
             key={attrTemp.id}
-            methodToOpen={context.displayCredential}
+            methodToOpen={this.displayCredential}
           />
         ));
       this.stopLoading();
@@ -109,7 +108,6 @@ class Credentials extends Component<Props, State> {
       });
     } else {
       if (response.status === 404) {
-        this.openToast("Token invalid.");
         this.redirectTo("");
       }
 
@@ -121,40 +119,39 @@ class Credentials extends Component<Props, State> {
     }
   }
 
-  closeTour = () => {
+  closeTour = (): void => {
     this.setState({
       isTourOpen: false,
     });
   };
 
-  disableBody = (target: HTMLDivElement) => {
+  disableBody = (target: HTMLDivElement): void => {
     disableBodyScroll(target);
   };
 
-  enableBody = (target: HTMLDivElement) => {
+  enableBody = (target: HTMLDivElement): void => {
     enableBodyScroll(target);
   };
 
-  openTour = () => {
+  openTour = (): void => {
     this.setState({
       isTourOpen: true,
     });
   };
 
-  async displayCredential(hash: string) {
+  async displayCredential(hash: string): Promise<void> {
     const response = await idHub.getCredential(hash);
     if (response.status === 200 || response.status === 201) {
       this.openCredentialModal(response.data);
     } else {
       if (response.status === 404) {
-        this.openToast("Token invalid.");
         this.redirectTo("");
       }
       this.openToast(`Error getting the credential. ${response.data}`);
     }
   }
 
-  openCredentialModal(credential: IAttribute) {
+  openCredentialModal(credential: IAttribute): void {
     const credentialDecoded = credential;
     credentialDecoded.dataDecoded = strB64dec(credential.data.base64);
     this.setState({
@@ -163,15 +160,7 @@ class Credentials extends Component<Props, State> {
     });
   }
 
-  openSuccessToast() {
-    this.setState({
-      isToastOpen: true,
-      toastMessage: "The key decryption was successful.",
-      toastColor: colors.EC_GREEN,
-    });
-  }
-
-  openToast(message: string) {
+  openToast(message: string): void {
     this.setState({
       isToastOpen: true,
       toastMessage: message,
@@ -180,36 +169,36 @@ class Credentials extends Component<Props, State> {
     });
   }
 
-  closeCredentialModal() {
+  closeCredentialModal(): void {
     this.setState({
       isModalCredentialOpen: false,
     });
   }
 
-  closeToast() {
+  closeToast(): void {
     this.setState({
       isToastOpen: false,
     });
   }
 
-  redirectTo(whereRedirect: string) {
+  redirectTo(whereRedirect: string): void {
     const { history } = this.props;
     history.push(`/${whereRedirect}`);
   }
 
-  startLoading() {
+  startLoading(): void {
     this.setState({
       isLoadingOpen: true,
     });
   }
 
-  stopLoading() {
+  stopLoading(): void {
     this.setState({
       isLoadingOpen: false,
     });
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       credentials,
       credentialsError,

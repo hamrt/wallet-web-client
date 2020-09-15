@@ -1,15 +1,15 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
+import { render } from "@testing-library/react";
 import * as mocks from "../../test/mocks/mocks";
-import NotificationItem from "./NotificationItem";
+import { NotificationItem } from "./NotificationItem";
 
 describe("notification item", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
     const notification = mocks.getNotification;
     const methodToOpen = jest.fn();
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
         <NotificationItem
           notification={notification}
@@ -17,6 +17,6 @@ describe("notification item", () => {
         />
       </BrowserRouter>
     );
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 });

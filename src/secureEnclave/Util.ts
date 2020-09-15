@@ -1,10 +1,10 @@
-const EllipticCurve = require("elliptic").ec;
+import { ec as EllipticCurve } from "elliptic";
 
 /**
  * Generate keys
  * @returns Object with address and privateKey in HEX format
  */
-const generateKeys = (): any => {
+const generateKeys = (): { publicKey: string; privateKey: string } => {
   const kp = new EllipticCurve("secp256k1").genKeyPair();
   const publicKey = kp.getPublic("hex");
   const privateKey = kp.getPrivate("hex");

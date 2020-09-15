@@ -94,7 +94,7 @@ export default class SecureEnclave {
   public async signTx(
     did: string,
     txJSON: providers.TransactionRequest,
-    password: string = ""
+    password = ""
   ): Promise<string> {
     const wallet = this.wallets.get(did);
     if (!wallet) throw new Error("Wallet not found");

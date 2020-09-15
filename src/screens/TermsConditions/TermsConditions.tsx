@@ -1,11 +1,13 @@
 import React from "react";
-import Footer from "../../components/Footer/Footer";
+import { Footer } from "../../components/Footer/Footer";
 
 type Props = {
   history: any;
 };
 
-const TermsConditions = (props: Props) => {
+export const TermsConditions: React.FunctionComponent<Props> = (
+  props: Props
+) => {
   const onBackClick = () => {
     const { history } = props;
     history.goBack();

@@ -11,18 +11,17 @@ describe("exportKeys tests", () => {
 });
 
 describe("import keys", () => {
-  it("should not throw", () => {
+  it("should throw an error if the extension is not .json", async () => {
     expect.assertions(1);
-    const keys = {
-      target: {
-        files: [
-          {
-            name: "somekeyfile.txt",
-          },
-        ],
-      },
-    };
-    const context = {};
-    expect(() => importKeys(keys, context)).not.toThrow();
+    const keys = new File([], "somekeyfile.txt");
+    await expect(importKeys(keys)).rejects.toThrow(
+      new Error("Invalid extension. Please upload a JSON file.")
+    );
+  });
+
+  it("should not throw if the extension is .json", async () => {
+    expect.assertions(1);
+    const keys = new File([], "somekeyfile.json");
+    await expect(importKeys(keys)).resolves.toStrictEqual("");
   });
 });

@@ -29,28 +29,32 @@ export function exportKeys() {
 /**
  * Function that import the keys (upload a document)
  */
-export function importKeys(e: any, context: any) {
-  const certificateFile = e.target.files[0];
-  let filename = certificateFile.name;
-  const regExpWhiteSpace = new RegExp(" ", "g");
-  filename = filename.replace(regExpWhiteSpace, "_");
-  const indexExt = filename.lastIndexOf(".");
-  let ext = "";
-  if (indexExt > 0) {
-    ext = filename.substring(indexExt + 1);
-  }
-  if (ext.toUpperCase() === "JSON") {
-    const reader = new FileReader();
-    reader.onload = function onLoadFunction() {
-      let dataInBase64 = reader.result;
-      if (typeof dataInBase64 !== "string")
-        throw new Error("error reading data keys");
-      // Delete the "data:application/json;base64"
-      dataInBase64 = dataInBase64.substring(dataInBase64.indexOf(",") + 1);
-      context.setState({ dataInBase64 });
-    };
-    reader.readAsDataURL(certificateFile);
-  }
+export function importKeys(certificateFile: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    // const certificateFile = e.target.files[0];
+    let filename = certificateFile.name;
+    const regExpWhiteSpace = new RegExp(" ", "g");
+    filename = filename.replace(regExpWhiteSpace, "_");
+    const indexExt = filename.lastIndexOf(".");
+    let ext = "";
+    if (indexExt > 0) {
+      ext = filename.substring(indexExt + 1);
+    }
+    if (ext.toUpperCase() === "JSON") {
+      const reader = new FileReader();
+      reader.onload = function onLoadFunction() {
+        let dataInBase64 = reader.result;
+        if (typeof dataInBase64 !== "string")
+          throw new Error("error reading data keys");
+        // Delete the "data:application/json;base64"
+        dataInBase64 = dataInBase64.substring(dataInBase64.indexOf(",") + 1);
+        resolve(dataInBase64);
+      };
+      reader.readAsDataURL(certificateFile);
+    } else {
+      reject(new Error("Invalid extension. Please upload a JSON file."));
+    }
+  });
 }
 
 export default { exportKeys, importKeys };

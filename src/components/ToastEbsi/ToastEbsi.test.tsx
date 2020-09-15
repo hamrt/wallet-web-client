@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
-import ToastEbsi from "./ToastEbsi";
+import { render } from "@testing-library/react";
+import { ToastEbsi } from "./ToastEbsi";
 import colors from "../../config/colors";
 
 describe("ebsi toast", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
     const method = jest.fn();
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
         <ToastEbsi
           isToastOpen
@@ -20,6 +20,6 @@ describe("ebsi toast", () => {
       </BrowserRouter>
     );
 
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 });

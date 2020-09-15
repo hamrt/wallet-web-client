@@ -2,15 +2,17 @@ import React from "react";
 import { Spinner } from "react-bootstrap";
 import "./EbsiBanner.css";
 
-type CallbackFunction = () => void;
-
 type Props = {
   title: string;
   subtitle: string;
-  isLoadingOpen: boolean;
+  isLoadingOpen?: boolean;
 };
 
-const EbsiBanner = ({ title, subtitle, isLoadingOpen }: Props) => (
+export const EbsiBanner: React.FunctionComponent<Props> = ({
+  title,
+  subtitle,
+  isLoadingOpen,
+}: Props) => (
   <>
     <div className="ecl-page-header-harmonised ecl-u-mt-l">
       <div className="ecl-container">
@@ -31,6 +33,8 @@ const EbsiBanner = ({ title, subtitle, isLoadingOpen }: Props) => (
   </>
 );
 
-EbsiBanner.defaultProps = {} as Partial<Props>;
+EbsiBanner.defaultProps = {
+  isLoadingOpen: false,
+};
 
 export default EbsiBanner;

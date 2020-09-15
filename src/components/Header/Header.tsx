@@ -3,14 +3,15 @@ import "./Header.css";
 import logo from "@ecl/ec-preset-website/dist/images/logo/logo--en.svg";
 import eclIcons from "@ecl/ec-preset-website/dist/images/icons/sprites/icons.svg";
 import { Link, NavLink } from "react-router-dom";
-import Ribbon from "../Ribbon/Ribbon";
+import { Ribbon } from "../Ribbon/Ribbon";
 import { logout } from "../../apis/ecas";
 
-function Header() {
+export const Header: React.FunctionComponent = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const doLogOut = () => {
+  const doLogOut = (e: React.MouseEvent) => {
+    e.preventDefault();
     sessionStorage.clear();
-    localStorage.removeItem("ticket");
+    localStorage.removeItem("Jwt");
     logout();
   };
 
@@ -173,6 +174,6 @@ function Header() {
       <Ribbon />
     </header>
   );
-}
+};
 
 export default Header;

@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
+import { render } from "@testing-library/react";
 import CredentialItemPresentation from "./CredentialItemPresentation";
 import * as mocks from "../../test/mocks/mocks";
 
@@ -9,7 +9,7 @@ describe("credential item presentation", () => {
     expect.assertions(1);
     const credential = mocks.getCredential;
     const methodToOpen = jest.fn();
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
         <CredentialItemPresentation
           credential={credential}
@@ -18,6 +18,6 @@ describe("credential item presentation", () => {
         />
       </BrowserRouter>
     );
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 });

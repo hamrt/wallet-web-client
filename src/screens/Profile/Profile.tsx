@@ -1,22 +1,20 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import "./Profile.css";
-import { Badge, Modal, Form } from "react-bootstrap";
+import { Badge } from "react-bootstrap";
 import { disableBodyScroll, enableBodyScroll } from "body-scroll-lock";
 import Tour from "reactour";
 import { isTokenExpired } from "../../utils/JWTHandler";
 import { loginLink } from "../../apis/ecas";
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
+import { Header } from "../../components/Header/Header";
+import { Footer } from "../../components/Footer/Footer";
 import {
   connectionNotEstablished,
   getUserName,
   getDID,
-  storeKeys,
   getJWT,
 } from "../../utils/DataStorage";
-import EbsiBanner from "../../components/EbsiBanner/EbsiBanner";
-import { strB64dec } from "../../utils/strB64dec";
+import { EbsiBanner } from "../../components/EbsiBanner/EbsiBanner";
 import * as tour from "../../utils/Tour";
 import * as models from "../../models/Models";
 import * as idHub from "../../apis/idHub";
@@ -33,7 +31,6 @@ type Props = {
 };
 
 type State = {
-  isModalImportOpen: boolean;
   username: string;
   did: string;
   notifications: INotification[];
@@ -46,10 +43,9 @@ type State = {
   credential3: IAttribute;
   isTourOpen: boolean;
   credentialsName: string[];
-  dataInBase64: string;
 };
 
-class Profile extends Component<Props, State> {
+export class Profile extends Component<Props, State> {
   passwordForKeyGeneration: React.RefObject<HTMLInputElement>;
 
   constructor(props: Readonly<Props>) {
@@ -58,7 +54,6 @@ class Profile extends Component<Props, State> {
     this.passwordForKeyGeneration = React.createRef();
 
     this.state = {
-      isModalImportOpen: false,
       username: getUserName() || "",
       did: getDID() || "",
       notifications: [],
@@ -71,11 +66,10 @@ class Profile extends Component<Props, State> {
       credential3: models.credential,
       isTourOpen: false,
       credentialsName: [],
-      dataInBase64: "",
     };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (connectionNotEstablished()) {
       this.redirectTo("");
       return;
@@ -117,7 +111,7 @@ class Profile extends Component<Props, State> {
     return Promise.all(credentialsName);
   };
 
-  async getCredentials() {
+  async getCredentials(): Promise<void> {
     const response = await idHub.getCredentials();
     if (response.status === 200 || response.status === 201) {
       const list = this.displayJustCredentials(response.data.items);
@@ -131,7 +125,9 @@ class Profile extends Component<Props, State> {
     }
   }
 
-  displayJustCredentials = (list: attributes.IAttribute[]) => {
+  displayJustCredentials = (
+    list: attributes.IAttribute[]
+  ): attributes.IAttribute[] => {
     const listOfCredentials = list.filter(
       (attribute) => attribute.type !== "VerifiablePresentation"
     );
@@ -139,56 +135,35 @@ class Profile extends Component<Props, State> {
     return listOfCredentials;
   };
 
-  disableBody = (target: HTMLDivElement) => {
+  disableBody = (target: HTMLDivElement): void => {
     disableBodyScroll(target);
   };
 
-  enableBody = (target: HTMLDivElement) => {
+  enableBody = (target: HTMLDivElement): void => {
     enableBodyScroll(target);
   };
 
-  openModalImport = () => {
-    this.setState({
-      isModalImportOpen: true,
-    });
-  };
-
-  closeModalImport = () => {
-    this.setState({
-      isModalImportOpen: false,
-    });
-  };
-
-  openTour = () => {
+  openTour = (): void => {
     this.setState({
       isTourOpen: true,
     });
   };
 
-  closeTour = () => {
+  closeTour = (): void => {
     this.setState({
       isTourOpen: false,
     });
   };
 
-  uploadDocument = () => {
-    const { dataInBase64 } = this.state;
-    const keys = strB64dec(dataInBase64);
-    storeKeys(JSON.parse(keys));
-    this.closeModalImport();
-    this.redirectTo("credentials");
-  };
-
-  redirectTo(whereRedirect: string) {
+  redirectTo(whereRedirect: string): void {
     const { history } = this.props;
     history.push(`/${whereRedirect}`);
   }
 
-  render() {
+  render(): JSX.Element {
     const {
       username,
       did,
-      isModalImportOpen,
       notifications,
       notification1,
       notification2,
@@ -203,30 +178,6 @@ class Profile extends Component<Props, State> {
     return (
       <>
         <Header />
-        <Modal show={isModalImportOpen} onHide={this.closeModalImport}>
-          <Modal.Header className="ModalHeader" closeButton>
-            <Modal.Title>Import Keys</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="ModalBody">
-            <Form.Group controlId="formFile" style={{ marginBottom: 15 }}>
-              <Form.Control
-                type="file"
-                accept=".json"
-                onChange={(e) => keysManager.importKeys(e, this)}
-                className="input-file"
-              />
-            </Form.Group>
-          </Modal.Body>
-          <Modal.Footer>
-            <button
-              className="ecl-button ecl-button--primary"
-              type="button"
-              onClick={this.uploadDocument}
-            >
-              Upload
-            </button>
-          </Modal.Footer>
-        </Modal>
         <EbsiBanner title="Welcome to your EBSI wallet" subtitle="My Profile" />
         <main className="ecl-container ecl-u-flex-grow-1 ecl-u-mb-l">
           <div className="ecl-row">
@@ -246,13 +197,6 @@ class Profile extends Component<Props, State> {
                 &ldquo;Restart User Journey&rdquo; will delete your access to
                 your current wallet.
               </p>
-              <button
-                className="ecl-button ecl-button--primary ecl-u-mr-s ecl-u-mb-s"
-                type="button"
-                onClick={this.openModalImport}
-              >
-                Import Keys
-              </button>
               <button
                 className="ecl-button ecl-button--primary"
                 type="button"

@@ -14,10 +14,7 @@ import { IAttribute } from "../../dtos/attributes";
 import { getIssuerName } from "../../utils/issuer";
 
 type CallbackFunction = () => void;
-type CallbackFunctionAccept = (
-  notification: INotification,
-  ...args: any[]
-) => void;
+type CallbackFunctionAccept = (notification: INotification) => void;
 
 type Props = {
   notification: INotification;
@@ -26,14 +23,12 @@ type Props = {
   methodToAccept: CallbackFunctionAccept;
 };
 
-function RequestPresentationModal(props: Props) {
-  const {
-    notification,
-    methodToClose,
-    isModalNotificationOpen,
-    methodToAccept,
-  } = props;
-
+export const RequestPresentationModal: React.FunctionComponent<Props> = ({
+  notification,
+  methodToClose,
+  isModalNotificationOpen,
+  methodToAccept,
+}: Props) => {
   const [credentials, setCredentials] = useState<IAttribute[]>([]);
   const [issuerName, setIssuerName] = useState<string>("");
   const [formattedTypes, setFormattedTypes] = useState<string>("");
@@ -229,6 +224,6 @@ function RequestPresentationModal(props: Props) {
       </Modal.Footer>
     </Modal>
   );
-}
+};
 
 export default RequestPresentationModal;

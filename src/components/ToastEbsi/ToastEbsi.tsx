@@ -13,26 +13,24 @@ type Props = {
   toastMessage: string;
 };
 
-const ToastEbsi = ({
+const toastStyle: React.CSSProperties = {
+  position: "absolute",
+  left: 0,
+  right: 0,
+  margin: "0 auto",
+  backgroundColor: "rgba(255,255,255,1)",
+  border: "none",
+  zIndex: 10,
+};
+
+export const ToastEbsi: React.FunctionComponent<Props> = ({
   isToastOpen,
   methodToClose,
   toastColor,
   colorText,
   toastMessage,
 }: Props) => (
-  <Toast
-    show={isToastOpen}
-    onClose={methodToClose}
-    style={{
-      position: "absolute",
-      left: 0,
-      right: 0,
-      margin: "0 auto",
-      backgroundColor: "rgba(255,255,255,1)",
-      border: "none",
-      zIndex: 10,
-    }}
-  >
+  <Toast show={isToastOpen} onClose={methodToClose} style={toastStyle}>
     <Toast.Header style={{ backgroundColor: toastColor, color: colorText }}>
       <img
         src={EUimage}

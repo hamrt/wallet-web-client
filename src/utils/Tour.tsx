@@ -3,7 +3,7 @@ import { ReactourStep } from "reactour";
 
 const stepsCredentials: ReactourStep[] = [
   {
-    selector: '[data-tut="reactour_creddentials"]',
+    selector: '[data-tut="reactour_credentials"]',
     content: function DemoHelperComponent() {
       return (
         <div>

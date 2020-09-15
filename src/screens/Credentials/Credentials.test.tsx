@@ -1,11 +1,17 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount, shallow } from "enzyme";
-import Credentials, { CredentialsStatus } from "./Credentials";
+import {
+  render,
+  fireEvent,
+  act,
+  waitForElementToBeRemoved,
+} from "@testing-library/react";
+import { Credentials } from "./Credentials";
 import * as mocks from "../../test/mocks/mocks";
 import * as values from "../../test/mocks/values";
 import * as idHub from "../../apis/idHub";
-import colors from "../../config/colors";
+import * as DataStorage from "../../utils/DataStorage";
+import * as JWTHandler from "../../utils/JWTHandler";
 
 const mockResponse = jest.fn();
 Object.defineProperty(window, "location", {
@@ -20,245 +26,293 @@ describe("credentials", () => {
     expect.assertions(1);
     const mockedHistory: any[] = [];
     const mockedLocation: any[] = [];
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
         <Credentials location={mockedLocation} history={mockedHistory} />
       </BrowserRouter>
     );
 
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 
   it("should get all the credentials and generate a CredentialItem for each one", async () => {
-    expect.assertions(1);
+    expect.assertions(3);
     const historyMock = { push: jest.fn() };
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
 
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
     const spy = jest.spyOn(idHub, "getCredentials");
     spy.mockResolvedValue({ status: 200, data: mocks.getCredentials });
 
-    await (credentialsComponent.instance() as Credentials).getCredentials();
+    const { getByText } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
+    );
 
-    expect(credentialsComponent.state("credentials")).toHaveLength(1);
+    // Display a loader until credentials are loaded
+    expect(getByText("Loading...")).toBeDefined();
+
+    await act(() => Promise.resolve());
+
+    // Now the credentials should be loaded
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(getByText("Issued By:")).toBeDefined();
 
     spy.mockRestore();
     jest.restoreAllMocks();
   });
 
-  it("should have credentialsStatus == 'error' if something is wrong fetching the credentials", async () => {
-    expect.assertions(2);
+  it("should have credentialsStatus == 'error' if something goes wrong while fetching the credentials", async () => {
+    expect.assertions(3);
     const historyMock = { push: jest.fn() };
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
 
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
     const spy = jest.spyOn(idHub, "getCredentials");
     spy.mockResolvedValue({ status: 400, data: "Error" });
 
-    await (credentialsComponent.instance() as Credentials).getCredentials();
-
-    expect(credentialsComponent.state("credentials")).toHaveLength(0);
-    expect(credentialsComponent.state("credentialsStatus")).toStrictEqual(
-      CredentialsStatus.Error
+    const { getByText, getAllByText } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
     );
+
+    // Display a loader until credentials are loaded
+    expect(getByText("Loading...")).toBeDefined();
+
+    await act(() => Promise.resolve());
+
+    // Now an error is displayed
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(getAllByText("Error")).toBeDefined();
 
     spy.mockRestore();
     jest.restoreAllMocks();
   });
 
   it("should retrieve and display the credential", async () => {
-    expect.assertions(1);
+    expect.assertions(5);
     const historyMock: any[] = [];
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
+
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
+    const getCredentialsSpy = jest.spyOn(idHub, "getCredentials");
+    getCredentialsSpy.mockResolvedValue({
+      status: 200,
+      data: mocks.getCredentials,
+    });
+
+    const { getByText, findByText, getByRole, getAllByRole } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
     );
 
-    const spy = jest.spyOn(idHub, "getCredential");
-    spy.mockResolvedValue({ status: 200, data: mocks.getCredential });
+    // Display a loader until credentials are loaded
+    expect(getByText("Loading...")).toBeDefined();
+    await act(() => Promise.resolve());
 
-    const openCredentialModalMock = jest.spyOn(
-      credentialsComponent.instance() as Credentials,
-      "openCredentialModal"
-    );
+    await expect(findByText("My Verifiable eID")).resolves.toBeDefined();
 
-    await (credentialsComponent.instance() as Credentials).displayCredential(
-      undefined as any
-    );
+    expect(getCredentialsSpy).toHaveBeenCalledTimes(1);
 
-    expect(openCredentialModalMock).toHaveBeenCalledWith(mocks.getCredential);
+    // Click on credential
+    const getCredentialSpy = jest.spyOn(idHub, "getCredential");
+    getCredentialSpy.mockResolvedValue({
+      status: 200,
+      data: mocks.getCredential,
+    });
 
-    spy.mockRestore();
-    openCredentialModalMock.mockRestore();
+    const credentialItemLink = getByRole("link", { name: "My Verifiable eID" });
+    fireEvent.click(credentialItemLink);
+
+    // Check that the credential is now displayed
+    await expect(findByText("Person Identifier")).resolves.toBeDefined();
+    expect(getByText("BE/BE/02635542Y")).toBeDefined();
+
+    // The user clicks on "Close"
+    const closeButton = getAllByRole("button", { name: "Close" });
+    fireEvent.click(closeButton[0]);
+
+    await waitForElementToBeRemoved(document.querySelector('[role="dialog"]'));
+
+    getCredentialSpy.mockRestore();
+    getCredentialsSpy.mockRestore();
     jest.restoreAllMocks();
   });
 
   it("should call the method openToast if something is wrong retrieven the credential", async () => {
-    expect.assertions(1);
-    const historyMock = { push: jest.fn() };
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-
-    const spy = jest.spyOn(idHub, "getCredential");
-    spy.mockResolvedValue({ status: 400, data: "Error" });
-
-    const openToastMock = jest.spyOn(
-      credentialsComponent.instance() as Credentials,
-      "openToast"
-    );
-
-    await (credentialsComponent.instance() as Credentials).displayCredential(
-      undefined as any
-    );
-
-    expect(openToastMock).toHaveBeenCalledWith(
-      `${values.errorGettingTheCredential} Error`
-    );
-
-    spy.mockRestore();
-    openToastMock.mockRestore();
-    jest.restoreAllMocks();
-  });
-});
-
-describe("auxiliar methods for credentials", () => {
-  it("should redirects to the url specified with the method", () => {
-    expect.assertions(1);
-    const historyMock = { push: jest.fn() };
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-    (credentialsComponent.instance() as Credentials).redirectTo("login");
-
-    expect(historyMock.push.mock.calls[1]).toMatchObject(["/login"]);
-    jest.restoreAllMocks();
-  });
-
-  it("should open the toast", () => {
     expect.assertions(4);
     const historyMock: any[] = [];
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
+
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
+    const getCredentialsSpy = jest.spyOn(idHub, "getCredentials");
+    getCredentialsSpy.mockResolvedValue({
+      status: 200,
+      data: mocks.getCredentials,
+    });
+
+    const { getByText, findByText, getByRole, getAllByRole } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
     );
 
-    (credentialsComponent.instance() as Credentials).openToast("message");
+    // Display a loader until credentials are loaded
+    expect(getByText("Loading...")).toBeDefined();
+    await act(() => Promise.resolve());
 
-    expect(credentialsComponent.state("isToastOpen")).toBe(true);
-    expect(credentialsComponent.state("toastMessage")).toBe("message");
-    expect(credentialsComponent.state("isLoadingOpen")).toBe(false);
-    expect(credentialsComponent.state("toastColor")).toBe(colors.EC_RED);
+    await expect(findByText("My Verifiable eID")).resolves.toBeDefined();
+
+    expect(getCredentialsSpy).toHaveBeenCalledTimes(1);
+
+    // Click on credential
+    const getCredentialSpy = jest.spyOn(idHub, "getCredential");
+    getCredentialSpy.mockResolvedValue({ status: 400, data: "Error" });
+
+    const credentialItemLink = getByRole("link", { name: "My Verifiable eID" });
+    fireEvent.click(credentialItemLink);
+
+    // Check that the toast text is displayed
+    await expect(
+      findByText(`${values.errorGettingTheCredential} Error`)
+    ).resolves.toBeDefined();
+
+    // Close toast
+    const closeButton = getAllByRole("button", { name: "Close" }).filter(
+      (e: HTMLElement) => e.getAttribute("data-dismiss") === "toast"
+    );
+    fireEvent.click(closeButton[0]);
+
+    await waitForElementToBeRemoved(document.querySelector('[role="alert"]'));
+
+    getCredentialsSpy.mockRestore();
+    getCredentialSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
-  it("should open the modal toast with a success message", () => {
-    expect.assertions(3);
-    const historyMock: any[] = [];
+  it("redirect to / if retrieving the credential returns 404", async () => {
+    expect.assertions(4);
+    const historyMock = { push: jest.fn() };
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
+
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
+    const getCredentialsSpy = jest.spyOn(idHub, "getCredentials");
+    getCredentialsSpy.mockResolvedValue({
+      status: 200,
+      data: mocks.getCredentials,
+    });
+
+    const { getByText, findByText, getByRole } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
     );
 
-    (credentialsComponent.instance() as Credentials).openSuccessToast();
+    // Display a loader until credentials are loaded
+    expect(getByText("Loading...")).toBeDefined();
+    await act(() => Promise.resolve());
 
-    expect(credentialsComponent.state("isToastOpen")).toBe(true);
-    expect(credentialsComponent.state("toastMessage")).toBe(
-      values.successMessage
-    );
-    expect(credentialsComponent.state("toastColor")).toBe(colors.EC_GREEN);
+    await expect(findByText("My Verifiable eID")).resolves.toBeDefined();
+
+    expect(getCredentialsSpy).toHaveBeenCalledTimes(1);
+
+    // Click on credential
+    const getCredentialSpy = jest.spyOn(idHub, "getCredential");
+    getCredentialSpy.mockResolvedValue({ status: 404, data: "Error" });
+
+    const credentialItemLink = getByRole("link", { name: "My Verifiable eID" });
+    fireEvent.click(credentialItemLink);
+
+    await act(() => Promise.resolve());
+
+    expect(historyMock.push).toHaveBeenCalledWith("/");
+
+    getCredentialsSpy.mockRestore();
+    getCredentialSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
-  it("should close the toast", () => {
-    expect.assertions(1);
+  it("should display the tour", async () => {
+    expect.assertions(5);
     const historyMock: any[] = [];
     const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
+
+    jest
+      .spyOn(DataStorage, "connectionNotEstablished")
+      .mockImplementationOnce(() => false);
+    jest
+      .spyOn(JWTHandler, "isTokenExpired")
+      .mockImplementationOnce(() => false);
+    const getCredentialsSpy = jest.spyOn(idHub, "getCredentials");
+    getCredentialsSpy.mockResolvedValue({
+      status: 200,
+      data: mocks.getCredentials,
+    });
+
+    const { queryByText, findByText, getByTitle } = render(
+      <BrowserRouter>
+        <Credentials history={historyMock} location={mockedLocation} />
+      </BrowserRouter>
     );
 
-    (credentialsComponent.instance() as Credentials).closeToast();
+    // Display a loader until credentials are loaded
+    expect(queryByText("Loading...")).toBeDefined();
+    await act(() => Promise.resolve());
 
-    expect(credentialsComponent.state("isToastOpen")).toBe(false);
-  });
+    await expect(findByText("My Verifiable eID")).resolves.toBeDefined();
 
-  it("should start loading", () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
+    expect(getCredentialsSpy).toHaveBeenCalledTimes(1);
+
+    // Click on tour
+    const tourButton = getByTitle("Open guided tour");
+    fireEvent.click(tourButton);
+
+    await act(() => Promise.resolve());
+
+    // Check that the tour is displayed
+    expect(queryByText("You will see here your credentials.")).toBeDefined();
+
+    // Close tour
+    const closeTourButton = window.document.querySelector(
+      "button.reactour__close"
     );
 
-    (credentialsComponent.instance() as Credentials).startLoading();
+    if (!closeTourButton) throw new Error("unable to find close button");
 
-    expect(credentialsComponent.state("isLoadingOpen")).toBe(true);
-  });
-  it("should stop loading", () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
+    fireEvent.click(closeTourButton);
+    await act(() => Promise.resolve());
 
-    (credentialsComponent.instance() as Credentials).stopLoading();
+    expect(queryByText("You will see here your credentials.")).toBeNull();
 
-    expect(credentialsComponent.state("isLoadingOpen")).toBe(false);
-  });
-  it("should open the credential modal", () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-
-    (credentialsComponent.instance() as Credentials).openCredentialModal(
-      mocks.getCredential
-    );
-
-    expect(credentialsComponent.state("isModalCredentialOpen")).toBe(true);
-  });
-  it("should close the credential modal", async () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-
-    (credentialsComponent.instance() as Credentials).closeCredentialModal();
-
-    expect(credentialsComponent.state("isModalCredentialOpen")).toBe(false);
-  });
-  it("should open the tour", async () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-
-    (credentialsComponent.instance() as Credentials).openTour();
-
-    expect(credentialsComponent.state("isTourOpen")).toBe(true);
-  });
-  it("should close the tour", async () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const credentialsComponent = shallow(
-      <Credentials history={historyMock} location={mockedLocation} />
-    );
-
-    (credentialsComponent.instance() as Credentials).closeTour();
-
-    expect(credentialsComponent.state("isTourOpen")).toBe(false);
+    getCredentialsSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 });

@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { mount, shallow } from "enzyme";
-import Profile from "./Profile";
+import { Profile } from "./Profile";
 import * as DataStorage from "../../utils/DataStorage";
 import * as mocks from "../../test/mocks/mocks";
 import * as wallet from "../../apis/wallet";
@@ -95,32 +95,6 @@ describe("auxiliar methods for profile", () => {
   // eslint-disable-next-line jest/no-hooks
   beforeEach(async () => {
     jest.spyOn(window.location, "assign").mockImplementation();
-  });
-
-  it("should open the modal for import keys", () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const profileComponent = shallow(
-      <Profile history={historyMock} location={mockedLocation} />
-    );
-
-    (profileComponent.instance() as Profile).openModalImport();
-
-    expect(profileComponent.state("isModalImportOpen")).toBe(true);
-  });
-
-  it("should close the modal for import keys", () => {
-    expect.assertions(1);
-    const historyMock: any[] = [];
-    const mockedLocation: any[] = [];
-    const profileComponent = shallow(
-      <Profile history={historyMock} location={mockedLocation} />
-    );
-
-    (profileComponent.instance() as Profile).closeModalImport();
-
-    expect(profileComponent.state("isModalImportOpen")).toBe(false);
   });
 
   it("should open the tour", async () => {

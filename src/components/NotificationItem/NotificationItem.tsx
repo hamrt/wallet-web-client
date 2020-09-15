@@ -8,10 +8,7 @@ import { getIssuerName } from "../../utils/issuer";
 import EUimage from "../../assets/images/european-union.png";
 import { INotification } from "../../dtos/notifications";
 
-type CallbackFunctionOpen = (
-  notification: INotification,
-  ...args: any[]
-) => void;
+type CallbackFunctionOpen = (notification: INotification) => void;
 
 type Props = {
   notification: INotification;
@@ -22,7 +19,7 @@ type State = {
   issuerName: string;
 };
 
-class NotificationItem extends Component<Props, State> {
+export class NotificationItem extends Component<Props, State> {
   constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
@@ -30,7 +27,7 @@ class NotificationItem extends Component<Props, State> {
     };
   }
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     const { notification } = this.props;
     const issuerName = await getIssuerName(notification.sender);
     this.setState({
@@ -38,11 +35,11 @@ class NotificationItem extends Component<Props, State> {
     });
   }
 
-  parseDate = (date: string) => {
+  parseDate = (date: string): string => {
     return moment(date).format("LLL");
   };
 
-  render() {
+  render(): JSX.Element {
     const { notification, methodToOpen } = this.props;
     const { issuerName } = this.state;
     return (
@@ -66,7 +63,6 @@ class NotificationItem extends Component<Props, State> {
                 methodToOpen(notification);
               }}
               className="ecl-link ecl-link--standalone"
-              type="button"
             >
               {transform.notificationType(
                 notification.message.notificationType,

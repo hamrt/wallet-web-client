@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import { Modal } from "react-bootstrap";
 import JSONPretty from "react-json-pretty";
 import "./CredentialModal.css";
-import VID from "../CredentialTypes/VID/VID";
-import Diploma from "../CredentialTypes/Diploma/Diploma";
-import VP from "../CredentialTypes/VP/VP";
+import { VID } from "../CredentialTypes/VID/VID";
+import { Diploma } from "../CredentialTypes/Diploma/Diploma";
+import { VP } from "../CredentialTypes/VP/VP";
 import * as transform from "../../utils/StringTransformation";
 import { IAttribute } from "../../dtos/attributes";
 
@@ -31,7 +31,7 @@ class CredentialModal extends Component<Props, State> {
     };
   }
 
-  openDetails = async () => {
+  openDetails = async (): Promise<void> => {
     const { credential } = this.props;
     const name = await transform.modifyName(
       credential.name,
@@ -44,7 +44,7 @@ class CredentialModal extends Component<Props, State> {
     });
   };
 
-  closeDetails = () => {
+  closeDetails = (): void => {
     const { isFullCredentialDisplayed } = this.state;
     if (isFullCredentialDisplayed) {
       this.setState({
@@ -54,7 +54,7 @@ class CredentialModal extends Component<Props, State> {
     }
   };
 
-  render() {
+  render(): JSX.Element {
     const { methodToClose, credential, isModalCredentialOpen } = this.props;
     const { isFullCredentialDisplayed, name } = this.state;
     return (
@@ -66,12 +66,12 @@ class CredentialModal extends Component<Props, State> {
           {!isFullCredentialDisplayed && isModalCredentialOpen && (
             <>
               {credential.name === "Verifiable ID" && (
-                <VID data={credential.dataDecoded} />
+                <VID data={credential.dataDecoded || ""} />
               )}
               {credential.name === "VerifiablePresentation" && <VP />}
               {(credential.name === '["Europass Diploma"]' ||
                 credential.name === "Europass Diploma") && (
-                <Diploma data={credential.dataDecoded} />
+                <Diploma data={credential.dataDecoded || ""} />
               )}
             </>
           )}

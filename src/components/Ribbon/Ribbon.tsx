@@ -5,7 +5,7 @@ import REQUIRED_VARIABLES from "../../config/env";
 
 const DEMONSTRATOR_URL = REQUIRED_VARIABLES.REACT_APP_DEMO;
 
-const Ribbon = () => (
+export const Ribbon: React.FunctionComponent = () => (
   <>
     <Container>
       <Row>

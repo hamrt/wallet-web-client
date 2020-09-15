@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { render, act } from "@testing-library/react";
-import Notifications from "./Notifications";
+import { Notifications } from "./Notifications";
 import * as mocks from "../../test/mocks/mocks";
 import * as wallet from "../../apis/wallet";
 
@@ -329,7 +329,6 @@ describe("notifications renders", () => {
                   <a
                     class="ecl-link ecl-link--standalone"
                     href="/notifications"
-                    type="button"
                   >
                     Request your eID Presentation
                   </a>
@@ -389,7 +388,6 @@ describe("notifications renders", () => {
                   <a
                     class="ecl-link ecl-link--standalone"
                     href="/notifications"
-                    type="button"
                   >
                     Store My Diploma
                   </a>

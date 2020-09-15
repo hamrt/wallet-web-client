@@ -6,7 +6,7 @@ import { getIssuer } from "../../utils/issuer";
 import logoDiploma from "../../assets/images/diploma.png";
 import { IAttribute } from "../../dtos/attributes";
 
-type CallbackFunctionOpen = (hash: string, ...args: any[]) => void;
+type CallbackFunctionOpen = (hash: string) => void;
 
 type Props = {
   credential: IAttribute;
@@ -19,15 +19,19 @@ type State = {
 };
 
 class CredentialItem extends Component<Props, State> {
+  public isCredentialItemMounted: boolean;
+
   constructor(props: Readonly<Props>) {
     super(props);
+    this.isCredentialItemMounted = false;
     this.state = {
       issuer: "",
       name: "",
     };
   }
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
+    this.isCredentialItemMounted = true;
     const { credential } = this.props;
     const issuer = await getIssuer(credential);
     const name = await transform.modifyName(
@@ -35,13 +39,21 @@ class CredentialItem extends Component<Props, State> {
       "credential",
       credential.did
     );
-    this.setState({
-      issuer,
-      name,
-    });
+
+    // Prevent memory leaks with this.isMounted
+    if (this.isCredentialItemMounted) {
+      this.setState({
+        issuer,
+        name,
+      });
+    }
   }
 
-  render() {
+  componentWillUnmount(): void {
+    this.isCredentialItemMounted = false;
+  }
+
+  render(): JSX.Element {
     const { credential, methodToOpen } = this.props;
     const { issuer, name } = this.state;
     return (
@@ -65,7 +77,6 @@ class CredentialItem extends Component<Props, State> {
                 methodToOpen(credential.hash);
               }}
               className="ecl-link ecl-link--standalone"
-              type="button"
             >
               {name}
             </Link>

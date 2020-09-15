@@ -1,19 +1,19 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { mount } from "enzyme";
-import VID from "./VID";
+import { render } from "@testing-library/react";
+import { VID } from "./VID";
 import vid from "../../../test/mocks/verifiableid.json";
 
 describe("verifiableid", () => {
   it("should render without crashing", () => {
     expect.assertions(1);
     const data = vid;
-    const wrapper = mount(
+    const wrapper = render(
       <BrowserRouter>
-        <VID data={data} />
+        <VID data={JSON.stringify(data)} />
       </BrowserRouter>
     );
 
-    expect(wrapper).not.toBeNull();
+    expect(wrapper).toBeDefined();
   });
 });

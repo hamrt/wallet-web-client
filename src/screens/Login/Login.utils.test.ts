@@ -55,6 +55,7 @@ describe("handleTicket", () => {
   it("should throw if the ticket is not a string", async () => {
     expect.assertions(1);
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await expect(LoginUtils.handleTicket(1, "")).rejects.toThrow(
       "ticket not in string format"

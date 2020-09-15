@@ -1,5 +1,7 @@
 import React from "react";
 
-const Footer = () => <footer className="ecl-footer-core" />;
+export const Footer: React.FunctionComponent = () => (
+  <footer className="ecl-footer-core" />
+);
 
 export default Footer;
