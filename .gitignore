@@ -5,7 +5,6 @@ node_modules
 # Ignore all .env files
 .env*
 # Except
-!.env.development
 !.env.example
-!.env.integration
 !.env.test
+!.ci/*/.env
