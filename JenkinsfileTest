@@ -1,12 +1,7 @@
 pipeline {
     agent any
     stages {
-        stage('Clone repo') {
-            steps {
-               checkout scm;
-            }
-        }
-        stage('Install') {
+        stage('Setup') {
             steps{
                 sh 'yarn install --frozen-lockfile'
             }
