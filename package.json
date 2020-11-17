@@ -1,5 +1,6 @@
 {
   "private": true,
+  "version": "1.0.0",
   "scripts": {
     "audit": "audit-ci --moderate",
     "build": "cross-env SKIP_PREFLIGHT_CHECK=true react-scripts build",
@@ -75,7 +76,7 @@
     "lint-staged": "^10.4.0",
     "mutationobserver-shim": "^0.3.7",
     "prettier": "^2.1.2",
-    "react-scripts": "^3.4.3",
+    "react-scripts": "^3.4.4",
     "stylelint": "^13.7.1",
     "stylelint-config-css-modules": "^2.2.0",
     "stylelint-config-prettier": "^8.0.1",

@@ -1,5 +1,5 @@
 ## Stage 1: build the wallet
-FROM node:12.18.4-alpine3.11@sha256:757574c5a2102627de54971a0083d4ecd24eb48fdf06b234d063f19f7bbc22fb AS builder-wallet-ui
+FROM node:12.19.1-alpine3.12@sha256:3ae30348acd445501758896f691106cbc32111f3525651c7256a7df75aa8a97d AS builder-wallet-ui
 WORKDIR /usr/src/app
 COPY package.json yarn.lock /usr/src/app/
 RUN yarn install --frozen-lockfile --silent
