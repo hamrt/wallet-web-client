@@ -1,5 +1,5 @@
 import axios from "axios";
-import base64 from "base-64";
+import base64url from "base64url";
 import REQUIRED_VARIABLES from "../config/env";
 import * as issuer from "./issuer";
 import * as userStorage from "./DataStorage";
@@ -170,7 +170,7 @@ describe("getIssuer tests", () => {
     const dataToEncode = {
       issuer: issuerDID,
     };
-    const encoded = base64.encode(JSON.stringify(dataToEncode));
+    const encoded = base64url.encode(JSON.stringify(dataToEncode));
     const credential = {
       data: {
         base64: encoded,

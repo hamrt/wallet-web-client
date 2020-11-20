@@ -17,7 +17,7 @@
     "@cef-ebsi/did-jwt": "0.0.9",
     "@ecl/ec-preset-website": "^2.33.0",
     "axios": "^0.20.0",
-    "base-64": "^0.1.0",
+    "base64url": "^3.0.1",
     "body-scroll-lock": "^3.1.5",
     "classnames": "^2.2.6",
     "elliptic": "^6.5.3",
